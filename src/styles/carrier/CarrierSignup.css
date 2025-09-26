@@ -1,0 +1,555 @@
+.carrier-signup-right-bg-simple {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+  min-width: 320px;
+  min-height: 100vh;
+  border-radius: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: space-between; /* anchor info to bottom */
+  padding: 0;
+  overflow: hidden;
+  background: white;
+  box-sizing: border-box;
+}
+
+@media (max-width: 1200px) {
+  .carrier-signup-right-bg-simple {
+    max-width: 480px;
+  }
+}
+
+@media (max-width: 1000px) {
+  .carrier-signup-right-bg-simple {
+    max-width: 380px;
+  }
+}
+
+.carrier-signup-bg-svg {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1;
+  pointer-events: none;
+  width: auto;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+}
+
+.carrier-signup-img-block {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+  /* responsive visual area for rotating images: min 260px, scales with viewport, max 420px */
+  flex: 0 0 auto;
+  height: clamp(260px, 30vh, 420px);
+  overflow: hidden;
+  border-top-left-radius: 1rem;
+  border-top-right-radius: 1rem;
+  background: transparent;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  z-index: 2;
+  display: block;
+}
+
+.carrier-signup-container {
+  display: flex;
+  min-height: 100vh;
+  font-family: 'Inter', sans-serif;
+  padding: 1rem;
+}
+
+
+.carrier-signup-left {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background: #fff;
+  z-index: 2;
+  overflow: hidden;
+}
+
+.carrier-signup-left { /* ensure left column matches viewport height */
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background: #fff;
+  z-index: 2;
+  overflow: hidden;
+  min-height: 100vh;
+}
+
+.carrier-signup-form-bg {
+  width: 100%;
+  max-width: 480px;
+  border-radius: 16px;
+  /* slightly less vertical padding to avoid pushing the right panel down on shorter forms */
+  padding-top: 3.5rem;
+  padding-bottom: 3.5rem;
+  z-index: 1;
+}
+
+.carrier-signup-title {
+  font-size: 2rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.carrier-signup-subtitle {
+  text-align: center;
+  color: #7b7b7b;
+  font-size: 1rem;
+  margin-bottom: 32px;
+}
+
+.carrier-signup-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+}
+
+.carrier-signup-row {
+  display: flex;
+  gap: 24px;
+  width: 100%;
+}
+
+.carrier-signup-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1 1 0;
+}
+
+.carrier-signup-field label {
+  font-weight: 600;
+  font-size: 0.98rem;
+}
+
+.carrier-signup-field input,
+.carrier-signup-field select {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 1rem;
+  outline: none;
+  transition: border 0.2s;
+  color: #7b7b7b;
+  background: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.carrier-signup-field input::placeholder,
+.carrier-signup-field select {
+  color: #7b7b7b;
+  opacity: 1;
+}
+
+.carrier-signup-field input:focus,
+.carrier-signup-field select:focus {
+  border-color: #2563eb;
+}
+
+.carrier-signup-btn {
+  margin-top: 16px;
+  width: 100%;
+  padding: 12px 0;
+  background: linear-gradient(to bottom, #2563eb, #1d4ed8);
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(37,99,235,0.08);
+  transition: background 0.2s;
+}
+
+.carrier-signup-btn:hover {
+  background: linear-gradient(to bottom, #1d4ed8, #1e40af);
+}
+
+/* Accessible focus ring and active press effect applied globally so all role buttons match */
+.carrier-signup-btn:focus-visible {
+  outline: 3px solid rgba(37,99,235,0.14);
+  outline-offset: 2px;
+}
+
+.carrier-signup-btn:active {
+  transform: translateY(-1px);
+}
+
+.carrier-signup-bottom-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+  text-align: center;
+}
+
+.carrier-signup-login-text {
+  font-size: 0.95rem;
+  color: #374151;
+  width: 100%;
+  text-align: center;
+}
+
+.carrier-signup-login-text a {
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 600;
+  width: 100%;
+  text-align: center;
+}
+
+.carrier-signup-login-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+/* When buttons are shown side-by-side, don't let the primary button stretch full width */
+.carrier-signup-login-actions .carrier-signup-btn,
+.carrier-signup-login-actions .carrier-signup-btn-secondary {
+  flex: 1 1 0;
+  width: 100%;
+  padding: 12px 0;
+  font-size: 1rem;
+  border-radius: 10px;
+}
+
+.carrier-signup-btn-secondary {
+  background: transparent;
+  border: 1px solid #e2e8f0;
+  color: #374151;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+@media (max-width: 480px) {
+  .carrier-signup-login-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .carrier-signup-login-actions .carrier-signup-btn,
+  .carrier-signup-login-actions .carrier-signup-btn-secondary {
+    width: 100%;
+  }
+}
+
+.optional {
+  color: #7b7b7b;
+  font-size: 0.9rem;
+}
+
+.carrier-signup-right {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+.carrier-signup-right-bg {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+  height: 90vh;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 4px 32px rgba(37,99,235,0.08);
+  background: url('/src/assets/blue_bg_signup.svg') no-repeat center center/cover;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.carrier-signup-blur-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: blur(2px);
+  z-index: 1;
+}
+
+.carrier-signup-img-top {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  border-top-left-radius: 24px;
+  border-top-right-radius: 24px;
+  position: relative;
+  z-index: 2;
+  margin-bottom: 16px;
+}
+
+.carrier-signup-img-top-simple {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 1rem 1rem 0 0;
+  display: block;
+}
+
+.carrier-signup-pattern-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 50%;
+  object-fit: cover;
+  opacity: 100%;
+}
+
+.carrier-signup-blue-bg {
+  position: absolute;
+  top: 180px;
+  left: 0;
+  width: 100%;
+  height: 100% ;
+  object-fit: contain;
+  z-index: 2;
+}
+
+
+.carrier-signup-info-card {
+  position: relative;
+  z-index: 4;
+  background: #fff;
+  border-radius: 18px;
+  margin: 0 32px 0 32px;
+  padding: 32px 28px;
+  color: #1e293b;
+  box-shadow: 0 8px 32px rgba(37,99,235,0.18);
+  max-width: 90%;
+}
+
+.carrier-signup-info-card h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 18px;
+  color: #1e293b;
+}
+
+.carrier-signup-info-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: 1.08rem;
+  line-height: 1.7;
+}
+
+.carrier-signup-info-card li {
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+}
+
+.carrier-signup-img-block {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+  /* responsive visual area for rotating images: min 260px, scales with viewport, max 420px */
+  flex: 0 0 auto;
+  height: clamp(260px, 30vh, 420px);
+  overflow: hidden;
+  border-top-left-radius: 1rem;
+  border-top-right-radius: 1rem;
+  background: transparent;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  z-index: 2;
+  display: block;
+}
+
+.carrier-signup-info-simple {
+  position: relative;
+  z-index: 3;
+  margin-top: 0;
+  padding: 0 40px;
+  width: 100%;
+}
+
+.carrier-signup-info-bottom {
+  position: relative;
+  left: 0;
+  width: 100%;
+  padding-bottom: 48px;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-end; /* push content down */
+  flex: 1 1 auto;
+}
+
+.carrier-signup-dot {
+  display: inline-block;
+  width: 28px;
+  height: 7px;
+  background: #fff;
+  border-radius: 4px;
+  margin-bottom: 28px;
+}
+
+.carrier-signup-info-simple h2 {
+  /* responsive heading: min 1.2rem, preferred scales with viewport, max 2.6rem */
+  font-size: clamp(1.2rem, 2.2vw + 1rem, 2.6rem);
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: #fff;
+  text-align: left;
+  letter-spacing: -1px;
+}
+
+.carrier-signup-info-simple ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  /* slightly smaller responsive body text and requested color */
+  font-size: clamp(0.68rem, 1vw + 0.3rem, 0.92rem);
+  color: #E8EBE6;
+  line-height: 1.7;
+  text-align: left;
+}
+
+.carrier-signup-info-simple li {
+  margin-bottom: 7px;
+  display: flex;
+  align-items: center;
+  color: inherit;
+}
+
+.carrier-signup-img-indicators {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-start;
+  align-items: flex-start;
+  min-height: 24px;
+  z-index: 10;
+  padding-left: 40px;
+  width: 100%;
+}
+
+.carrier-signup-dot,
+.carrier-signup-dot-active {
+  display: inline-block;
+  vertical-align: middle;
+  position: relative;
+  top: 0;
+}
+
+.carrier-signup-dot {
+  width: 7px;
+  height: 7px;
+  background: #bcd2f7;
+  border-radius: 50%;
+  opacity: 0.7;
+  transition: all 0.3s;
+}
+
+.carrier-signup-dot-active {
+  width: 32px;
+  height: 7px;
+  background: #fff;
+  border-radius: 8px;
+  opacity: 1;
+  transition: all 0.3s;
+}
+
+@media (max-width: 1200px) {
+  .carrier-signup-form-bg {
+    max-width: 400px;
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+  }
+  .carrier-signup-title {
+    font-size: 1.6rem;
+  }
+  .carrier-signup-subtitle {
+    font-size: 0.95rem;
+  }
+  .carrier-signup-form {
+    gap: 16px;
+  }
+  .carrier-signup-field input,
+  .carrier-signup-field select {
+    font-size: 0.95rem;
+    padding: 8px 10px;
+  }
+  .carrier-signup-btn {
+    font-size: 1rem;
+    padding: 10px 0;
+  }
+}
+
+@media (max-width: 900px) {
+  .carrier-signup-container {
+    flex-direction: column;
+  }
+  .carrier-signup-right, .carrier-signup-right-bg, .carrier-signup-right-bg-simple {
+    display: none !important;
+  }
+  .carrier-signup-left {
+    width: 100%;
+    min-height: 100vh;
+  }
+  .carrier-signup-form-bg {
+    max-width: 100vw;
+    padding: 2rem 1rem;
+  }
+  .carrier-signup-title {
+    font-size: 1.3rem;
+  }
+  .carrier-signup-subtitle {
+    font-size: 0.9rem;
+  }
+  .carrier-signup-form {
+    gap: 12px;
+  }
+  .carrier-signup-field input,
+  .carrier-signup-field select {
+    font-size: 0.92rem;
+    padding: 7px 8px;
+  }
+  .carrier-signup-btn {
+    font-size: 0.98rem;
+    padding: 8px 0;
+  }
+}
+
+/* onboarding text size adjustments at breakpoints */
+@media (max-width: 1200px) {
+  .carrier-signup-info-simple h2 { font-size: 1.8rem; }
+  .carrier-signup-info-simple ul { font-size: 0.7rem;}
+}
+@media (max-width: 1000px) {
+  .carrier-signup-info-simple h2 { font-size: 1.4rem; }
+  .carrier-signup-info-simple ul { font-size: 0.7rem;}
+}
+@media (max-width: 900px) {
+  .carrier-signup-info-simple h2 { font-size: 1.1rem; line-height: 1.2; }
+  .carrier-signup-info-simple ul { font-size: 0.8rem; line-height: 1.35; }
+}
