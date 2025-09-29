@@ -1,351 +1,411 @@
 import React, { useState } from 'react';
 import '../../styles/carrier/CarrierDashboard.css';
-import cd_hos from '../../assets/cd_hos.svg';
-import safetyScore from '../../assets/safety-score.svg';
-import violations from '../../assets/violations.svg';
-import leftUx from '../../assets/cd_left_ux.svg';
-import arrowRight from '../../assets/cd_arrow_right.svg';
-import darkArrowRight from '../../assets/dark_arrow_right.svg';
-import alertTriangle from '../../assets/alert_triangle.svg';
-import gps from '../../assets/cd_gps.svg';
-import bell from '../../assets/bell.svg';
-import darkBell from '../../assets/dark_bell.svg';
-import darkGps from '../../assets/dark_cd_gps.svg';
-import sb_calendar from '../../assets/sb_calendar.svg';
-import sb_consent from '../../assets/sb_consent.svg';
-import sb_dashboard from '../../assets/sb_dashboard.svg';
-import sb_doc from '../../assets/sb_doc.svg';
-import sb_messages from '../../assets/sb_messages.svg';
-import sb_settings from '../../assets/sb_settings.svg';
-import sb_calendar_hover from '../../assets/sb_calendar_hover.svg';
-import sb_consent_hover from '../../assets/sb_consent_hover.svg';
-import sb_dashboard_hover from '../../assets/sb_dashboard_hover.svg';
-import sb_doc_hover from '../../assets/sb_doc_hover.svg';
-import sb_messages_hover from '../../assets/sb_messages_hover.svg';
-import sb_settings_hover from '../../assets/sb_settings_hover.svg';
-import searchIcon from '../../assets/search_black.svg';
-import darkSearchIcon from '../../assets/dark_search.svg';
-import contactIcon from '../../assets/cd_conatct.svg';
-import darkContactIcon from '../../assets/dark_cd_conatct.svg';
+import peopleIcon from '../../assets/ai_driver.svg';
+// icon images replaced by Font Awesome icons
 
 export default function CarrierDashboard() {
-  const [active, setActive] = useState('dashboard');
-  const [darkMode, setDarkMode] = useState(false);
+  // Placeholder data to match the design in the attached mock
+  const activeLoads = { inProgress: 8, delivered: 24, completed: 156 };
+  const driversCompliance = { active: 12, expiring: 4, alerts: 1 };
+  const earnings = { week: '$24,580', month: '$98,450', factoring: '$15,200' };
+  const [activeNav, setActiveNav] = useState('home');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarDark, setIsSidebarDark] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
-  function SidebarNavItem({ item }) {
-    const isActive = active === item.key;
-    const src = isActive ? item.iconHover : item.icon;
+  const navGroups = [
+    {
+      title: 'OPERATIONS',
+      items: [
+        { key: 'home', label: 'Home', icon: 'fa-solid fa-house' },
+        { key: 'my-loads', label: 'My Loads', icon: 'fa-solid fa-truck' },
+        { key: 'docs', label: 'Document Vault', icon: 'fa-solid fa-folder' },
+        { key: 'shippers', label: 'My Shippers/Brokers', icon: 'fa-solid fa-people-group' },
+        { key: 'marketplace', label: 'Marketplace', icon: 'fa-solid fa-store' },
+        { key: 'drivers', label: 'Drivers & Dispatches', icon: 'fa-solid fa-route' },
+      ]
+    },
+    {
+      title: 'FINANCE',
+      items: [
+        { key: 'factoring', label: 'Factoring & Invoicing', icon: 'fa-solid fa-dollar-sign' },
+        { key: 'integrations', label: 'Integrations', icon: 'fa-solid fa-plug' }
+      ]
+    },
+    {
+      title: 'MANAGEMENT',
+      items: [
+        { key: 'hiring', label: 'Hiring & Onboarding', icon: 'fa-solid fa-user-tie' },
+        { key: 'compliance', label: 'Compliance & Safety', icon: 'fa-solid fa-shield-halved' },
+        { key: 'esign', label: 'Consent & eSignature', icon: 'fa-solid fa-pen-fancy' }
+      ]
+    },
+    {
+      title: 'COLLABORATION',
+      items: [
+        { key: 'messaging', label: 'Messaging', icon: 'fa-solid fa-envelope' },
+        { key: 'alerts', label: 'Alerts & Notifications', icon: 'fa-solid fa-bell' }
+      ]
+    },
+    {
+      title: 'INSIGHTS',
+      items: [
+        { key: 'analytics', label: 'Analytics & Reports', icon: 'fa-solid fa-chart-column' },
+        { key: 'calendar', label: 'Calendar', icon: 'fa-solid fa-calendar-days' }
+      ]
+    },
+    {
+      title: 'SYSTEM',
+      items: [
+        { key: 'settings', label: 'Settings', icon: 'fa-solid fa-gear' },
+        { key: 'help', label: 'Help Hub', icon: 'fa-regular fa-circle-question' }
+      ]
+    }
+  ];
 
-    return (
-      <a
-        className={`cd-nav-item ${isActive ? 'active' : ''}`}
-        onClick={() => setActive(item.key)}
-        role="button"
-        tabIndex={0}        
-      >
-        <div className="cd-icon-box"><img src={src} alt={item.label} className="cd-nav-img" /></div>
-        <span>{item.label}</span>
-      </a>
-    );
-  }
   return (
-    <div className={"carrier-dashboard" + (darkMode ? ' dark' : '')}>
-      <aside className="cd-sidebar">
-        <div className="cd-logo">
-          <div className="cd-logo-text">Logo</div>
-        </div>
-
-        <div className="cd-search">
-          <div className="cd-search-icon"><img src={darkMode ? darkSearchIcon : searchIcon} alt="search" /></div>
-          <input placeholder="Search transactions..." />
-        </div>
-
-        <div className="cd-menu-label">MAIN MENU</div>
-        <nav className="cd-nav">
-          {/* data-driven nav to support hover/active icon swaps */}
-          {(() => {
-            const items = [
-              { key: 'dashboard', label: 'Dashboard', icon: sb_dashboard, iconHover: sb_dashboard_hover },
-              { key: 'loads', label: 'My Loads', icon: sb_dashboard, iconHover: sb_dashboard_hover },
-              { key: 'documents', label: 'Documents Vault', icon: sb_doc, iconHover: sb_doc_hover },
-              { key: 'drivers', label: 'Drivers', icon: sb_doc, iconHover: sb_doc_hover },
-              { key: 'compliance', label: 'Compliance Center', icon: sb_messages, iconHover: sb_messages_hover },
-              { key: 'calendar', label: 'Calendar & Alerts', icon: sb_calendar, iconHover: sb_calendar_hover },
-            ];
-            return items.map(item => (
-              <SidebarNavItem key={item.key} item={item} />
-            ));
-          })()}
-        </nav>
-
-        <div className="cd-section">
-          <div className="cd-section-label">Management</div>
-          <nav className="cd-nav small">
-            {(() => {
-              const items = [
-                { key: 'hiring', label: 'Hiring & Onboarding', icon: sb_messages, iconHover: sb_messages_hover },
-                { key: 'consent', label: 'Consent & eSignatures', icon: sb_consent, iconHover: sb_consent_hover },
-                { key: 'rates', label: 'Rate Management', icon: sb_consent, iconHover: sb_consent_hover },
-                { key: 'marketplace', label: 'Marketplace', icon: sb_consent, iconHover: sb_consent_hover },
-              ];
-              return items.map(item => <SidebarNavItem key={item.key} item={item} />);
-            })()}
-          </nav>
-        </div>
-
-        <div className="cd-section">
-          <div className="cd-section-label">Insights</div>
-          <nav className="cd-nav small">
-            {(() => {
-              const items = [
-                { key: 'analytics', label: 'Analytics & Reports', icon: sb_settings, iconHover: sb_settings_hover },
-                { key: 'alerts', label: 'Alerts Center', icon: sb_consent, iconHover: sb_consent_hover },
-                { key: 'insights_calendar', label: 'Calendar', icon: sb_calendar, iconHover: sb_calendar_hover },
-              ];
-              return items.map(item => <SidebarNavItem key={item.key} item={item} />);
-            })()}
-          </nav>
-        </div>
-
-        <div className="cd-section">
-          <div className="cd-section-label">Account</div>
-          <nav className="cd-nav small">
-            {(() => {
-              const items = [
-                { key: 'settings', label: 'Settings', icon: sb_settings, iconHover: sb_settings_hover },
-              ];
-              return items.map(item => <SidebarNavItem key={item.key} item={item} />);
-            })()}
-          </nav>
-        </div>
-
-        <div className="cd-bottom">
-          <label className="dark-toggle">
-            <input
-              type="checkbox"
-              checked={darkMode}
-              onChange={() => setDarkMode(!darkMode)}
-              aria-label="Toggle dark mode"
-            />
-            <span className="toggle-track" aria-hidden>
-              <span className="toggle-thumb" />
-            </span>
-            <span className="toggle-label">Dark Mode</span>
-          </label>
-        </div>
-      </aside>
-
-      <main className="cd-main">
-        <div className="cd-topbar">
-            <div className="cd-top-left">
-              <div className="cd-global-search">
-                <div className="search-icon"><img src={darkMode ? darkSearchIcon : searchIcon} alt="search" /></div>
-                <input placeholder="Search" />
-              </div>
-            </div>
-          <div className="cd-top-right">
-            <div className="pills">
-              <span className="pill">45 Units</span>
-              <span className="pill">12 Reefers</span>
-              <span className="pill">28 Dry Vans</span>
-            </div>
-            <div className="top-icons">
-              <div className="icon-wrapper">
-                <img src={darkMode ? darkGps : gps} alt="gps" className="top-icon" />
-                <span className="dot green" />
-              </div>
-
-              <div className="icon-divider" aria-hidden></div>
-
-              <div className="icon-wrapper">
-                <img src={darkMode ? darkBell : bell} alt="bell" className="top-icon" />
-                <span className="dot red" />
-              </div>
-
-              <div className="icon-divider" aria-hidden></div>
-
-              <div className="ux-wrap">
-                <img src={leftUx} alt="FreightPower" />
-              </div>
-            </div>
-          </div>
-        </div>
-  <div className="cd-topbar-divider" />
-
-        <section className="overview">
-          <div className="overview-header">
-            <div>
-              <h1>Dashboard Overview</h1>
-              <p className="muted">Welcome back! Here's what's happening with your fleet today.</p>
-            </div>
-            <div className="overview-controls">
-              <button className="btn-contact"><img src={darkMode ? darkContactIcon : contactIcon} alt="contact" />Contact</button>
-              <button className="btn-primary">+ Upload BOL</button>
-            </div>
-          </div>
-          <div className="overview-divider" />
-
-          <div className="overview-progress">
-            <div className="progress-card">
-              <div className="progress-header">
-                <div className="progress-title">Documents</div>
-                <div className="progress-percent">85%</div>
-              </div>
-              <div className="progress-bar">
-                <div className="progress-fill" style={{width:'85%'}}></div>
-              </div>
-            </div>
-
-            <div className="progress-card">
-              <div className="progress-header">
-                <div className="progress-title">Driver Verification</div>
-                <div className="progress-percent">85%</div>
-              </div>
-              <div className="progress-bar">
-                <div className="progress-fill yellow" style={{width:'85%'}}></div>
+  <div className={`fp-dashboard-root ${isDarkMode ? 'dark-root' : ''}`}>
+      <div className="fp-topbar">
+        <div className="topbar-row topbar-row-1">
+          <div className="topbar-left">
+            <button className="hamburger" aria-label="Open sidebar" onClick={() => setIsSidebarOpen(true)}>
+              <i className="fa-solid fa-bars" />
+            </button>
+            <div className="brand-block">
+              <div className="brand-row">
+                <div className="logo">FreightPower Logistics</div>
+                {/* verified moved into sidebar header; topbar inline chips removed */}
+                <div className="ids">
+                  <span className="id-pair"><span className="id-label">DOT:</span> <span className="id-value">3456789</span></span>
+                  <span className="ids-sep">•</span>
+                  <span className="id-pair"><span className="id-label">MC:</span> <span className="id-value">MC-987654</span></span>
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="overview-grid">
-            <div className="card compliance">
-              <div className="card-header">
-                <h3>Compliance Overview</h3>
-                <button className="view-all">View All</button>
+          <div className="topbar-right actions-right">
+            <div className="actions">
+              <button className="btn small"><i className="fa-solid fa-link"/> Connect</button>
+              <button className="btn warn small"><i className="fa-solid fa-triangle-exclamation"/> Report Fraud</button>
+              <button className="btn ghost small subtle"><i className="fa-solid fa-pen"/> Suggest Edit</button>
+            </div>
+            {/* mobile-only icons in the first row: visible on small screens */}
+            <div className="icons-mobile">
+              <div className="notif">
+                <i className="fa-regular fa-bell notif-icon" aria-hidden="true" />
+                <span className="notif-badge">3</span>
               </div>
-              <ul className="compliance-list">
-                <li>
-                  <div className="li-left"><img src={cd_hos} alt="hos" /></div>
-                  <div className="li-body">
-                    <div className="li-title">HOS Compliant</div>
-                    <div className="li-sub">All Drivers</div>
-                  </div>
-                  <div className="li-right"><img src={darkMode ? darkArrowRight : arrowRight} alt="go" /></div>
-                </li>
+              <i className="fa-solid fa-robot bot-icon" aria-hidden="true" />
+              <img src="https://randomuser.me/api/portraits/men/75.jpg" alt="avatar" className="avatar-img"/>
+            </div>
+          </div>
+        </div>
 
-                <li>
-                  <div className="li-left"><img src={alertTriangle} alt="drug" /></div>
-                  <div className="li-body">
-                    <div className="li-title">Drug Test Due</div>
-                    <div className="li-sub">3 Drivers</div>
-                  </div>
-                  <div className="li-right"><img src={darkMode ? darkArrowRight : arrowRight} alt="go" /></div>
-                </li>
+        <div className="topbar-row topbar-row-2">
+          <div className="topbar-left second-left">
+            <div className="chips">
+              <span className="chip success">DOT Active</span>
+              <span className="chip info">Operating</span>
+              <span className="chip yellow">Safety: Satisfactory</span>
+              <span className="chip blue">ELD: Samsara</span>
+            </div>
+            <div className="fleet-stats">
+              <span className="fleet-item"><i className="fa-solid fa-truck"/> <strong>12</strong> Power Units</span>
+              <span className="fleet-item"><i className="fa-solid fa-snowflake"/> <strong>8</strong> Reefers</span>
+              <span className="fleet-item"><i className="fa-solid fa-box"/> <strong>15</strong> Dry Vans</span>
+            </div>
+          </div>
 
-                <li>
-                  <div className="li-left"><img src={safetyScore} alt="safety" /></div>
-                  <div className="li-body">
-                    <div className="li-title">Safety Score</div>
-                    <div className="li-sub">B+ Rating</div>
-                  </div>
-                  <div className="li-right"><img src={darkMode ? darkArrowRight : arrowRight} alt="go" /></div>
-                </li>
+          <div className="topbar-right">
+            <div className="icons">
+              <span className="lang"><i className="fa-solid fa-globe"/> EN</span>
+              <div className="notif">
+                <i className="fa-regular fa-bell notif-icon" aria-hidden="true" />
+                <span className="notif-badge">3</span>
+              </div>
+              <i className="fa-solid fa-robot bot-icon" aria-hidden="true" />
+              <img src="https://randomuser.me/api/portraits/men/75.jpg" alt="avatar" className="avatar-img"/>
+            </div>
+          </div>
+        </div>
+      </div>
 
-                <li>
-                  <div className="li-left"><img src={violations} alt="violations" /></div>
-                  <div className="li-body">
-                    <div className="li-title">Violations</div>
-                    <div className="li-sub">2 Pending</div>
-                  </div>
-                  <div className="li-right"><img src={darkMode ? darkArrowRight : arrowRight} alt="go" /></div>
-                </li>
+  <div className={`fp-content-row ${isSidebarOpen ? 'sidebar-open' : ''}`}>
+  <aside className={`fp-sidebar ${isSidebarOpen ? 'open' : ''} ${isSidebarDark ? 'dark' : ''}`}>
+        <div className="sidebar-header">
+          <div className="brand-row">
+            <div className="logo">FreightPower Logistics</div>
+            <span className="verified">Verified</span>
+          </div>
+          {/* DOT / MC line for mobile drawer */}
+          <div className="ids mobile-ids">
+            <div className="mobile-id-line"><span className="id-pair"><span className="id-label">DOT:</span> <span className="id-value">3456789</span></span></div>
+            <div className="mobile-id-line"><span className="id-pair"><span className="id-label">MC:</span> <span className="id-value">MC-987654</span></span></div>
+          </div>
+          <div className="chips sidebar-chips">
+            <span className="chip success">DOT Active</span>
+            <span className="chip info">Operating</span>
+            <span className="chip yellow">Safety: Satisfactory</span>
+            <span className="chip blue">ELD: Samsara</span>
+          </div>
+          <div className="fleet-stats sidebar-fleet">
+            <span className="fleet-item"><i className="fa-solid fa-truck"/> <strong>12</strong> Power Units</span>
+            <span className="fleet-item"><i className="fa-solid fa-snowflake"/> <strong>8</strong> Reefers</span>
+            <span className="fleet-item"><i className="fa-solid fa-box"/> <strong>15</strong> Dry Vans</span>
+          </div>
+        </div>
+        <nav className="fp-nav">
+          {navGroups.map((group) => (
+            <div className="nav-group" key={group.title}>
+              <div className="nav-group-title">{group.title}</div>
+              <ul>
+                {group.items.map((it) => (
+                  <li className={`nav-item ${activeNav === it.key ? 'active' : ''}`} key={it.key} onClick={() => setActiveNav(it.key)} role="button" tabIndex={0}>
+                    <i className={`${it.icon} icon`} aria-hidden="true"></i>
+                    <span className="label">{it.label}</span>
+                  </li>
+                ))}
               </ul>
             </div>
+          ))}
+        </nav>
+        {/* Dark mode control - toggles site theme when clicked */}
+        <div className="sidebar-dark-control" aria-hidden="false">
+          <span className="dark-label">Dark Mode</span>
+          <button
+            className="dark-toggle"
+            aria-pressed={isDarkMode}
+            aria-label="Toggle dark mode"
+            onClick={() => setIsDarkMode((s) => !s)}
+          >
+            <span className="dark-toggle-knob" />
+          </button>
+        </div>
+        {/* action buttons in the mobile drawer */}
+        <div className="sidebar-actions">
+          <button className="btn small"><i className="fa-solid fa-link"/> Connect</button>
+          <button className="btn warn small"><i className="fa-solid fa-triangle-exclamation"/> Report Fraud</button>
+          <button className="btn ghost small subtle"><i className="fa-solid fa-pen"/> Suggest Edit</button>
+        </div>
+        <button className="sidebar-close" aria-label="Close sidebar" onClick={() => setIsSidebarOpen(false)}>
+          <i className="fa-solid fa-xmark" />
+        </button>
+      </aside>
 
-            <div className="left-col">
-              <div className="card small status">
-                <div className="card-header">
-                  <h3>Document Status</h3>
-                  <div className="small-select-wrap">
-                    <select className="small-select">
-                      <option>Monthly</option>
-                      <option>Yearly</option>
-                      <option>Daily</option>
-                    </select>
-                    <span className="select-caret">▾</span>
-                  </div>
-                </div>
-                <div className="doc-status">
-                  <div className="status-row"><span className="label">Valid</span><span className="value">42</span></div>
-                  <div className="status-row"><span className="label">Expiring</span><span className="value">42</span></div>
-                  <div className="status-row"><span className="label">Pending</span><span className="value">42</span></div>
-                </div>
-              </div>
+      {isSidebarOpen && <div className="overlay" onClick={() => setIsSidebarOpen(false)} />}
 
-              <div className="card small schedules">
-                <div className="card-header">
-                  <h3>Today's Schedules</h3>
-                  <div className="small-select-wrap">
-                    <select className="small-select">
-                      <option>Monthly</option>
-                      <option>Yearly</option>
-                      <option>Daily</option>
-                    </select>
-                    <span className="select-caret">▾</span>
-                  </div>
-                </div>
-                <div className="today-schedules">
-                  <div className="sched-row"><span>DOT Inspection</span><span>Unit 1247</span></div>
-                  <div className="sched-row"><span>License Renewal</span><span>Driver J. Smit</span></div>
-                </div>
-              </div>
+      <main className="fp-main">
+        <header className="fp-header">
+          <div className="fp-header-titles">
+            <h2>Dashboard</h2>
+            <p className="fp-subtitle">Welcome back! Here's what's happening with your fleet today.</p>
+          </div>
+        </header>
+
+        <section className="fp-grid">
+          <div className="card stats-card">
+            <div className="card-header">
+              <h3>Active Loads</h3>
+              <i className="fa-solid fa-truck card-icon small" aria-hidden="true" />
             </div>
+            <div className="stats">
+              <div>In Progress <span>{activeLoads.inProgress}</span></div>
+              <div>Delivered <span>{activeLoads.delivered}</span></div>
+              <div>Completed <span>{activeLoads.completed}</span></div>
+            </div>
+          </div>
 
-            <div className="card marketplace">
-              <div className="card-header">
-                <h3>Marketplace Highlights</h3>
-                <button className="view-all">View All</button>
+          <div className="card compliance-card">
+            <div className="card-header">
+              <h3>Drivers Compliance</h3>
+              <i className="fa-solid fa-people-group card-icon small" aria-hidden="true" />
+            </div>
+            <div className="stats">
+              <div>Active Drivers <span>{driversCompliance.active}</span></div>
+              <div>Expiring Licenses <span>{driversCompliance.expiring}</span></div>
+              <div>Safety Alerts <span>{driversCompliance.alerts}</span></div>
+            </div>
+          </div>
+
+          <div className="card small-card expiring-card">
+            <div className="card-header">
+              <h3>Expiring Documents</h3>
+              <i className="fa-solid fa-triangle-exclamation card-icon" aria-hidden="true" />
+            </div>
+            <div className="expiring-list">
+              <div className="exp-item pill yellow">
+                <span className="exp-title">Insurance</span>
+                <span className="exp-days yellow">12 days</span>
               </div>
-              <div className="mp-list">
-                <div className="mp-item">
-                  <img src="https://randomuser.me/api/portraits/men/75.jpg" alt="john" />
-                  <div className="mp-info">
-                    <div className="mp-name">John Doe</div>
-                    <div className="mp-sub">Pakistan</div>
-                  </div>
-                  <div className="mp-badge">On Route</div>
-                </div>
 
-                <div className="mp-item">
-                  <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="john2" />
-                  <div className="mp-info">
-                    <div className="mp-name">John Doe</div>
-                    <div className="mp-sub">Pakistan</div>
-                  </div>
-                  <div className="mp-badge">Break</div>
-                </div>
+              <div className="exp-item pill pink">
+                <span className="exp-title">Authority</span>
+                <span className="exp-days pink">3 days</span>
               </div>
             </div>
           </div>
 
-          <div className="recent-messages card">
+          <div className="card suggestions-card">
             <div className="card-header">
-              <h3>Recent Messages & Notifications</h3>
-              <button className="view-all">View All</button>
+              <h3>AI Suggestions</h3>
+              <i className="fa-solid fa-robot card-icon small" aria-hidden="true" />
             </div>
-            <ul className="messages">
-              <li>
-                <div className="msg-left"><img src={alertTriangle} alt="note" /></div>
+            <ul>
+              <li>Renew insurance in 12 days to avoid compliance issues</li>
+              <li>3 high-paying loads available in your area</li>
+            </ul>
+          </div>
+
+          <div className="card earnings-card">
+            <div className="card-header">
+              <h3>Earnings Overview</h3>
+              <i className="fa-solid fa-dollar-sign card-icon small" aria-hidden="true" />
+            </div>
+            <div className="stats earnings-stats">
+              <div>This Week <span className="green">{earnings.week}</span></div>
+              <div>This Month <span className="green">{earnings.month}</span></div>
+              <div>Factoring Funded <span className="blue">{earnings.factoring}</span></div>
+            </div>
+          </div>
+
+          <div className="card small-card integrations-card">
+            <div className="card-header">
+              <h3>Integrations Health</h3>
+              <i className="fa-solid fa-plug card-icon small" aria-hidden="true" />
+            </div>
+            <ul className="integrations-list">
+              <li>QuickBooks <span className="dot green"/></li>
+              <li>ELD System <span className="dot green"/></li>
+              <li>Bank Connection <span className="dot orange"/></li>
+              <li>Factoring <span className="dot green"/></li>
+            </ul>
+          </div>
+
+          <div className="card recent-messages span-3">
+            <div className="card-row">
+              <h3>Recent Messages</h3>
+              <a className="view-all">View All</a>
+            </div>
+            <ul className="recent-list">
+              <li className="msg-item">
+                <img className="msg-avatar" src="https://randomuser.me/api/portraits/women/65.jpg" alt="sarah" />
                 <div className="msg-body">
-                  <div className="msg-title">New load opportunity available</div>
-                  <div className="msg-sub">Chicago to Dallas - $2,800 · 2 hours ago</div>
+                  <div className="msg-head"><strong>Sarah Johnson</strong> <span className="role">- TQL Logistics</span></div>
+                  <div className="muted">Load confirmation for Chicago pickup</div>
                 </div>
-                <div className="msg-right"><img src={darkMode ? darkArrowRight : arrowRight} alt="open" /></div>
+                <div className="msg-time">2m ago</div>
               </li>
 
-              <li>
-                <div className="msg-left"><img src={alertTriangle} alt="note" /></div>
+              <li className="msg-item">
+                <img className="msg-avatar" src="https://randomuser.me/api/portraits/men/32.jpg" alt="mike" />
                 <div className="msg-body">
-                  <div className="msg-title">New load opportunity available</div>
-                  <div className="msg-sub">Chicago to Dallas - $2,800 · 2 hours ago</div>
+                  <div className="msg-head"><strong>Mike Rodriguez</strong> <span className="role">- Driver</span></div>
+                  <div className="muted">Delivered load #1234, BOL attached</div>
                 </div>
-                <div className="msg-right"><img src={darkMode ? darkArrowRight : arrowRight} alt="open" /></div>
+                <div className="msg-time">1h ago</div>
+              </li>
+
+              <li className="msg-item">
+                <img className="msg-avatar" src="https://randomuser.me/api/portraits/men/36.jpg" alt="james" />
+                <div className="msg-body">
+                  <div className="msg-head"><strong>James Wilson</strong> <span className="role">- Dispatcher</span></div>
+                  <div className="muted">Route optimization completed for tomorrow</div>
+                </div>
+                <div className="msg-time">3h ago</div>
               </li>
             </ul>
           </div>
 
+          <div className="card marketplace-snapshot span-3">
+            <div className="card-row">
+              <h3>Marketplace Snapshot</h3>
+              <button className="btn ghost small">View All Marketplace</button>
+            </div>
+            <div className="market-grid">
+              <div className="market-col loads">
+                <h4 className="col-title">Available Loads</h4>
+                <div className="load-item">
+                  <div className="load-left">
+                    <div className="load-route">Chicago, IL 12 Dallas, TX</div>
+                    <div className="load-sub muted">TQL Logistics</div>
+                  </div>
+                  <div className="load-right">
+                    <div className="price green">$2,450</div>
+                    <div className="pickup muted">Pickup: Tomorrow</div>
+                  </div>
+                </div>
+
+                <div className="load-item">
+                  <div className="load-left">
+                    <div className="load-route">Atlanta, GA 12 Miami, FL</div>
+                    <div className="load-sub muted">Landstar</div>
+                  </div>
+                  <div className="load-right">
+                    <div className="price green">$1,850</div>
+                    <div className="pickup muted">Pickup: Today</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="market-col drivers">
+                <h4 className="col-title">Available Drivers</h4>
+                <div className="driver-count">5</div>
+                <div className="driver-sub muted">Drivers ready for hire</div>
+                <button className="btn small green-btn">View Candidates</button>
+              </div>
+
+              <div className="market-col offers">
+                <h4 className="col-title">Service Offers</h4>
+                <div className="offer-item">
+                  <div className="offer-left">Fuel Discount<div className="muted">Save on fuel at 500+ locations</div></div>
+                  <div className="offer-right"><span className="badge small orange">15% OFF</span></div>
+                </div>
+                <div className="offer-item">
+                  <div className="offer-left">Factoring Rate<div className="muted">Special rate for new clients</div></div>
+                  <div className="offer-right"><span className="badge small blue">1.5%</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="card notifications-card span-3">
+            <div className="card-row">
+              <h3>Latest Notifications</h3>
+              <a className="view-all">View All</a>
+            </div>
+            <ul className="notifications-list">
+              <li className="notification-item">
+                <div className="note-left"><span className="dot red"/></div>
+                <div className="note-body">
+                  <div className="note-title">Insurance renewal required</div>
+                  <div className="note-sub muted">Your insurance expires in 12 days</div>
+                </div>
+                <div className="note-time">1h ago</div>
+              </li>
+
+              <li className="notification-item">
+                <div className="note-left"><span className="dot orange"/></div>
+                <div className="note-body">
+                  <div className="note-title">Load update</div>
+                  <div className="note-sub muted">Load #1234 pickup time changed to 2:00 PM</div>
+                </div>
+                <div className="note-time">2h ago</div>
+              </li>
+
+              <li className="notification-item">
+                <div className="note-left"><span className="dot green"/></div>
+                <div className="note-body">
+                  <div className="note-title">Payment received</div>
+                  <div className="note-sub muted">$2,450 payment processed for load #1230</div>
+                </div>
+                <div className="note-time">4h ago</div>
+              </li>
+            </ul>
+          </div>
         </section>
       </main>
+      </div>
     </div>
   );
 }

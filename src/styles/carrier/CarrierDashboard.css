@@ -1,1216 +1,773 @@
-:root {
-  --bg: #ffffff;
-  --muted: #94a3b8;
-  --card: #ffffff;
-  --accent: #2563eb;
-  --border: #E5E5E5;
-  --radius: 10px;
+/* Styles for Carrier Dashboard - simple responsive layout */
+.dark-root{
+  background:#1e1e1e; /* page background */
+  color:#d1d7db; /* primary text (soft white) */
+}
+.dark-root .fp-topbar,
+.dark-root .card,
+.dark-root .fp-sidebar,
+.dark-root .market-grid .load-item,
+.dark-root .offers .offer-item,
+.dark-root .exp-item,
+.dark-root .exp-item.pill,
+.dark-root .integrations-list li{
+  background:#2c2c2c; /* replace whites */
+  border-color: rgba(255,255,255,0.04);
+}
+.dark-root .fp-topbar{border-bottom-color: rgba(255,255,255,0.04)}
+.dark-root .fp-sidebar{border-right-color: rgba(255,255,255,0.04)}
+.dark-root .card h3,
+.dark-root .fp-header h2,
+.dark-root .marketplace-snapshot h3,
+.dark-root .recent-messages .card-row h3,
+.dark-root .notifications-card .card-row h3{color:#d1d7db}
+.dark-root .logo{color:#d1d7db}
+.dark-root .muted{color:#d1d7db}
+.dark-root .msg-time,.dark-root .note-time{color:#b9c0c4}
+.dark-root .nav-group-title{color:#9fb0b4}
+.dark-root .nav-item{color:#cfe8ed}
+.dark-root .nav-item:hover .label{color:#d1d7db}
+.dark-root .nav-item:hover .icon{color:inherit}
+.dark-root .chip{color:#d1d7db}
+.dark-root .chip.yellow{color:#1f2937}
+.dark-root .badge{color:#d1d7db}
+.dark-root .dark-toggle{background:#4b4b4b;border-color:#5a5a5a}
+.dark-root .dark-toggle .dark-toggle-knob{background:#2c2c2c}
+.dark-root .muted{color:#ffffff}
+.dark-root .role{color:#ffffff}
+.dark-root .load-sub{color:#ffffff}
+.dark-root .market-col .col-title{color:#ffffff}
+.dark-root .note-sub{color:#ffffff}
+.dark-root .fp-subtitle{color:#b9c0c4}
+.dark-root .msg-time,.dark-root .note-time{color:#b9c0c4}
+.dark-root .nav-group-title{color:#9fb0b4}
+.dark-root .nav-item{color:#cfe8ed}
+.dark-root .nav-item:hover .label{color:#ffffff}
+.dark-root .chip{color:#ffffff}
+.dark-root .chip.yellow{color:#1f2937}
+.dark-root .badge{color:#ffffff}
+.dark-root .dark-toggle{background:#4b4b4b;border-color:#5a5a5a}
+.dark-root .dark-toggle .dark-toggle-knob{background:#2c2c2c}
+
+/* ensure any remaining hard-coded white backgrounds are overridden */
+.dark-root .fp-topbar{background:#2c2c2c}
+.dark-root .fp-sidebar{background:#2c2c2c}
+.dark-root .exp-item{background:#2c2c2c}
+.dark-root .exp-item.pill{background:#2c2c2c}
+.dark-root .exp-right .badge{background:transparent}
+.dark-root .sidebar-dark-control .dark-toggle{border-color:#444}
+.dark-root .sidebar-dark-control .dark-toggle[aria-pressed="true"]{background:#0b6b9a}
+.dark-root .sidebar-dark-control .dark-toggle[aria-pressed="true"] .dark-toggle-knob{transform:translateX(20px);background:#2c2c2c}
+
+/* Enforce heading vs body color split in dark mode:
+   - Headings (h2/h3/h4 and prominent card titles) should be pure white for contrast
+   - Other textual UI elements should use the soft light-grey token #d1d7db
+*/
+/* Headings: strong white */
+.dark-root .fp-header h2,
+.dark-root .fp-header-titles h2,
+.dark-root .card h3,
+.dark-root .card-header h3,
+.dark-root .card-header h4,
+.dark-root .marketplace-snapshot h3,
+.dark-root .recent-messages .card-row h3,
+.dark-root .notifications-card .card-row h3,
+.dark-root .expiring-card .card-header h3,
+.dark-root .stats-card .card-header h3,
+.dark-root .small-card h4,
+.dark-root .note-title {
+  color: #ffffff !important;
 }
 
-/* Dark theme variables when .carrier-dashboard.dark is present */
-.carrier-dashboard.dark {
-  --bg: #000;
-  --muted: #95a0b2;
-  --card: #000;
-  --accent: #6ea8ff;
-  --border: #1f2937;
+/* Body/secondary text: soft light-grey */
+.dark-root .muted,
+.dark-root .role,
+.dark-root .load-sub,
+.dark-root .pickup,
+.dark-root .drivers .driver-sub,
+.dark-root .offers .offer-left .muted,
+.dark-root .note-sub,
+.dark-root .integrations-list li,
+.dark-root .nav-item,
+.dark-root .nav-item .label,
+.dark-root .fp-sidebar-footer,
+.dark-root .stats div,
+.dark-root .earnings-stats div {
+  color: #d1d7db !important;
 }
 
-/* Dark-mode component overrides to match provided mock */
-.carrier-dashboard.dark .cd-sidebar {
-  background: #0b0b0b;
-  border-right: 1px solid var(--border);
+/* ensure shadows are subtle in dark mode */
+
+/* Dots and ID labels: make dots (status circles) white in dark mode, keep numeric values unchanged */
+.dark-root .dot{background:#ffffff !important;box-shadow:none}
+.dark-root .ids .id-label,
+.dark-root .mobile-ids .id-label{color:#d1d7db}
+.dark-root .ids .ids-sep{color:rgba(255,255,255,0.5)}
+
+/* Icons should be white in dark mode for consistency */
+.dark-root .icon,
+.dark-root .card-icon,
+.dark-root .notif-icon,
+.dark-root .bot-icon,
+.dark-root .btn i{color:#d1d7db !important}
+
+/* Keep the AI Suggestions card identical to light mode in dark theme */
+.dark-root .suggestions-card{
+  background:linear-gradient(90deg,#0ea4e7 0%, #0a98c6 100%) !important;
+  color:#ffffff !important;
+  box-shadow:none !important;
 }
 
-.carrier-dashboard.dark .cd-logo-text { color: var(--accent); }
+/* Specific expiring-card icon should be black in dark mode (only this icon) */
+.dark-root .expiring-card .card-icon{color:#ffffff !important}
+.dark-root .expiring-card .card-header h3{color:#ffffff}
 
-.carrier-dashboard.dark .cd-search,
-.carrier-dashboard.dark .cd-global-search {
-  /* keep the search transparent in dark mode as well */
-  background: transparent;
-  border: 1px solid var(--border);
-  box-shadow: none;
+/* Preserve integration health dots colors in dark mode (undo the global dot->white for these list items) */
+.dark-root .integrations-list .dot.green{background:#12b76a !important}
+.dark-root .integrations-list .dot.orange{background:#f59e0b !important}
+.dark-root .integrations-list .dot.red{background:#ef4444 !important}
+.dark-root .integrations-list .dot.blue{background:#0ea4e7 !important}
+.dark-root .integrations-list li{color:#d1d7db}
+
+/* Fleet stats and small header items: labels/icons white, numeric values light grey */
+.dark-root .fleet-stats .fleet-item{color:#d1d7db}
+.dark-root .fleet-stats .fleet-item i{color:#d1d7db !important}
+.dark-root .fleet-stats .fleet-item strong{color:#b9c0c4}
+
+/* DOT / MC numeric values should be light grey while labels remain white */
+.dark-root .ids .id-value,
+.dark-root .mobile-ids .id-value{color:#b9c0c4}
+
+/* language and small topbar icons */
+.dark-root .icons .lang{color:#ffffff}
+
+.fp-topbar{display:flex;flex-direction:column;padding:12px 20px;background:#fff;border-bottom:1px solid #eef2f6}
+.topbar-row{display:flex;justify-content:space-between;align-items:center;width:100%}
+.topbar-row-1{padding-bottom:6px}
+.topbar-row-2{padding-top:6px}
+.brand-row{display:flex;align-items:center;gap:12px}
+.logo{font-weight:800;color:#0f1724;font-size:22px}
+.verified{background:#12b76a;color:#ffffff;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:600}
+.chips{display:flex;gap:8px;margin-left:6px}
+.brand-block{display:flex;flex-direction:column;gap:12px}
+.ids{margin-left:12px;color:#6b7c82;display:flex;gap:12px}
+.ids-sep{color:#94a3a8;margin:0 8px}
+.id-pair{display:flex;gap:6px;align-items:center}
+.id-label{font-weight:700;color:#394a51}
+.id-value{font-weight:400;color:#59656b}
+
+.second-left{display:flex;align-items:center;gap:18px}
+.chips{display:flex;gap:8px}
+.fleet-stats{display:flex;gap:12px;color:#334155}
+.fleet-item{background:transparent;padding:6px 8px;border-radius:8px;font-size:13px}
+.chip{padding:8px 14px;border-radius:999px;font-size:13px;color:#fff;display:inline-block}
+.chip.success{background:#12b76a}
+.chip.info{background:#06b6d4}
+.chip.yellow{background:#f59e0b;color:#1f2937}
+.chip.blue{background:#0ea5e9}
+
+.topbar-right{display:flex;align-items:center;gap:10px}
+.btn.small{padding:8px 14px;font-size:14px;border-radius:10px;background:#0ea5e9;color:#fff;border:0;display:inline-flex;align-items:center;gap:8px;transition:transform .12s ease,box-shadow .12s ease,background-color .12s ease}
+.btn.warn{background:#f59e0b;color:#fff;border:0}
+.btn.ghost.small{border:1px solid #e6eef2;background:#f4f6f8;color:#0f1724;padding:8px 12px;border-radius:10px;transition:background-color .12s ease,border-color .12s ease,transform .12s ease}
+.btn.subtle{padding-top:6px;padding-bottom:6px;font-weight:600}
+.btn.small i{margin-right:8px}
+.notif-icon.img,.bot-icon.img{width:20px;height:20px}
+.notif-icon.img{opacity:0.9}
+.bot-icon.img{opacity:0.95}
+.notif-icon{font-size:18px;color:#374151;transition:color .12s ease,transform .12s ease}
+.bot-icon{font-size:20px;color:#374151;margin-left:6px;transition:color .12s ease,transform .12s ease}
+.icons i, .icons img{cursor:pointer}
+
+/* hover states */
+.btn.small:hover{transform:translateY(-2px);}
+.btn.warn:hover{filter:brightness(.95);transform:translateY(-2px)}
+.btn.ghost.small:hover{background:#eef4f7;border-color:#dbeff6;transform:translateY(-2px)}
+.notif-icon:hover{color:#0b6b9a;transform:translateY(-2px)}
+.bot-icon:hover{color:#0b6b9a;transform:translateY(-2px)}
+.avatar-img{width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid #fff}
+.topbar-right.icons{display:flex;gap:12px;align-items:center}
+.actions-right{display:flex;align-items:center;gap:20px}
+.actions{display:flex;gap:12px;align-items:center}
+.icons{display:flex;align-items:center;gap:12px}
+.lang{font-size:13px;color:#6b7c82}
+.notif{position:relative;display:inline-block}
+.notif-icon{font-size:18px}
+.notif-badge{position:absolute;top:-6px;right:-8px;background:#ef4444;color:#fff;border-radius:999px;padding:2px 6px;font-size:12px}
+.bot-icon{font-size:18px}
+.avatar.small{width:34px;height:34px;border-radius:50%;background:linear-gradient(90deg,#0b6b9a,#0bb4d9)}
+
+/* align first row actions to the right while keeping brand left */
+.topbar-row-1 .topbar-left{flex:1}
+.topbar-row-1 .topbar-right{display:flex;align-items:center}
+.topbar-row-2 .topbar-right{display:flex;align-items:center}
+.topbar-row-2 .topbar-left{flex:1}
+
+.fp-sidebar{
+  width:260px;
+  background:#ffffff;
+  border-right:1px solid #eef2f6;
+  padding:24px 16px;
+  display:flex;
+  flex-direction:column;
 }
 
-.carrier-dashboard.dark .cd-search input,
-.carrier-dashboard.dark .cd-global-search input {
-  color: #e6eef6;
-}
-.carrier-dashboard.dark .cd-search input::placeholder,
-.carrier-dashboard.dark .cd-global-search input::placeholder { color: #95a0b2; }
+/* hamburger for small screens (hidden by default) */
+.hamburger{display:none;background:transparent;border:0;font-size:20px;padding:8px;margin-right:8px;cursor:pointer;color:#0b3240}
+.dark-root .hamburger{color:#d1d7db}
 
-.carrier-dashboard.dark .cd-sidebar,
-.carrier-dashboard.dark .cd-sidebar .cd-nav-item,
-.carrier-dashboard.dark .cd-nav-item span {
-  color: #b8c3cf;
-}
-.carrier-dashboard.dark .cd-nav-item:hover { background: rgba(255,255,255,0.04); }
+.icons-mobile{display:none;align-items:center;gap:8px}
+.icons-mobile .notif{position:relative}
 
-/* Sidebar-specific hover and active text rules (dark mode only) */
-.carrier-dashboard.dark .cd-sidebar .cd-nav-item:hover { background: rgba(255,255,255,0.06); }
-.carrier-dashboard.dark .cd-sidebar .cd-nav-item.active { background: rgba(255,255,255,0.9); }
-.carrier-dashboard.dark .cd-sidebar .cd-nav-item.active span { color: #000 !important; }
-.carrier-dashboard.dark .cd-nav-item.active {
-  background: #e6eef6;
-  color: #000;
-  border: 1px solid var(--border);
-  box-shadow: none;
-}
 
-.carrier-dashboard.dark .pill {
-  background: transparent;
-  border: 1px solid var(--border);
-  color: #e6eef6;
-  box-shadow: none;
-}
 
-.carrier-dashboard.dark .btn-contact {
-  background: transparent;
-  border: 1px solid var(--border);
-  color: #e6eef6;
-  box-shadow: none;
-}
+/* overlay shown when mobile sidebar is open (overlay element is rendered by JSX only when open) */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:50}
 
-.carrier-dashboard.dark .btn-primary {
-  background: linear-gradient(180deg,#7FA4F6,#3B57A7);
-  color: white;
-  box-shadow: 0 6px 14px -8px rgba(43,63,88,0.6);
-}
+/* sidebar open state (drawer) */
+.fp-sidebar.open{position:fixed;left:0;top:0;height:100vh;z-index:60;transform:translateX(0);transition:transform .2s ease;box-shadow:0 12px 40px rgba(0,0,0,0.12);display:flex}
+.fp-sidebar{transition:transform .2s ease}
 
-/* Cards, lists and panels */
-.carrier-dashboard.dark .card,
-.carrier-dashboard.dark .card.marketplace .mp-list,
-.carrier-dashboard.dark .compliance-list li,
-.carrier-dashboard.dark .messages li,
-.carrier-dashboard.dark .mp-item,
-.carrier-dashboard.dark .card.small {
-  background: var(--card);
-  border: 1px solid var(--border);
-  box-shadow: none;
-  color: #e6eef6;
+/* close button inside drawer */
+.sidebar-close{display:none;position:absolute;top:12px;right:12px;border:0;background:transparent;font-size:20px;color:#64748b}
+
+/* Sidebar header shown inside the drawer */
+/* Sidebar header (drawer) - more vertical rhythm for mobile */
+.sidebar-header{display:none;padding:18px 18px 20px 18px;border-bottom:1px solid #eef3f6}
+.sidebar-header .brand-row{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px}
+.sidebar-header .brand-row .logo{font-size:18px;line-height:1.05;margin:0}
+.sidebar-header .verified{margin-top:4px}
+.sidebar-header .chips{display:flex;flex-direction:column;gap:10px;margin:12px 0}
+.sidebar-header .fleet-stats{display:flex;gap:14px;padding-top:8px}
+.sidebar-chips .chip{padding:8px 12px;font-size:13px;display:block}
+
+/* mobile-only ids row inside the drawer */
+.mobile-ids{display:flex;flex-direction:column;align-items:center;gap:10px;color:#6b7c82;margin:10px 0}
+.mobile-ids .mobile-id-line{display:flex;gap:10px;align-items:center;justify-content:center}
+.mobile-ids .id-label{font-weight:700;color:#0b3240;margin-right:8px}
+.mobile-ids .id-value{font-weight:700;color:#334b52}
+
+/* mobile drawer: compact brand row and centered ids */
+@media (max-width: 900px){
+  .sidebar-header .brand-row{display:flex;align-items:center;justify-content:space-between}
+  .sidebar-header .logo{font-size:18px;line-height:1.05}
+  .sidebar-header .verified{margin-left:auto;margin-top:0}
+  /* center the DOT/MC block and add breathing room */
+  .mobile-ids{align-items:center;text-align:center;margin-top:6px}
+  .mobile-ids .mobile-id-line{justify-content:center}
+  /* make chips full-width in the drawer for touch targets */
+  .sidebar-chips .chip{width:100%;box-sizing:border-box}
+  /* make fleet stats more compact and evenly spaced */
+  .sidebar-header .fleet-stats{justify-content:space-between;width:100%;gap:8px}
+  .sidebar-header .fleet-stats .fleet-item{flex:1;text-align:center;padding:8px 6px}
 }
 
-.carrier-dashboard.dark .card-header h3,
-.carrier-dashboard.dark .overview-header h1,
-.carrier-dashboard.dark .progress-title,
-.carrier-dashboard.dark .progress-percent,
-.carrier-dashboard.dark .mp-name,
-.carrier-dashboard.dark .msg-title {
+/* action buttons at bottom of drawer header */
+.sidebar-actions{display:none;flex-direction:column;gap:8px;margin:12px 0}
+.sidebar-actions .btn{width:100%;text-align:center}
+
+/* Dark mode control (UI only) placed at end of sidebar nav */
+.sidebar-dark-control{display:flex;align-items:center;justify-content:space-between;padding:12px 6px;margin-top:12px;border-top:1px solid #eef3f6}
+.sidebar-dark-control .dark-label{font-size:14px;color:#94a3a8;font-weight:700}
+.sidebar-dark-control .dark-toggle{width:44px;height:24px;border-radius:999px;border:1px solid #eef3f6;background:#f6f8f9;position:relative;cursor:pointer;display:inline-flex;align-items:center;padding:3px}
+.sidebar-dark-control .dark-toggle .dark-toggle-knob{width:18px;height:18px;border-radius:50%;background:#ffffff;box-shadow:0 1px 2px rgba(0,0,0,0.06);transform:translateX(0);transition:transform .18s ease}
+.sidebar-dark-control .dark-toggle[aria-pressed="true"]{background:#0b6b9a;border-color:#0b6b9a}
+.sidebar-dark-control .dark-toggle[aria-pressed="true"] .dark-toggle-knob{transform:translateX(20px);background:#fff}
+
+/* Small-screen spacing: ensure it's visible in drawer */
+@media (max-width:900px){
+  .sidebar-dark-control{padding:14px 16px}
+}
+
+.fp-nav{padding:0}
+.nav-group{margin-bottom:18px}
+.nav-group-title{font-size:12px;color:#94a3a8;font-weight:700;margin:8px 0 8px 6px}
+.nav-group ul{list-style:none;padding:0;margin:0}
+.nav-item{display:flex;align-items:center;gap:12px;padding:10px 10px;border-radius:8px;color:#394a51;margin:6px 2px;cursor:pointer;position:relative}
+.nav-item .icon{width:34px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;color:#64748b}
+.nav-item .label{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nav-item.active{background:#f3f4f6;font-weight:700;color:#0b3240}
+.dark-root .nav-item.active{color:#d1d7db;background:rgba(255,255,255,0.04)}
+
+/* hover effect: left accent bar + bold label */
+.nav-item::before{content:'';position:absolute;left:0;top:6px;bottom:6px;width:0;border-radius:6px 0 0 6px;background:#000;transition:width .12s ease;opacity:0}
+.nav-item:hover::before{width:4px;opacity:1}
+.nav-item:hover .label{font-weight:700;color:#0b3240}
+.nav-item:hover .icon{color:#0b3240}
+.dark-root .nav-item:hover .label{color:#d1d7db}
+.dark-root .nav-item:hover .icon{color:inherit}
+.nav-item.active .icon{color:inherit}
+.nav-item.active .label{color:inherit}
+
+/* Dark mode: use white left accent bar and ensure hover uses white */
+.dark-root .nav-item::before{background:#ffffff}
+.dark-root .nav-item:hover .label{color:#ffffff}
+.dark-root .nav-item:hover .icon{color:inherit}
+.dark-root .nav-item.active::before{background:#ffffff}
+.dark-root .nav-item.active{color:#ffffff;background:rgba(255,255,255,0.04)}
+.dark-root .nav-item.active .icon{color:inherit}
+.dark-root .nav-item.active .label{color:inherit}
+
+.fp-sidebar-footer{margin-top:auto;color:#94a3a8;font-size:13px;padding:10px 6px}
+
+.fp-brand{
+  font-weight:700;
+  color:#0b6b9a;
+  margin-bottom:16px;
+}
+
+.fp-nav{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.fp-nav a{
+  color:#5b6b73;
+  padding:8px 10px;
+  border-radius:6px;
+  cursor:pointer;
+}
+
+.fp-nav a.active{
+  background:linear-gradient(90deg,#e8f6fb,#eaf8f5);
+  color:#0b6b9a;
+  font-weight:600;
+}
+
+.fp-sidebar-footer{
+  margin-top:auto;
+  color:#94a3a8;
+  font-size:13px;
+}
+
+.fp-content-row{display:flex;flex:1}
+.fp-main{flex:1;padding:24px}
+.fp-sidebar{padding-top:18px}
+
+.fp-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:18px;
+}
+
+.fp-header h2{
+  margin:0;
+  font-size:20px;
+  color:#102027;
+}
+
+.fp-header-titles h2{font-size:36px;color:#0b1720;margin:0 0 6px 0;font-weight:700}
+.fp-subtitle{margin:0;color:#94a3a8;font-size:15px;font-weight:600}
+
+.fp-header-controls{display:flex;gap:8px}
+.btn{background:#0b6b9a;color:#fff;border:0;padding:8px 12px;border-radius:6px;cursor:pointer}
+.btn.ghost{background:transparent;color:#0b6b9a;border:1px solid rgba(11,107,154,0.12)}
+
+.fp-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:18px;
+}
+
+.card{
+  background:#fff;
+  border-radius:12px;
+  padding:18px;
+  box-shadow:0 6px 18px rgba(16,32,39,0.06);
+}
+
+.card h3{margin:0 0 12px 0;color:#0f3b4a}
+.dark-root .card h3{color:#d1d7db}
+
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.card-header h4{margin:0;color:#0f3b4a;font-size:16px}
+.dark-root .card-header h4{color:#d1d7db}
+.card-icon{color:#f59e0b;font-size:16px}
+
+.card-header .card-icon.small{font-size:14px;color:inherit}
+.card-header h3{margin:0;font-size:18px;color:#0b3240;font-weight:800}
+.dark-root .card-header h3{color:#d1d7db}
+
+/* make Active Loads heading weight 650 (matches request) */
+.stats-card .card-header h3{font-weight:650}
+
+/* header image for drivers compliance */
+.header-img{width:28px;height:28px;object-fit:contain}
+
+/* Active Loads / Drivers Compliance specific styles to match reference */
+.stats-card .stats{gap:6px}
+.stats-card .stats div{padding:8px 0;border-bottom:1px solid #f1f6f8}
+.stats-card .stats div:last-child{border-bottom:0}
+.stats-card .stats div span{font-size:16px}
+
+.compliance-card .card-header{display:flex;align-items:center;justify-content:space-between}
+.compliance-card h3{margin:0;font-size:18px;font-weight:650;color:#0b3240}
+.dark-root .compliance-card h3{color:#d1d7db}
+.compliance-card .stats{gap:6px}
+.compliance-card .stats div{padding:8px 0;border-bottom:1px solid #f1f6f8}
+.compliance-card .stats div:last-child{border-bottom:0}
+.compliance-card .stats div span{font-size:16px}
+
+/* ensure numeric colors remain as defined elsewhere - do not override */
+
+
+.stats{display:flex;flex-direction:column;gap:8px}
+.stats div{display:flex;justify-content:space-between;color:#55686d}
+.dark-root .stats div{color:#ffffff}
+.stats span{font-weight:700;color:#0b6b9a}
+
+/* Earnings card should mirror the Active Loads layout */
+.earnings-stats{display:flex;flex-direction:column;gap:8px}
+.earnings-stats div{display:flex;justify-content:space-between;color:#55686d;padding:8px 0;border-bottom:1px solid #f1f6f8}
+.dark-root .earnings-stats div{color:#ffffff}
+.earnings-stats div:last-child{border-bottom:0}
+.earnings-stats .green{color:#059669;font-weight:700}
+.earnings-stats .blue{color:#0b82d0;font-weight:700}
+
+.earnings div{display:flex;justify-content:space-between;gap:12px}
+
+.suggestions-card ul, .recent-messages ul, .notifications-card ul{padding-left:16px;margin:0}
+
+/* Blue gradient card for AI suggestions */
+.suggestions-card{
+  background:linear-gradient(90deg,#0ea4e7 0%, #0a98c6 100%);
+  color:#fff;
+  box-shadow:none;
+  border-radius:10px;
+}
+.suggestions-card .card-header h3{color:#fff;font-size:18px;font-weight:650}
+.suggestions-card .card-header .card-icon{color:#fff}
+.suggestions-card ul{list-style:none;padding:0;margin:12px 0}
+.suggestions-card li{background:rgba(255,255,255,0.12);padding:12px;border-radius:8px;margin-bottom:10px;color:#fff}
+.suggestions-card li:last-child{margin-bottom:0}
+
+.expiring-list{display:flex;flex-direction:column;gap:10px}
+.expiring-card .card-header h3{margin:0;font-size:18px;color:#0b3240;font-weight:650}
+.exp-item{display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:8px;background:#fff}
+.exp-meta{display:flex;flex-direction:column}
+.exp-title{font-weight:700;color:#0b3240}
+.exp-sub{font-size:13px;color:#0b3240}
+.exp-right{display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+
+/* pill style rows to match the provided mock */
+.exp-item.pill{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-radius:10px;background:#fff}
+.exp-item.pill .exp-title{font-weight:600;color:#0b3240}
+.exp-item.pill .exp-days{font-weight:700}
+.exp-item.pill.yellow{background:#fff7ed}
+.exp-item.pill.yellow .exp-days.yellow{color:#b45309}
+.exp-item.pill.pink{background:#fff1f2}
+.exp-item.pill.pink .exp-days.pink{color:#ef4444}
+
+/* Dark mode: make pill backgrounds darker so text is readable on dark backgrounds */
+.dark-root .exp-item.pill.yellow{background:#ffbe6e;border:1px solid rgba(255,255,255,0.06)}
+.dark-root .exp-item.pill.yellow .exp-title,
+.dark-root .exp-item.pill.yellow .exp-sub,
+.dark-root .exp-item.pill.yellow .exp-days{color:#ffffff}
+.dark-root .exp-item.pill.yellow .exp-days.yellow{color:#b45309}
+.dark-root .exp-item.pill.pink{background:#ff838b;border:1px solid rgba(255,255,255,0.06)}
+.dark-root .exp-item.pill.pink .exp-title,
+.dark-root .exp-item.pill.pink .exp-sub,
+.dark-root .exp-item.pill.pink .exp-days{color:#ffffff}
+.dark-root .exp-item.pill.pink .exp-days.pink{color:#ef4444}
+
+/* style the badge pill to look like the reference but keep its color */
+.exp-right .badge{font-weight:700;border-radius:999px;padding:6px 10px;font-size:13px}
+.progress{width:120px;height:8px;background:#f1f6f8;border-radius:999px;overflow:hidden}
+.progress-bar{height:100%;background:linear-gradient(90deg,#f59e0b,#f97316);border-radius:999px}
+
+.span-2{grid-column:span 2}
+.span-3{grid-column:span 3}
+
+.small-card h4{margin:0 0 10px 0;color:#23363c}
+.expiring-list{display:flex;flex-direction:column;gap:8px}
+.exp-item{display:flex;justify-content:space-between;align-items:center;padding:8px;border-radius:6px;background:#fff}
+.badge{padding:6px 8px;border-radius:8px;font-weight:600;font-size:13px}
+.badge.warning{background:#fff4e6;color:#b45309}
+.badge.danger{background:#fff0f0;color:#c53030}
+
+.integrations-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}
+.integrations-list li{display:flex;justify-content:space-between;align-items:center;color:#334b52;padding:10px 0;border-top:1px solid #eef3f6}
+.integrations-list li:first-of-type{border-top:0;padding-top:0}
+.dot{width:12px;height:12px;border-radius:50%;display:inline-block;margin:0}
+.dot.green{background:#12b76a}
+.dot.orange{background:#f59e0b}
+.dot.red{background:#ef4444}
+.dot.blue{background:#0ea4e7}
+
+.card-row{display:flex;justify-content:space-between;align-items:center}
+.view-all{color:#0b6b9a;font-size:14px;cursor:pointer}
+
+/* Filled blue button for the Marketplace header (overrides ghost for this card only) */
+.marketplace-snapshot .card-row .btn.ghost.small{
+  background: #0ea4e7;
   color: #ffffff;
-}
-
-/* Compliance titles should be white in dark mode */
-.carrier-dashboard.dark .compliance-list .li-title {
-  color: #ffffff;
-}
-
-.carrier-dashboard.dark .li-sub,
-.carrier-dashboard.dark .mp-sub,
-.carrier-dashboard.dark .msg-sub,
-.carrier-dashboard.dark .cd-section-label,
-.carrier-dashboard.dark .cd-menu-label,
-.carrier-dashboard.dark .cd-nav-item span {
-  color: var(--muted);
-}
-
-/* Compliance rows and list items */
-.carrier-dashboard.dark .compliance-list .li-left { background: #f3f6f9; }
-.carrier-dashboard.dark .compliance-list .li-left img { filter: none; opacity: 1; }
-.carrier-dashboard.dark .compliance-list .li-right img { filter: none; opacity: 1; }
-
-/* Top icons */
-.carrier-dashboard.dark .icon-wrapper { background: var(--card); border: 1px solid var(--border); }
-.carrier-dashboard.dark .icon-wrapper .dot { /* darker outline on dark background */ border: 3px solid var(--card) !important; }
-
-/* Progress bars: brighter fills in dark mode */
-.carrier-dashboard.dark .progress-fill { background: linear-gradient(90deg,#7bed8d,#3ad65a); }
-.carrier-dashboard.dark .progress-fill.yellow { background: linear-gradient(90deg,#f7e35b,#d4c400); }
-
-/* Marketplace inner panels */
-.carrier-dashboard.dark .card.marketplace .mp-list { background: transparent; }
-.carrier-dashboard.dark .mp-item { background: transparent !important; }
-.carrier-dashboard.dark .mp-badge { background: transparent !important; }
-
-/* Recent messages */
-/* make the whole messages card and its rows blend with the page in dark mode */
-.carrier-dashboard.dark .card.messages,
-.carrier-dashboard.dark .card.messages .card-header,
-.carrier-dashboard.dark .messages {
-  background: transparent !important;
-}
-.carrier-dashboard.dark .messages li {
-  background: rgba(255,255,255,0.02) !important; /* very subtle panel for each row */
-  border: 1px solid;
-  color: #e6eef6 !important;
-}
-.carrier-dashboard.dark .messages li .msg-title,
-.carrier-dashboard.dark .messages li .msg-sub {
-  color: #e6eef6 !important;
-}
-
-/* Reduce bright shadows for dark theme */
-.carrier-dashboard.dark .btn-contact:hover, .carrier-dashboard.dark .btn-primary:hover { box-shadow: none; transform: none; }
-
-/* Dark-mode divider overrides */
-.carrier-dashboard.dark .cd-topbar-divider,
-.carrier-dashboard.dark .overview-divider,
-.carrier-dashboard.dark .icon-divider {
-  background: #1f2937;
-}
-
-
-.carrier-dashboard {
-  display: flex;
-  min-height: 100vh;
-  font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
-  background: var(--bg);
-}
-
-/* Force consistent border color across dashboard */
-.carrier-dashboard * {
-  border-color: var(--border) !important;
-}
-
-.cd-sidebar {
-  width: 260px;
-  background: #FAFAFA;
-  border-right: 1px solid #eef2f6;
-  padding: 18px 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.cd-logo img {
-  width: 48px;
-  height: 48px;
-  object-fit: contain;
-  display: block;
-}
-
-.cd-logo-text {
-  font-weight: 700;
-  font-size: 20px;
-  color: var(--accent);
-  letter-spacing: 0.2px;
-}
-
-.cd-search {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: #fff;
+  border: none;
   padding: 8px 14px;
-  border-radius: 999px;
-  border: 1px solid #eeeef0; /* subtle neutral border */
-  height: 44px; /* match visual height */
-  box-shadow: 0 6px 14px -10px rgba(15,23,42,0.12); /* subtle bottom shadow */
-}
-
-.cd-search-icon {
-  width: 36px;
-  height: 36px;
-  min-width: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-}
-
-.cd-search-icon img, .cd-global-search .search-icon img { width: 18px; height: 18px; }
-
-.cd-search input {
-  width: 100%;
-  border: none;
-  outline: none;
-  padding: 6px 0 6px 0;
-  font-size: 12px;
-  color: #6b6b6b;
-  background: transparent;
-}
-
-.cd-search input::placeholder { color: #9ea3a6; }
-
-.cd-menu-label {
-  color: var(--muted);
-  font-size: 12px;
-  margin-top: 8px;
-}
-
-.cd-nav {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-top: 6px;
-}
-
-.cd-section-label {
-  color: var(--muted);
-  font-size: 12px;
-  margin-top: 8px;
-}
-
-.cd-nav-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 12px;
-  border-radius: 10px;
-  color: #374151; /* neutral text */
-  text-decoration: none;
-  background: transparent;
-  transition: background .12s ease, box-shadow .12s ease;
-}
-
-.cd-icon-box {
-  width: 34px;
-  height: 34px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 8px;
-  background: transparent; /* removed background */
-  border: none; /* remove border */
-}
-
-.cd-nav-img {
-  width: 18px;
-  height: 18px;
-  display: block;
-}
-
-.cd-nav-item span {
-  display: inline-block;
-  font-size: 14px;
-  color: #6b7280; /* muted gray for labels */
-}
-
-.cd-nav-item:hover {
-  background: #fbfdff;
-}
-
-.cd-nav-item.active {
-  background: #ffffff;
-  border: 1px solid #eef2f6;
-  box-shadow: 0 1px 4px rgba(16,24,40,0.04);
-  font-weight: 500;
-}
-
-.cd-nav-item.active span {
-  color: #0f172a; /* darker when active */
-}
-
-.cd-nav.small .cd-nav-item {
-  font-size: 13px;
-  padding: 8px 10px;
-  gap: 10px;
-}
-
-.cd-bottom {
-  margin-top: auto;
-  color: var(--muted);
-  font-size: 13px;
-}
-
-/* Dark mode toggle */
-.dark-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-  /* place the label on the left and the switch on the right */
-  flex-direction: row-reverse;
-  justify-content: space-between;
-  width: 100%;
-}
-.dark-toggle input { display: none; }
-.toggle-track {
-  width: 44px;
-  height: 24px;
-  background: #e6eef6;
-  border-radius: 999px;
-  display: inline-block;
-  position: relative;
-  transition: background .12s ease;
-  border: 1px solid #eef2f6;
-}
-.toggle-thumb {
-  width: 18px;
-  height: 18px;
-  background: white;
-  border-radius: 50%;
-  position: absolute;
-  right: 3px; /* anchor to right because we reversed layout */
-  top: 50%;
-  transform: translateY(-50%);
-  box-shadow: 0 2px 6px rgba(15,23,42,0.12);
-  transition: transform .12s ease, right .12s ease;
-}
-.dark-toggle input:checked + .toggle-track { background: #2b6ef6; border-color: #2b6ef6; }
-.dark-toggle input:checked + .toggle-track .toggle-thumb { right: 23px; }
-.toggle-label { font-weight: 600; color: #6b7280; font-size: 13px; }
-
-.cd-main {
-  flex: 1;
-  padding: 20px 28px;
-}
-
-.cd-topbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 18px;
-}
-
-.cd-topbar-divider {
-  height: 1px;
-  background: #E5E5E5;
-  margin: 12px -28px 20px; /* cancel .cd-main padding so it touches inner edges */
-}
-
-.cd-global-search {
-  display: flex;
-  align-items: center;
-  width: 520px; /* wider to match visual */
-  background: transparent; /* make background transparent */
-  border-radius: 999px;
-  padding: 10px 14px;
-  /* thin neutral border like the attachment */
-  border: 1px solid #e6e6e6;
-  /* remove shadow for a flat transparent look */
-  box-shadow: none;
-}
-
-.cd-global-search .search-icon {
-  width: 40px;
-  height: 40px;
-  min-width: 40px;
-  display: flex;
-  /* ensure this icon isn't affected by any global .search-icon rules */
-  position: relative;
-  left: auto;
-  top: auto;
-  z-index: 2;
-  align-items: center; /* center vertically */
-  justify-content: center;
-  border-radius: 999px;
-  margin-right: 8px; /* reduced gap between icon and text */
-}
-
-.cd-global-search .search-icon img {
-  width: 22px;
-  height: 22px;
-  opacity: 1;
-  transform: none; /* ensure icon is not translated */
-}
-
-.cd-global-search input {
-  border: none;
-  outline: none;
-  font-size: 16px;
-  color: #6b6b6b;
-  padding: 8px 5px; /* tighter horizontal padding to reduce gap */
-  flex: 1;
-  background: transparent; /* ensure input background doesn't show */
-}
-
-/* placeholder styling */
-.cd-global-search input::placeholder {
-  color: #9b9b9b;
-  opacity: 1;
-}
-
-.cd-top-right {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  order: 2; /* keep icons on the right */
-}
-
-.cd-top-left {
-  order: 1; /* put left group before icons when layout reverses */
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  width: auto;
-}
-
-/* move search to the right visually by placing it after the top-right icons in DOM or using order */
-.cd-global-search { order: 3; margin-left: 12px; }
-
-/* hover / focus effects for search */
-.cd-global-search:hover,
-.cd-global-search:focus-within {
-  border-color: #d0d0d0;
-  /* no shadow for transparent search */
-  box-shadow: none;
-}
-
-.cd-global-search:hover .search-icon img,
-.cd-global-search:focus-within .search-icon img {
-  filter: none;
-}
-
-.cd-global-search:focus-within input::placeholder {
-  color: #a8a8a8;
-}
-
-.pills {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
-
-.pill {
-  background: white;
-  padding: 10px 20px;
-  border-radius: 28px;
-  border: 1px solid #f1f1f1;
-  box-shadow: 0 2px 6px rgba(15,23,42,0.04);
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.top-icon {
-  width: 28px;
-  height: 28px;
-}
-
-.btn-primary {
-  background: #2b6ef6;
-  color: white;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 18px;
-}
-
-/* Top-right icon group */
-.top-icons {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.icon-wrapper {
-  position: relative;
-  width: 48px;
-  height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: white;
-  border-radius: 50%;
-  box-shadow: 0 2px 6px rgba(15,23,42,0.06);
-  border: 1px solid #f1f5f9;
-}
-
-.icon-wrapper img.top-icon {
-  width: 20px;
-  height: 20px;
-}
-
-.icon-wrapper .dot {
-  position: absolute;
-  /* shift dot left so it sits more over the inner icon */
-  right: 7px;
-  top: 12px;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  /* explicitly set border color to white and use !important to beat the global border-color override */
-  border: 3px solid white !important;
-  z-index: 5;
-  transform: translate(0, -30%); /* nudge slightly upward */
-}
-
-.dot.green {
-  background: #10b981;
-}
-
-.dot.red {
-  background: #ef4444;
-}
-
-.icon-divider {
-  width: 1px;
-  height: 36px;
-  background: #E5E5E5;
-  margin: 0 5px;
-  border-radius: 1px;
-}
-
-.overview-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 14px;
-}
-
-.overview-divider {
-  height: 1px;
-  background: #E5E5E5;
-  margin: 12px -28px 20px; /* cancel .cd-main padding so it touches inner edges */
-}
-
-.overview-header h1 {
-  margin: 0 0 6px 0;
-  font-size: 30px;
-  font-weight: 700; /* stronger bold */
-  color: #0f172a;
-}
-
-.overview-header p.muted {
-  margin: 0;
-  color: var(--muted);
-  font-size: 14px;
-  font-weight: 500; /* slightly bolder subtitle */
-}
-
-.overview-controls {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-
-.btn-contact {
-  background: white;
-  border: 1px solid #e6eef6;
-  padding: 10px 18px;
-  border-radius: 999px;
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  box-shadow: 0 2px 6px rgba(15,23,42,0.06);
-  color: #0f172a;
-  font-weight: 600;
-  min-height: 44px;
-}
-
-.btn-contact img {
-  width: 18px;
-  height: 18px;
-  margin-right: 8px;
-  display: inline-block;
-}
-
-.btn-primary {
-  background: linear-gradient(180deg,#7FA4F6,#3B57A7);
-  color: white;
-  border: none;
-  padding: 10px 18px;
-  border-radius: 999px;
-  box-shadow: 0 4px 10px -6px rgba(59,87,167,0.12);
-  font-weight: 600;
-  min-height: 44px;
-}
-
-/* button hover states */
-.btn-contact:hover { transform: translateY(-1px); box-shadow: 0 4px 12px -8px rgba(15,23,42,0.08); }
-.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 16px -8px rgba(43,110,246,0.12); }
-
-.overview-progress {
-  display: flex;
-  gap: 16px;
-  margin-bottom: 18px;
-}
-
-.progress-card {
-  flex: 1;
-  background: var(--card);
-  padding: 16px 18px;
   border-radius: 12px;
-  border: 1px solid #eef2f6;
+}
+.marketplace-snapshot .card-row .btn.ghost.small:hover{
+  transform: translateY(-2px);
+  filter: brightness(.95);
 }
 
-.progress-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
+/* Recent Messages: heading should match Active Loads (size + weight) and View All should be bold */
+.recent-messages .card-row h3{
+  margin:0;
+  font-size:18px;
+  color:#0b3240;
+  font-weight:650;
+}
+.recent-messages .view-all{
+  font-weight:700;
 }
 
-.progress-title {
-  font-size: 14px;
-  color: #0f172a;
-  font-weight: 600;
+/* Notifications should use same header styles as Recent Messages */
+.notifications-card .card-row h3{
+  margin:0;
+  font-size:18px;
+  color:#0b3240;
+  font-weight:650;
+}
+.notifications-card .view-all{
+  font-weight:700;
 }
 
-.progress-percent {
-  font-size: 20px;
-  font-weight: 800;
-  color: #0f172a;
-}
+.msg-item{display:flex;gap:12px;padding:12px 0;border-top:1px solid #f1f6f8}
+.msg-item{display:flex;gap:12px;padding:12px 0;border-top:1px solid #f1f6f8;align-items:flex-start}
+.msg-item:first-of-type{border-top:0}
+.msg-avatar{width:40px;height:40px;border-radius:50%;object-fit:cover}
+.msg-body{flex:1}
+.msg-head{display:flex;gap:8px;align-items:center}
+.msg-head strong{font-weight:700}
+.role{color:#6b7c82;font-size:13px;font-weight:600;margin-left:6px}
+.muted{color:#6b7c82;font-size:13px;margin-top:4px}
+.msg-time{color:#94a3a8;font-size:13px;white-space:nowrap;margin-left:12px}
 
-.progress-bar {
-  width: 100%;
-  height: 14px;
-  background: #f1f5f9;
-  border-radius: 999px;
-  overflow: hidden;
-}
+.market-row{display:flex;justify-content:space-between;padding:8px 0;border-top:1px dashed #eef3f6}
+.market-row:first-of-type{border-top:0}
+.market-row .price{color:#0b6b9a;font-weight:700}
 
-.progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg,#7bed8d,#3ad65a);
-  border-radius: 999px;
-}
-
-.progress-fill.yellow {
-  background: linear-gradient(90deg,#f7e35b,#d4c400);
-}
-
-.overview-grid {
+/* Marketplace 3-column layout */
+.market-grid{
   display: grid;
-  /* three equal flexible columns that fill available space */
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 20px;
-  align-items: stretch; /* make columns equal height */
-  padding-bottom: 1rem;
+  grid-template-columns: 1fr 220px 1fr;
+  gap: 16px;
+  align-items: start;
 }
-
-.left-col {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.card.small {
-  background: var(--card);
-  border-radius: 12px;
-  padding: 16px 18px;
-  border: 1px solid #eef2f6;
-  box-shadow: 0 2px 8px rgba(15,23,42,0.04);
-}
-
-.card.small .card-header {
-  margin-bottom: 12px;
-}
-
-/* Small card header h3 styling (Document Status, Today's Schedules, etc.) */
-.card.small .card-header h3 {
-  margin: 0;
-  font-size: 18px;
-  font-weight: 700;
-  color: #0f172a;
-}
-
-/* Document Status specific header */
-.card.small.status .card-header h3 {
-  margin: 0;
-  font-size: 18px;
-  font-weight: 700;
-  color: #0f172a;
-}
-
-/* Small select pill styling (header control) */
-/* unified small-select styling for small cards */
-.card.small .small-select,
-.card.small.status .small-select {
-  background: #fff;
-  border: 1px solid #eef2f6; /* light neutral border like the design */
-  border-radius: 14px; /* moderate pill radius */
-  height: 38px; /* compact pill */
-  line-height: 38px;
-  padding: 0 36px 0 14px; /* left padding for label, right padding for caret space */
-  font-size: 15px;
-  font-weight: 700;
-  color: #0b1220;
-  box-shadow: 0 2px 6px rgba(15,23,42,0.04);
-  text-align: left; /* left-align the label */
-  text-align-last: left; /* ensure selected option text is left in some browsers */
-  padding-right: 44px; /* ensure caret has enough space and text won't overlap */
-  -webkit-appearance: none !important;
-  -moz-appearance: none !important;
-  appearance: none !important;
-  direction: ltr; /* ensure caret is on the right in rtl-prone locales */
-}
-
-/* Small card (e.g., Document Status) dark-mode styling */
-.carrier-dashboard.dark .card.small {
-  background: var(--card);
-  border: 1px solid var(--border);
-  box-shadow: none;
-  color: #e6eef6;
-}
-
-.carrier-dashboard.dark .card.small .card-header h3,
-.carrier-dashboard.dark .card.small.status .card-header h3 {
-  color: #ffffff; /* make small card headers white in dark mode */
-}
-
-.carrier-dashboard.dark .card.small .small-select,
-.carrier-dashboard.dark .card.small.status .small-select {
-  /* make the small-select pill match the card background so it blends in */
-  background: var(--card);
-  border: 1px solid rgba(255,255,255,0.04);
-  color: #ffffff; /* white label */
-  box-shadow: none;
-}
-
-/* Make the select look like the pill in the attachment */
-.card.small .small-select::-ms-expand { display: none; }
-.card.small .small-select::-webkit-calendar-picker-indicator { display: none; }
-
-/* Firefox specific: remove inner focus padding that can show arrow */
-.card.small .small-select::-moz-focus-inner { border: 0; padding: 0; }
-
-/* Container to visually match the mock: rows with thin dividers and right-aligned bold values */
-.card.small.status .doc-status {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-}
-
-.card.small.status .status-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 0;
-  border-bottom: 1px solid #f1f5f9; /* subtle divider */
-}
-.card.small.status .status-row:last-child { border-bottom: none; }
-
-.card.small.status .status-row .label {
-  font-size: 14px;
-  color: #0f172a;
+.market-col .col-title{
+  margin: 0 0 8px 0;
+  font-size: 13px;
+  color: #374151;
   font-weight: 600;
 }
-.small-select-wrap {
-  position: relative;
-  display: inline-block;
-  height: 38px;
-  border-radius: 14px;
-  padding: 0;
+.marketplace-snapshot h3{font-size:18px;margin:0;color:#0b3240;font-weight:650}
+.dark-root .marketplace-snapshot h3{color:#d1d7db}
+.loads .load-item{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  padding:14px 16px;
+  margin-bottom:12px;
+  background:#f8f9fa;
+  border-radius:10px;
+  box-shadow: none;
+  border:1px solid #f1f6f8;
+}
+.loads .load-item:first-of-type{margin-top:6px}
+.load-route{
+  font-weight:700;
+  color:#0f172a;
+  font-size:16px;
+}
+.load-sub{font-size:13px;color:#6b7280;margin-top:6px}
+.load-right{text-align:right;min-width:96px}
+.price{font-weight:800}
+.price.green{color:#059669;font-size:18px}
+.pickup{font-size:13px;color:#6b7280}
+.dark-root .load-sub{color:#ffffff}
+.dark-root .pickup{color:#ffffff}
+
+.drivers{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 12px;background:transparent;border-radius:8px}
+.driver-count{font-size:44px;font-weight:800;color:#059669;margin:8px 0}
+.drivers .driver-sub{font-size:13px;color:#6b7280;margin-bottom:8px}
+.dark-root .drivers .driver-sub{color:#ffffff}
+.btn.small{padding:8px 12px;font-size:13px;border-radius:8px}
+.green-btn{background:#059669;color:white;border:none}
+
+/* Stronger rule for the green View Candidates button inside the drivers column */
+.market-col.drivers .btn.small.green-btn{
+  background:#059669;
+  color:#ffffff;
+  border:none;
+  display:inline-block;
+  padding:8px 14px;
+  border-radius:10px;
+  box-shadow:0 6px 14px rgba(5,102,105,0.08);
 }
 
-.small-select-wrap .small-select {
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  border: none;
-  background: transparent;
-  padding: 0 40px 0 14px;
-  height: 38px;
-  line-height: 38px;
-  font-weight: 700;
-  font-size: 15px;
-  color: #0b1220;
+.offers .offer-item{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-radius:10px;}
+.offers .offer-item + .offer-item{margin-top:12px}
+.offers .offer-item:first-of-type{background:#fef5e6;border:1px solid #fde6c4}
+
+/* Dark-mode: only change the offer item backgrounds and borders (do not change text colors) */
+.dark-root .offers .offer-item:first-of-type{background:#3b3229;border:1px solid rgba(255,255,255,0.04)}
+.dark-root .offers .offer-item:nth-of-type(2){background:#2b3a40;border:1px solid rgba(255,255,255,0.04)}
+.dark-root .offers .offer-left { color: #ffffff !important; }
+
+/* Force any remaining blue/brand text to white in dark mode (targeted) */
+.dark-root .marketplace-snapshot h3,
+.dark-root .loads .load-item .load-route,
+.dark-root .card-header h3,
+.dark-root .card-header h4,
+.dark-root .recent-messages .card-row h3,
+.dark-root .notifications-card .card-row h3,
+.dark-root .expiring-card .card-header h3,
+.dark-root .compliance-card h3,
+.dark-root .fp-header-titles h2,
+.dark-root .fp-header h2,
+.dark-root .market-col .col-title,
+.dark-root .exp-title,
+.dark-root .exp-sub,
+.dark-root .load-route {
+  color: #ffffff !important;
+}
+.offers .offer-item:nth-of-type(2){background:#e6f6fd;border:1px solid #d6eff9}
+.offers .offer-left{flex:1;margin-right:12px;color:#0b3240;font-weight:700}
+.offers .offer-left .muted{margin-top:6px;color:#6b7280;font-weight:500}
+.offers .offer-right{min-width:90px;text-align:right;padding-left:12px}
+.badge{display:inline-block;padding:8px 10px;border-radius:8px;color:white;font-weight:700}
+.badge.small{font-size:13px;padding:6px 8px}
+.badge.orange{background:#f59e0b}
+.badge.blue{background:#0ea4e7}
+
+/* Darker badge variants for dark mode readability */
+.dark-root .badge.orange{background:#b86a09}
+.dark-root .badge.blue{background:#0b7fa8}
+
+/* Make the Suggest Edit icon inherit the surrounding text color so it matches */
+.btn.ghost.small.subtle i{color:inherit !important}
+
+@media (max-width: 900px){
+  .market-grid{grid-template-columns:1fr;}
+  .drivers{order:2}
 }
 
-/* Dark-mode: ensure select caret and text contrast on card background */
-.carrier-dashboard.dark .small-select-wrap .small-select {
-  color: #ffffff;
-}
-.carrier-dashboard.dark .small-select-wrap .select-caret {
-  color: #ffffff;
-}
-.carrier-dashboard.dark .small-select-wrap .small-select::-ms-value {
-  color: #ffffff;
-}
+.notifications-card li{padding:6px 0}
+.notifications-card li.alert{color:#d66}
+.notifications-card li.info{color:#f59e0b}
+.notifications-card li.success{color:#059669}
 
-.small-select-wrap .select-caret {
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  pointer-events: none;
-  font-size: 14px;
-  color: #0b1220;
-}
-.card.small.status .status-row .value {
-  font-size: 14px;
-  font-weight: 700;
-  color: #0f172a;
-}
+.notifications-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:12px}
+.notification-item{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-top:1px solid #f1f6f8}
+.notification-item:first-of-type{border-top:0}
+.note-left{width:26px;display:flex;align-items:flex-start;justify-content:flex-start}
+.note-left .dot{margin-top:15px}
+.note-body{flex:1}
+.note-title{font-weight:700;color:#0b3240;margin-bottom:6px}
+.dark-root .note-title{color:#d1d7db}
+.note-sub{color:#6b7280;font-size:13px}
+.dark-root .note-sub{color:#ffffff}
+.note-time{min-width:80px;text-align:right;color:#94a3a8;font-size:13px}
 
-/* Dark-mode: make status rows readable */
-.carrier-dashboard.dark .card.small.status .status-row {
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-}
-.carrier-dashboard.dark .card.small.status .status-row .label {
-  color: #e6eef6; /* light label */
-}
-.carrier-dashboard.dark .card.small.status .status-row .value {
-  color: #e6eef6; /* light numbers */
+/* responsive */
+@media (max-width: 1024px){
+  /* tablet: 2-column grid */
+  .fp-grid{grid-template-columns:repeat(2,1fr)}
+  /* make wide cards span full width on tablet when appropriate */
+  .span-3{grid-column:span 2}
 }
 
-.card {
-  background: var(--card);
-  border-radius: 12px;
-  padding: 14px;
-  border: 1px solid #eef2f6;
-}
+@media (max-width: 900px){
+  /* show hamburger on smaller screens */
+  .hamburger{display:inline-flex}
+  .sidebar-close{display:block}
 
-/* Ensure grid children stretch to same height */
-.overview-grid > .card,
-.overview-grid > .left-col {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
+  /* hide large action buttons (use icons in the top-right instead) */
+  .topbar-row-1 .actions{display:none}
+  /* hide the wide chips/fleet stats on small widths to save space */
+  .topbar-row-2{display:none}
 
-/* Left column small cards split the available height */
-.left-col .card.small {
-  flex: 1 1 0;
-  display: flex;
-  flex-direction: column;
-}
+  /* show compact icons in the first row */
+  .icons-mobile{display:flex}
 
-.left-col .card.small .doc-status,
-.left-col .card.small .today-schedules {
-  flex: 1 1 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
+  /* make sidebar a hidden drawer by default; open class slides it in */
+  .fp-sidebar{
+    position:fixed;
+    left:0;
+    top:0;
+    height:100vh;
+    width:260px;
+    transform:translateX(-100%);
+    z-index:60;
+    padding-top:22px;
+    transition:transform .2s ease;
+    box-shadow:0 12px 40px rgba(0,0,0,0.12);
+    background:#fff;
+  }
+  .fp-sidebar.open{transform:translateX(0)}
 
-/* Make marketplace fill height and keep mp-list content centered */
-.card.marketplace {
-  display: flex;
-  flex-direction: column;
-  padding: 18px;
-  border-radius: 12px;
-  border: 1px solid #eef2f6;
-  box-shadow: 0 2px 10px rgba(15,23,42,0.03);
-}
-
-.card.marketplace .card-header h3 {
-  margin: 0;
-  font-size: 18px;
-  font-weight: 700;
-  color: #0f172a;
-}
-
-.card.marketplace .view-all {
-  background: white;
-  border: 1px solid #eef2f6;
-  padding: 8px 14px;
-  border-radius: 20px;
-  box-shadow: 0 2px 6px rgba(15,23,42,0.06);
-}
-
-/* Match compliance card 'View All' hover/focus behavior */
-.card.marketplace .view-all {
-  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
-  cursor: pointer;
-}
-.card.marketplace .view-all:hover,
-.card.marketplace .view-all:focus {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 18px rgba(15,23,42,0.08);
-  border-color: #e6eef6;
-}
-.card.marketplace .view-all:focus-visible {
-  outline: 3px solid rgba(59,130,246,0.12);
-  outline-offset: 4px;
-}
-
-.carrier-dashboard.dark .card.marketplace .view-all,
-.carrier-dashboard.dark .card.compliance .view-all {
-  /* Make the 'View All' control visually lightweight in dark mode */
-  background: transparent; /* transparent background per request */
-  color: #ffffff; /* white text in dark mode */
-  border: 1px solid rgba(255,255,255,0.04);
-  box-shadow: none; /* remove shadow so it's flat */
-}
-
-/* Ensure marketplace/compliance headers and key labels are white in dark mode */
-.carrier-dashboard.dark .card.marketplace .card-header h3,
-.carrier-dashboard.dark .card.compliance .card-header h3,
-.carrier-dashboard.dark .overview-header h1,
-.carrier-dashboard.dark .card-header h3 {
-  color: #ffffff;
-}
-
-.card.marketplace .mp-list {
-  margin-top: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  background: white; /* inner white panel */
-  border-radius: 12px;
-  padding: 14px;
-  border: 1px solid #eef6fb;
-}
-
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.card.compliance { padding: 18px; box-shadow: 0 2px 8px rgba(15,23,42,0.04); }
-.card.compliance .card-header h3 { margin: 0; font-size: 18px; font-weight: 700; color: #0f172a; }
-
-.card.compliance .view-all {
-  background: white;
-  border: 1px solid #eef2f6;
-  padding: 8px 12px;
-  border-radius: 20px;
-  box-shadow: 0 2px 6px rgba(15,23,42,0.06);
-}
-
-/* View All hover/focus */
-.card.compliance .view-all {
-  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
-  cursor: pointer;
-}
-.card.compliance .view-all:hover,
-.card.compliance .view-all:focus {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 18px rgba(15,23,42,0.08);
-  border-color: #e6eef6;
-}
-.card.compliance .view-all:focus-visible {
-  outline: 3px solid rgba(59,130,246,0.12);
-  outline-offset: 4px;
-}
-
-/* Compliance list: make each item match the mock */
-.compliance-list li {
-  background: #fff;
-  border-radius: 12px;
-  padding: 14px 16px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  box-shadow: 0 2px 6px rgba(15,23,42,0.04);
-  border: 1px solid #f1f5f9;
-  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
-  cursor: pointer;
-}
-
-/* Left icon container: light rounded square */
-.compliance-list .li-left {
-  width: 48px;
-  height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #f3f6f9; /* subtle neutral bg behind icons */
-  border-radius: 10px; /* slightly rounded square */
-}
-
-.compliance-list .li-left img { width: 22px; height: 22px; }
-
-.compliance-list .li-body { flex: 1; }
-
-.compliance-list .li-title { font-weight: 700; color: #0f172a; }
-.compliance-list .li-sub { color: var(--muted); font-size: 13px; }
-
-/* Right arrow area */
-.compliance-list .li-right {
-  width: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.compliance-list .li-right img { width: 16px; height: 16px; opacity: 0.9; }
-
-/* Hover/focus effect on tiles */
-.compliance-list li:hover,
-.compliance-list li:focus-within {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 20px rgba(15,23,42,0.08);
-  border-color: #e6eef6;
-}
-
-.compliance-list li:hover .li-right img,
-.compliance-list li:focus-within .li-right img {
-  transform: translateX(4px);
-  transition: transform 180ms ease;
-}
-
-.compliance-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.compliance-list li {
-  background: #fff;
-  border-radius: 12px;
-  padding: 12px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  box-shadow: 0 2px 6px rgba(15,23,42,0.04);
-  border: 1px solid #f1f5f9;
-}
-
-.compliance-list .li-left {
-  width: 48px;
-  height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #f8fafc;
-  border-radius: 10px;
-}
-
-.compliance-list .li-body {
-  flex: 1;
-}
-
-.compliance-list .li-title { font-weight: 700; }
-
-.compliance-list .li-sub { color: var(--muted); font-size: 13px; }
-
-.compliance-list .li-right img { width: 18px; }
-
-.doc-status {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.status-row {
-  display: flex;
-  justify-content: space-between;
-  padding: 8px 0;
-  border-bottom: 1px dashed #f1f5f9;
-}
-
-.today-schedules {
-  margin-top: 12px;
-}
-
-.sched-row {
-  display: flex;
-  justify-content: space-between;
-  padding: 6px 0;
-  color: var(--muted);
-  font-size: 13px;
-}
-
-.marketplace .mp-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  background: #f6fbff;
-  border-radius: 10px;
-  padding: 12px;
-  border: 1px solid #e6f0f8;
-}
-
-.mp-item {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 14px;
-  border-radius: 12px;
-  background: #fff; /* match other card rows */
-  border: 1px solid #f1f5f9;
-  box-shadow: 0 2px 6px rgba(15,23,42,0.04);
-}
-
-.mp-item img {
-  width: 60px; /* larger so the photo fills the circular area */
-  height: 60px;
-  border-radius: 50%;
-  object-fit: cover;
-  background: transparent; /* remove the gradient/boundary behind the image */
-  padding: 0; /* remove padding so image fills its box */
-  display: block;
-}
-
-.mp-info {
-  flex: 1;
-}
-
-.mp-name {
-  font-weight: 700;
-  font-size: 16px;
-  color: #0f172a;
-}
-
-.mp-sub {
-  color: var(--muted);
-  font-size: 13px;
-  margin-top: 4px;
-}
-
-.mp-badge {
-  background: white;
-  padding: 8px 12px;
-  border-radius: 20px;
-  font-size: 13px;
-  border: 1px solid #eef2f6;
-  box-shadow: 0 2px 6px rgba(15,23,42,0.06);
-}
-
-.recent-messages {
-  box-shadow: 0 2px 6px rgba(15,23,42,0.06);
-}
-
-.messages {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.messages li {
-  display: flex;
-  align-items: center;
-  padding: 16px 18px;
-  border-radius: 12px;
-  border: 1px solid #eef2f6;
-  background: #fff;
-  box-shadow: 0 2px 6px rgba(15,23,42,0.06);
-}
-
-.msg-left {
-  width: 56px;
-  height: 56px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 10px;
-  background: #f8fafc;
-  margin-right: 12px;
-}
-
-.msg-left img { width: 28px; height: 28px; }
-
-.msg-body {
-  flex: 1;
-  padding: 0 12px;
-}
-
-.msg-title {
-  font-weight: 700;
-  color: #0f172a;
-}
-
-.msg-sub {
-  color: var(--muted);
-  font-size: 13px;
-  margin-top: 6px;
-}
-
-.msg-right {
-  width: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.messages li:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(15,23,42,0.08); border-color: #e6eef6; }
-
-@media (max-width: 1100px) {
-  .overview-grid {
-    grid-template-columns: 1fr;
+  /* make the mobile drawer scrollable when content overflows */
+  .fp-sidebar{
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch; /* smooth scrolling on iOS */
   }
 
-  .cd-global-search {
-    width: 200px;
-  }
+  /* helper: prevent body scrolling when drawer is open (toggle .no-scroll on body via JS if desired) */
+  body.no-scroll{overflow:hidden;height:100%}
+
+  /* show sidebar header inside the drawer on small screens */
+  .fp-sidebar .sidebar-header{display:block}
+
+  /* overlay is rendered only when open; ensure it's on top */
+  .overlay{display:block}
+
+  /* reduce main padding on mobile */
+  .fp-main{padding:14px}
+
+  /* make the first topbar row a single horizontal line */
+  .topbar-row-1{display:flex;align-items:center;gap:12px}
+  .topbar-row-1 .topbar-left{display:flex;align-items:center;gap:12px}
+  .brand-block{display:flex;flex-direction:row;align-items:center;gap:12px;flex:1}
+  .logo{margin:0;font-size:22px}
+  .topbar-row-1 .topbar-right{display:flex;align-items:center;gap:12px}
+
+  /* condense header titles */
+  .fp-header-titles h2{font-size:28px}
+  .fp-subtitle{font-size:14px}
+
+  /* compact topbar items */
+  .btn.small{padding:6px 10px;font-size:13px}
+  .chip{padding:6px 10px;font-size:12px}
+  .avatar-img{width:32px;height:32px}
+
+  /* ensure icons in topbar are compact */
+  .icons{gap:8px}
+  .icons .lang{display:none} /* hide language selector on smaller widths */
+
+  /* grid becomes single column on small tablets/phones */
+  .fp-grid{grid-template-columns:1fr}
+  .span-2, .span-3{grid-column:span 1}
+
+  /* reduce card padding */
+  .card{padding:14px}
+
+  /* keep topbar visible on mobile */
+  .fp-topbar{position:sticky;top:0;z-index:40}
+}
+
+@media (max-width: 640px){
+  /* further mobile tweaks */
+  .fp-header-titles h2{font-size:24px}
+  .fp-subtitle{font-size:13px}
+  .brand-row .ids{display:none}
+  .chips{gap:6px}
+  /* show actions inside the mobile drawer */
+  .sidebar-actions{display:flex}
+  .fleet-stats{display:none}
+  .topbar-row-2 .second-left{display:flex;flex-direction:row;align-items:center;gap:8px}
+  .card h3{font-size:16px}
+  .load-route{font-size:15px}
 }
 

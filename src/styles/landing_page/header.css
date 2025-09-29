@@ -357,6 +357,12 @@
   border-bottom: none;
 }
 
+/* When viewing the carrier dashboard, hide the landing page mobile menu controls to avoid duplicate buttons */
+.carrier-dashboard .mobile-menu-button,
+.carrier-dashboard .mobile-nav {
+  display: none !important;
+}
+
 /* Force logo font weight override */
 .header .logo .logo-text,
 .logo-text {
