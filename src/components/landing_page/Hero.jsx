@@ -69,22 +69,22 @@ export default function Hero() {
               />
 
               {/* Floating Chat/Support Bubble */}
-              <div className="hero-chat-bubble" onClick={toggleChatbot}>
+              {/* <div className="hero-chat-bubble" onClick={toggleChatbot}>
                 <img 
                   src={aiIcon} 
                   alt="AI Assistant" 
                   className="hero-chat-icon"
                 />
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
       </div>
 
       {/* Chatbot Popup */}
-      {isChatbotOpen && (
+      {/* {isChatbotOpen && (
         <Chatbot isOpen={isChatbotOpen} onClose={() => setIsChatbotOpen(false)} />
-      )}
+      )} */}
     </section>
   )
 }

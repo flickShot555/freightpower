@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import '../../styles/carrier/CarrierDashboard.css';
 import peopleIcon from '../../assets/ai_driver.svg';
+import MyLoads from './MyLoads';
+import DocumentVault from './DocumentVault';
 // icon images replaced by Font Awesome icons
 
 export default function CarrierDashboard() {
@@ -63,139 +65,10 @@ export default function CarrierDashboard() {
     }
   ];
 
-  return (
-  <div className={`fp-dashboard-root ${isDarkMode ? 'dark-root' : ''}`}>
-      <div className="fp-topbar">
-        <div className="topbar-row topbar-row-1">
-          <div className="topbar-left">
-            <button className="hamburger" aria-label="Open sidebar" onClick={() => setIsSidebarOpen(true)}>
-              <i className="fa-solid fa-bars" />
-            </button>
-            <div className="brand-block">
-              <div className="brand-row">
-                <div className="logo">FreightPower Logistics</div>
-                {/* verified moved into sidebar header; topbar inline chips removed */}
-                <div className="ids">
-                  <span className="id-pair"><span className="id-label">DOT:</span> <span className="id-value">3456789</span></span>
-                  <span className="ids-sep">•</span>
-                  <span className="id-pair"><span className="id-label">MC:</span> <span className="id-value">MC-987654</span></span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="topbar-right actions-right">
-            <div className="actions">
-              <button className="btn small"><i className="fa-solid fa-link"/> Connect</button>
-              <button className="btn warn small"><i className="fa-solid fa-triangle-exclamation"/> Report Fraud</button>
-              <button className="btn ghost small subtle"><i className="fa-solid fa-pen"/> Suggest Edit</button>
-            </div>
-            {/* mobile-only icons in the first row: visible on small screens */}
-            <div className="icons-mobile">
-              <div className="notif">
-                <i className="fa-regular fa-bell notif-icon" aria-hidden="true" />
-                <span className="notif-badge">3</span>
-              </div>
-              <i className="fa-solid fa-robot bot-icon" aria-hidden="true" />
-              <img src="https://randomuser.me/api/portraits/men/75.jpg" alt="avatar" className="avatar-img"/>
-            </div>
-          </div>
-        </div>
-
-        <div className="topbar-row topbar-row-2">
-          <div className="topbar-left second-left">
-            <div className="chips">
-              <span className="chip success">DOT Active</span>
-              <span className="chip info">Operating</span>
-              <span className="chip yellow">Safety: Satisfactory</span>
-              <span className="chip blue">ELD: Samsara</span>
-            </div>
-            <div className="fleet-stats">
-              <span className="fleet-item"><i className="fa-solid fa-truck"/> <strong>12</strong> Power Units</span>
-              <span className="fleet-item"><i className="fa-solid fa-snowflake"/> <strong>8</strong> Reefers</span>
-              <span className="fleet-item"><i className="fa-solid fa-box"/> <strong>15</strong> Dry Vans</span>
-            </div>
-          </div>
-
-          <div className="topbar-right">
-            <div className="icons">
-              <span className="lang"><i className="fa-solid fa-globe"/> EN</span>
-              <div className="notif">
-                <i className="fa-regular fa-bell notif-icon" aria-hidden="true" />
-                <span className="notif-badge">3</span>
-              </div>
-              <i className="fa-solid fa-robot bot-icon" aria-hidden="true" />
-              <img src="https://randomuser.me/api/portraits/men/75.jpg" alt="avatar" className="avatar-img"/>
-            </div>
-          </div>
-        </div>
-      </div>
-
-  <div className={`fp-content-row ${isSidebarOpen ? 'sidebar-open' : ''}`}>
-  <aside className={`fp-sidebar ${isSidebarOpen ? 'open' : ''} ${isSidebarDark ? 'dark' : ''}`}>
-        <div className="sidebar-header">
-          <div className="brand-row">
-            <div className="logo">FreightPower Logistics</div>
-            <span className="verified">Verified</span>
-          </div>
-          {/* DOT / MC line for mobile drawer */}
-          <div className="ids mobile-ids">
-            <div className="mobile-id-line"><span className="id-pair"><span className="id-label">DOT:</span> <span className="id-value">3456789</span></span></div>
-            <div className="mobile-id-line"><span className="id-pair"><span className="id-label">MC:</span> <span className="id-value">MC-987654</span></span></div>
-          </div>
-          <div className="chips sidebar-chips">
-            <span className="chip success">DOT Active</span>
-            <span className="chip info">Operating</span>
-            <span className="chip yellow">Safety: Satisfactory</span>
-            <span className="chip blue">ELD: Samsara</span>
-          </div>
-          <div className="fleet-stats sidebar-fleet">
-            <span className="fleet-item"><i className="fa-solid fa-truck"/> <strong>12</strong> Power Units</span>
-            <span className="fleet-item"><i className="fa-solid fa-snowflake"/> <strong>8</strong> Reefers</span>
-            <span className="fleet-item"><i className="fa-solid fa-box"/> <strong>15</strong> Dry Vans</span>
-          </div>
-        </div>
-        <nav className="fp-nav">
-          {navGroups.map((group) => (
-            <div className="nav-group" key={group.title}>
-              <div className="nav-group-title">{group.title}</div>
-              <ul>
-                {group.items.map((it) => (
-                  <li className={`nav-item ${activeNav === it.key ? 'active' : ''}`} key={it.key} onClick={() => setActiveNav(it.key)} role="button" tabIndex={0}>
-                    <i className={`${it.icon} icon`} aria-hidden="true"></i>
-                    <span className="label">{it.label}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </nav>
-        {/* Dark mode control - toggles site theme when clicked */}
-        <div className="sidebar-dark-control" aria-hidden="false">
-          <span className="dark-label">Dark Mode</span>
-          <button
-            className="dark-toggle"
-            aria-pressed={isDarkMode}
-            aria-label="Toggle dark mode"
-            onClick={() => setIsDarkMode((s) => !s)}
-          >
-            <span className="dark-toggle-knob" />
-          </button>
-        </div>
-        {/* action buttons in the mobile drawer */}
-        <div className="sidebar-actions">
-          <button className="btn small"><i className="fa-solid fa-link"/> Connect</button>
-          <button className="btn warn small"><i className="fa-solid fa-triangle-exclamation"/> Report Fraud</button>
-          <button className="btn ghost small subtle"><i className="fa-solid fa-pen"/> Suggest Edit</button>
-        </div>
-        <button className="sidebar-close" aria-label="Close sidebar" onClick={() => setIsSidebarOpen(false)}>
-          <i className="fa-solid fa-xmark" />
-        </button>
-      </aside>
-
-      {isSidebarOpen && <div className="overlay" onClick={() => setIsSidebarOpen(false)} />}
-
-      <main className="fp-main">
+  // Small router for the inner content area so the sidebar & topbar remain mounted
+  function HomeView() {
+    return (
+      <>
         <header className="fp-header">
           <div className="fp-header-titles">
             <h2>Dashboard</h2>
@@ -327,7 +200,7 @@ export default function CarrierDashboard() {
                 <h4 className="col-title">Available Loads</h4>
                 <div className="load-item">
                   <div className="load-left">
-                    <div className="load-route">Chicago, IL 12 Dallas, TX</div>
+                    <div className="load-route">Chicago, IL 00212 Dallas, TX</div>
                     <div className="load-sub muted">TQL Logistics</div>
                   </div>
                   <div className="load-right">
@@ -338,7 +211,7 @@ export default function CarrierDashboard() {
 
                 <div className="load-item">
                   <div className="load-left">
-                    <div className="load-route">Atlanta, GA 12 Miami, FL</div>
+                    <div className="load-route">Atlanta, GA 00212 Miami, FL</div>
                     <div className="load-sub muted">Landstar</div>
                   </div>
                   <div className="load-right">
@@ -399,11 +272,186 @@ export default function CarrierDashboard() {
                   <div className="note-title">Payment received</div>
                   <div className="note-sub muted">$2,450 payment processed for load #1230</div>
                 </div>
-                <div className="note-time">4h ago</div>
+                <div className="note-time">3h ago</div>
               </li>
             </ul>
           </div>
         </section>
+      </>
+    );
+  }
+
+  function ContentView({ activeNav }) {
+    // For now, only 'home' renders the full dashboard; other routes show placeholders.
+    switch (activeNav) {
+      case 'home':
+        return <HomeView />;
+      case 'my-loads':
+        return <MyLoads />;
+      case 'docs':
+        return <DocumentVault />;
+      default:
+        return (
+          <div>
+            <header className="fp-header">
+              <div className="fp-header-titles">
+                <h2>{navGroups.flatMap(g => g.items).find(i => i.key === activeNav)?.label || 'View'}</h2>
+                <p className="fp-subtitle">This is the {activeNav} view. Only the inner area changes.</p>
+              </div>
+            </header>
+            <section className="fp-grid">
+              <div className="card">
+                <div className="card-header"><h3>Placeholder</h3></div>
+                <div style={{ padding: 20 }}>
+                  <p>Content for <strong>{activeNav}</strong> goes here. Replace this with real components as needed.</p>
+                </div>
+              </div>
+            </section>
+          </div>
+        );
+    }
+  }
+
+  return (
+  <div className={`fp-dashboard-root ${isDarkMode ? 'dark-root' : ''}`}>
+      <div className="fp-topbar">
+        <div className="topbar-row topbar-row-1">
+          <div className="topbar-left">
+            <button className="hamburger" aria-label="Open sidebar" onClick={() => setIsSidebarOpen(true)}>
+              <i className="fa-solid fa-bars" />
+            </button>
+            <div className="brand-block">
+              <div className="brand-row">
+                <div className="logo">FreightPower Logistics</div>
+                {/* verified moved into sidebar header; topbar inline chips removed */}
+                <div className="ids">
+                  <span className="id-pair"><span className="id-label">DOT:</span> <span className="id-value">3456789</span></span>
+                  <span className="ids-sep">•</span>
+                  <span className="id-pair"><span className="id-label">MC:</span> <span className="id-value">MC-987654</span></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="topbar-right actions-right">
+            <div className="actions">
+              <button className="btn small"><i className="fa-solid fa-link"/> Connect</button>
+              <button className="btn warn small"><i className="fa-solid fa-triangle-exclamation"/> Report Fraud</button>
+              <button className="btn ghost small subtle"><i className="fa-solid fa-pen"/> Suggest Edit</button>
+            </div>
+            {/* mobile-only icons in the first row: visible on small screens */}
+            <div className="icons-mobile">
+              <div className="notif">
+                <i className="fa-regular fa-bell notif-icon" aria-hidden="true" />
+                <span className="notif-badge">3</span>
+              </div>
+              <i className="fa-solid fa-robot bot-icon" aria-hidden="true" />
+              <img src="https://randomuser.me/api/portraits/men/75.jpg" alt="avatar" className="avatar-img"/>
+            </div>
+          </div>
+        </div>
+
+        <div className="topbar-row topbar-row-2">
+          <div className="topbar-left second-left">
+            <div className="chips">
+              <span className="chip success">DOT Active</span>
+              <span className="chip info">Operating</span>
+              <span className="chip yellow">Safety: Satisfactory</span>
+              <span className="chip blue">ELD: Samsara</span>
+            </div>
+            <div className="fleet-stats">
+              <span className="fleet-item"><i className="fa-solid fa-truck"/> <strong>12</strong> Power Units</span>
+              <span className="fleet-item"><i className="fa-solid fa-snowflake"/> <strong>8</strong> Reefers</span>
+              <span className="fleet-item"><i className="fa-solid fa-box"/> <strong>15</strong> Dry Vans</span>
+            </div>
+          </div>
+
+          <div className="topbar-right">
+            <div className="icons">
+              <span className="lang"><i className="fa-solid fa-globe"/> EN</span>
+              <div className="notif">
+                <i className="fa-regular fa-bell notif-icon" aria-hidden="true" />
+                <span className="notif-badge">3</span>
+              </div>
+              <i className="fa-solid fa-robot bot-icon" aria-hidden="true" />
+              <img src="https://randomuser.me/api/portraits/men/75.jpg" alt="avatar" className="avatar-img"/>
+            </div>
+          </div>
+        </div>
+      </div>
+
+  <div className={`fp-content-row ${isSidebarOpen ? 'sidebar-open' : ''}`}>
+  <aside className={`fp-sidebar ${isSidebarOpen ? 'open' : ''} ${isSidebarDark ? 'dark' : ''}`}>
+        <div className="sidebar-header">
+          <div className="brand-row">
+            <div className="logo">FreightPower Logistics</div>
+            <span className="verified">Verified</span>
+          </div>
+          {/* DOT / MC line for mobile drawer */}
+          <div className="ids mobile-ids">
+            <div className="mobile-id-line"><span className="id-pair"><span className="id-label">DOT:</span> <span className="id-value">3456789</span></span></div>
+            <div className="mobile-id-line"><span className="id-pair"><span className="id-label">MC:</span> <span className="id-value">MC-987654</span></span></div>
+          </div>
+          <div className="chips sidebar-chips">
+            <span className="chip success">DOT Active</span>
+            <span className="chip info">Operating</span>
+            <span className="chip yellow">Safety: Satisfactory</span>
+            <span className="chip blue">ELD: Samsara</span>
+          </div>
+          <div className="fleet-stats sidebar-fleet">
+            <span className="fleet-item"><i className="fa-solid fa-truck"/> <strong>12</strong> Power Units</span>
+            <span className="fleet-item"><i className="fa-solid fa-snowflake"/> <strong>8</strong> Reefers</span>
+            <span className="fleet-item"><i className="fa-solid fa-box"/> <strong>15</strong> Dry Vans</span>
+          </div>
+        </div>
+        <nav className="fp-nav">
+          {navGroups.map((group) => (
+            <div className="nav-group" key={group.title}>
+              <div className="nav-group-title">{group.title}</div>
+              <ul>
+                {group.items.map((it) => (
+                  <li
+                    className={`nav-item ${activeNav === it.key ? 'active' : ''}`}
+                    key={it.key}
+                    onClick={() => { setActiveNav(it.key); if (isSidebarOpen) setIsSidebarOpen(false); }}
+                    role="button"
+                    tabIndex={0}
+                  >
+                    <i className={`${it.icon} icon`} aria-hidden="true"></i>
+                    <span className="label">{it.label}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </nav>
+        {/* Dark mode control - toggles site theme when clicked */}
+        <div className="sidebar-dark-control" aria-hidden="false">
+          <span className="dark-label">Dark Mode</span>
+          <button
+            className="dark-toggle"
+            aria-pressed={isDarkMode}
+            aria-label="Toggle dark mode"
+            onClick={() => setIsDarkMode((s) => !s)}
+          >
+            <span className="dark-toggle-knob" />
+          </button>
+        </div>
+        {/* action buttons in the mobile drawer */}
+        <div className="sidebar-actions">
+          <button className="btn small"><i className="fa-solid fa-link"/> Connect</button>
+          <button className="btn warn small"><i className="fa-solid fa-triangle-exclamation"/> Report Fraud</button>
+          <button className="btn ghost small subtle"><i className="fa-solid fa-pen"/> Suggest Edit</button>
+        </div>
+        <button className="sidebar-close" aria-label="Close sidebar" onClick={() => setIsSidebarOpen(false)}>
+          <i className="fa-solid fa-xmark" />
+        </button>
+      </aside>
+
+      {isSidebarOpen && <div className="overlay" onClick={() => setIsSidebarOpen(false)} />}
+
+      <main className="fp-main">
+        <ContentView activeNav={activeNav} />
       </main>
       </div>
     </div>

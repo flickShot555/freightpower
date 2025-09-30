@@ -6,7 +6,7 @@ import smileIcon from '../../assets/face-smile.svg';
 import dotsIcon from '../../assets/dots-horizontal.svg';
 import '../../styles/landing_page/chatbot.css';
 
-export default function Chatbot({ isOpen, onClose }) {
+export default function Chatbot({ isOpen, onClose, onMinimizeChange }) {
   const [message, setMessage] = useState('');
   const [file, setFile] = useState(null);
   const [currentTime, setCurrentTime] = useState('');
@@ -45,7 +45,9 @@ export default function Chatbot({ isOpen, onClose }) {
   };
 
   const handleMinimize = () => {
-    setIsMinimized(!isMinimized);
+    const next = !isMinimized
+    setIsMinimized(next);
+    if (typeof onMinimizeChange === 'function') onMinimizeChange(next)
   };
 
   const handleKeyPress = (e) => {
@@ -69,7 +71,7 @@ export default function Chatbot({ isOpen, onClose }) {
             <button className="chatbot-minimize" onClick={handleMinimize}>
               {isMinimized ? '□' : '−'}
             </button>
-            <button className="chatbot-close" onClick={onClose}>×</button>
+            <button className="chatbot-close" onClick={() => { if (typeof onMinimizeChange === 'function') onMinimizeChange(false); onClose && onClose() }}>×</button>
           </div>
         </div>
 

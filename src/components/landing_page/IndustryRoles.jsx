@@ -28,7 +28,7 @@ export default function IndustryRoles() {
 
             <div className="industry-roles-cards">
               {/* For Carriers */}
-              <div className="industry-roles-card industry-roles-card-blue" onClick={() => window.location.href = '/carrier-signup'} style={{cursor: 'pointer'}}>
+              <Link to={{ pathname: '/signup' }} state={{ role: 'carrier' }} className="industry-roles-card industry-roles-card-blue" style={{textDecoration: 'none', cursor: 'pointer'}}>
                 <div className="industry-roles-card-icon industry-roles-card-icon-white">
                   <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={4} d="M5 13l4 4L19 7" />
@@ -38,10 +38,10 @@ export default function IndustryRoles() {
                   <h3 className="industry-roles-card-title-white">For Carriers</h3>
                   <p className="industry-roles-card-description-white">Easily track and maintain regulatory compliance, efficiently manage and optimize your loads, and seamlessly hire qualified drivers.</p>
                 </div>
-              </div>
+              </Link>
 
               {/* For Drivers */}
-              <Link to="/driver-signup" className="industry-roles-card industry-roles-card-light" style={{textDecoration: 'none', cursor: 'pointer'}}>
+              <Link to={{ pathname: '/signup' }} state={{ role: 'driver' }} className="industry-roles-card industry-roles-card-light" style={{textDecoration: 'none', cursor: 'pointer'}}>
                 <div className="industry-roles-card-icon industry-roles-card-icon-blue">
                   <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={4} d="M5 13l4 4L19 7" />
@@ -54,7 +54,7 @@ export default function IndustryRoles() {
               </Link>
 
               {/* For Shippers */}
-              <Link to="/shipper-signup" className="industry-roles-card industry-roles-card-light" style={{textDecoration: 'none', cursor: 'pointer'}}>
+              <Link to={{ pathname: '/signup' }} state={{ role: 'shipper' }} className="industry-roles-card industry-roles-card-light" style={{textDecoration: 'none', cursor: 'pointer'}}>
                 <div className="industry-roles-card-icon industry-roles-card-icon-blue">
                   <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={4} d="M5 13l4 4L19 7" />

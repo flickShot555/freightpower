@@ -33,3 +33,16 @@ input:focus {
   outline: 2px solid #3b82f6;
   outline-offset: 2px;
 }
+
+/* persistent chatbot bubble (global) */
+.persistent-chat-bubble {
+  width:56px;
+  height:56px;
+  border-radius:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#fff;
+  box-shadow:0 8px 20px rgba(16,24,40,0.12);
+  cursor:pointer;
+}

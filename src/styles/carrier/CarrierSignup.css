@@ -1,3 +1,56 @@
+/* Terms and conditions checkbox styling */
+.terms-ctrl{
+  display: flex;
+  flex-direction: row; /* keep checkbox and text on same row */
+  align-items: flex-start; /* align checkbox to top of the text block */
+  gap: 12px;
+  font-size: 0.8rem !important;
+  color: #6b7280 !important; /* muted grey for the whole sentence */
+  font-weight: 400!important; /* lighter weight for the sentence */
+  line-height: 1.35;
+  white-space: normal; /* allow wrapping */
+}
+.terms-ctrl input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin: 0; /* reset margin so checkbox sits beside text */
+  flex: 0 0 18px; /* prevent checkbox from growing */
+  accent-color: #2563eb;
+}
+.terms-ctrl span {
+  display: inline-block; 
+  flex: 1 1 auto; 
+}
+/* default: links inherit muted sentence color/weight */
+.terms-ctrl a {
+  color: inherit;
+  font-weight: inherit;
+  text-decoration: none;
+}
+/* specifically style policy links to be bold and black */
+.terms-ctrl a.policy-link {
+  color: #000000; /* black */
+  font-weight: 500; /* bold */
+}
+
+/* Higher-specificity overrides for the login page variant so the terms label
+   renders horizontally and the checkbox isn't expanded to full width. */
+.carrier-login-page .carrier-signup-field label.terms-ctrl,
+.carrier-signup-field label.terms-ctrl {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+/* Prevent broad input selector from making checkbox full width on the login page */
+.carrier-login-page .carrier-signup-field input[type="checkbox"],
+.carrier-signup-field input[type="checkbox"]{
+  width: auto !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  flex: 0 0 18px !important;
+}
 .carrier-signup-right-bg-simple {
   position: relative;
   width: 100%;
@@ -114,7 +167,7 @@
 .carrier-signup-form {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 14px; /* reduced gap between fields for compact layout */
   width: 100%;
 }
 
@@ -127,7 +180,7 @@
 .carrier-signup-field {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0px; /* slightly smaller label->field spacing */
   flex: 1 1 0;
 }
 
@@ -141,10 +194,10 @@
   width: 100%;
   min-width: 0;
   box-sizing: border-box;
-  padding: 10px 12px;
+  padding: 8px 10px; /* reduced padding to make inputs shorter */
   border: 1px solid #e2e8f0;
   border-radius: 8px;
-  font-size: 1rem;
+  font-size: 0.98rem; /* slightly smaller font for compact feel */
   outline: none;
   transition: border 0.2s;
   color: #7b7b7b;
@@ -217,6 +270,18 @@
   text-align: center;
 }
 
+/* If Sign Up is rendered as a button (JSX), style it like a link and ensure cursor shows pointer */
+.carrier-signup-login-text .signup-link{
+  background: transparent;
+  border: none;
+  color: #2563eb;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  padding: 0;
+  font-size: 0.95rem;
+}
+
 .carrier-signup-login-actions {
   display: flex;
   gap: 12px;
@@ -224,6 +289,57 @@
   justify-content: center;
   width: 100%;
 }
+
+/* Role selection list used by RoleSelection.jsx (styled like the screenshot) */
+.role-options{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+.role-option{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  padding:10px 12px; /* reduce vertical padding */
+  border-radius:10px;
+  border:1px solid #cbd5e1;
+  background:#fff;
+  cursor:pointer;
+  width: 100%;
+  box-sizing: border-box;
+  gap:10px;
+  position: relative; /* allow absolute positioning of the radio */
+}
+.role-option input{ display:none; }
+.role-option .role-label{ color:#0f172a; flex:1 1 auto; }
+.role-option .role-label{ color:#0f172a; flex:1 1 auto; padding-right:44px; }
+.role-option .role-radio{
+  width:20px;
+  height:20px;
+  border-radius:999px;
+  border:2px solid #cbd5e1;
+  display:inline-block;
+  box-sizing:border-box;
+  background:#fff;
+  position:absolute;
+  right:14px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.role-option.selected{ border:2px solid #2563eb; box-shadow:0 6px 20px rgba(37,99,235,0.06); }
+.role-option.selected .role-radio{ border:4px solid #2563eb; width:22px; height:22px; }
+.role-option.selected .role-radio::after{
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width:8px;
+  height:8px;
+  border-radius:999px;
+  background: #2563eb;
+}
+
 
 /* When buttons are shown side-by-side, don't let the primary button stretch full width */
 .carrier-signup-login-actions .carrier-signup-btn,
@@ -401,7 +517,7 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  justify-content: flex-end; /* push content down */
+  justify-content: flex-end; 
   flex: 1 1 auto;
 }
 
@@ -415,10 +531,10 @@
 }
 
 .carrier-signup-info-simple h2 {
-  /* responsive heading: min 1.2rem, preferred scales with viewport, max 2.6rem */
-  font-size: clamp(1.2rem, 2.2vw + 1rem, 2.6rem);
+  /* responsive heading: increase min and max so heading appears noticeably larger */
+  font-size: clamp(1.4rem, 2.6vw + 1.1rem, 3rem);
   font-weight: 700;
-  margin-bottom: 12px;
+  margin-bottom: 20px;
   color: #fff;
   text-align: left;
   letter-spacing: -1px;
@@ -433,6 +549,7 @@
   color: #E8EBE6;
   line-height: 1.7;
   text-align: left;
+  margin-bottom: 16px;
 }
 
 .carrier-signup-info-simple li {
@@ -459,6 +576,7 @@
   vertical-align: middle;
   position: relative;
   top: 0;
+  margin-bottom: 30px!important;
 }
 
 .carrier-signup-dot {
@@ -542,14 +660,33 @@
 
 /* onboarding text size adjustments at breakpoints */
 @media (max-width: 1200px) {
-  .carrier-signup-info-simple h2 { font-size: 1.8rem; }
-  .carrier-signup-info-simple ul { font-size: 0.7rem;}
+  /* ensure our forced sizes apply even when .carrier-login-page selectors exist */
+  .carrier-login-page .carrier-signup-info-simple h2,
+  .carrier-signup-info-simple h2 { font-size: 2.4rem !important }
+  .carrier-login-page .carrier-signup-info-simple ul,
+  .carrier-signup-info-simple ul { font-size: 1rem !important }
 }
 @media (max-width: 1000px) {
-  .carrier-signup-info-simple h2 { font-size: 1.4rem; }
-  .carrier-signup-info-simple ul { font-size: 0.7rem;}
+  .carrier-login-page .carrier-signup-info-simple h2,
+  .carrier-signup-info-simple h2 { font-size: 1.9rem !important }
+  .carrier-login-page .carrier-signup-info-simple ul,
+  .carrier-signup-info-simple ul { font-size: 0.85rem !important }
 }
 @media (max-width: 900px) {
-  .carrier-signup-info-simple h2 { font-size: 1.1rem; line-height: 1.2; }
-  .carrier-signup-info-simple ul { font-size: 0.8rem; line-height: 1.35; }
+  .carrier-login-page .carrier-signup-info-simple h2,
+  .carrier-signup-info-simple h2 { font-size: 1.5rem !important; line-height: 1.2; }
+  .carrier-login-page .carrier-signup-info-simple ul,
+  .carrier-signup-info-simple ul { font-size: 0.9rem !important; line-height: 1.35; }
+}
+/* Make onboarding heading larger on wide / desktop screens (>1200px) */
+@media (min-width: 1201px) {
+  .carrier-login-page .carrier-signup-info-simple h2,
+  .carrier-signup-info-simple h2 {
+    font-size: 2.5rem !important; /* prominent desktop heading */
+    line-height: 1.05;
+  }
+  .carrier-login-page .carrier-signup-info-simple ul,
+  .carrier-signup-info-simple ul {
+    font-size: 1.05rem !important;
+  }
 }
