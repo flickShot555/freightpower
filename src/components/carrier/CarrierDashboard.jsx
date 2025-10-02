@@ -3,6 +3,8 @@ import '../../styles/carrier/CarrierDashboard.css';
 import peopleIcon from '../../assets/ai_driver.svg';
 import MyLoads from './MyLoads';
 import DocumentVault from './DocumentVault';
+import ShipperPartners from './ShipperPartners';
+import Marketplace from './Marketplace';
 // icon images replaced by Font Awesome icons
 
 export default function CarrierDashboard() {
@@ -290,6 +292,10 @@ export default function CarrierDashboard() {
         return <MyLoads />;
       case 'docs':
         return <DocumentVault />;
+      case 'shippers':
+        return <ShipperPartners />;
+      case 'marketplace':
+        return <Marketplace />;
       default:
         return (
           <div>

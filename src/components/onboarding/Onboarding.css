@@ -4,6 +4,7 @@
   min-height:100vh;
   font-family: 'Inter', sans-serif;
   background: #fff;
+  overflow-x: hidden; /* prevent horizontal scrolling caused by decorative backgrounds */
 }
 .onboarding-steps{
   width:300px;
@@ -45,14 +46,34 @@
 .onboarding-main{ display:flex; flex:1; gap:36px; align-items:flex-start; justify-content:center; padding:48px 56px }
 .onboarding-main{ display:flex; flex:1; gap:36px; align-items:flex-start; justify-content:center; padding:48px 56px; position:relative }
 /* center the card visually on top of the patterned background */
-.onboarding-card{ width:600px; background:#fff; border-radius:18px; padding:28px 28px 32px; box-shadow:0 12px 40px rgba(16,24,40,0.08); position:absolute; left:50%; transform:translateX(-50%); z-index:3; }
+.onboarding-card{ width:600px; background:#fff; border-radius:18px; padding:28px 28px 32px; box-shadow:0 12px 40px rgba(16,24,40,0.08); position:relative; margin:0; z-index:3; }
 .onboarding-card h2{ margin:0 0 6px 0; font-size:1.45rem; font-weight:800; color:#2e1550 }
 .onboarding-card .muted{ color:#6b7280; margin-bottom:18px; font-size:0.95rem }
 .onboarding-form{ display:flex; flex-direction:column; gap:7px }
 .onboarding-form label{ font-weight:700; font-size:13px; color:#111827 }
 .onboarding-form input{ padding:7px; border:1px solid #eef2f6; border-radius:8px; background:#fff; color:#374151 }
 .onboarding-form input::placeholder{ color:#cbd5e1 }
-.onboarding-form .field-note{ font-size:12px; color:#9aa3ad; font-weight:400 }
+.onboarding-form input::-webkit-input-placeholder{ color:#cbd5e1 }
+.onboarding-form input::-moz-placeholder{ color:#cbd5e1 }
+.onboarding-form input:-ms-input-placeholder{ color:#cbd5e1 }
+.onboarding-form input:-moz-placeholder{ color:#cbd5e1 }
+.onboarding-form textarea::placeholder{ color:#cbd5e1 }
+.onboarding-form textarea::-webkit-input-placeholder{ color:#cbd5e1 }
+.onboarding-form textarea::-moz-placeholder{ color:#cbd5e1 }
+.onboarding-form textarea:-ms-input-placeholder{ color:#cbd5e1 }
+.onboarding-form textarea:-moz-placeholder{ color:#cbd5e1 }
+.onboarding-form select{ appearance:none; -webkit-appearance:none; -moz-appearance:none; padding:10px 40px 10px 10px; border:1px solid #eef2f6; border-radius:8px; background:#fff url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path fill='%23cbd5e1' d='M6 8L0 0h12z'/></svg>") no-repeat right 12px center; background-size:12px 8px; color:#374151 }
+.onboarding-form select:focus{ outline:none; box-shadow:0 0 0 3px rgba(37,99,235,0.08); border-color:#c7d2fe }
+.onboarding-form select:invalid{ color:#cbd5e1 }
+.onboarding-form select option[value=""]{ color:#cbd5e1 }
+
+/* Ensure options and selected text use the same dark color as inputs
+  but keep placeholder/disabled options light grey. Some browsers
+  don't let us style <option> consistently, so add explicit rules. */
+.onboarding-form select option{ color:#374151 }
+.onboarding-form select option[disabled]{ color:#cbd5e1 }
+
+.onboarding-form .field-note{ font-size:12px; color:#cbd5e1; font-weight:400 }
 .onboarding-form .row{ display:flex; gap:12px }
 .onboarding-form .row .col{ flex:1 }
 .divider-line{ height:1px; background:#eef2f7; margin:12px 0 12px 0 }
@@ -67,7 +88,15 @@
 
 /* upload box used in several onboarding steps */
 .upload-box{ border:1px dashed #e6e9f3; padding:22px; border-radius:8px; text-align:center; color:#6b7280; background:#fff }
-.upload-box small{ display:block; margin-top:8px; color:#9ca3af }
+.upload-box small{ display:block; margin-top:8px; color:#cbd5e1 }
+
+/* simple toggle switch */
+.switch{ display:inline-block }
+.switch input{ display:none }
+.switch-slider{ display:inline-block; width:46px; height:26px; background:#e6e9f3; border-radius:999px; position:relative; cursor:pointer; vertical-align:middle }
+.switch-slider::after{ content:''; position:absolute; left:4px; top:4px; width:18px; height:18px; background:#fff; border-radius:999px; box-shadow:0 4px 10px rgba(16,24,40,0.08); transition:transform .18s ease }
+.switch input:checked + .switch-slider{ background:#2563eb }
+.switch input:checked + .switch-slider::after{ transform:translateX(20px) }
 
 .onboarding-side{ width:420px }
 .onboarding-visual{ position:relative; border-radius:12px; overflow:hidden; min-height:540px; background: linear-gradient(180deg,#f8fafc,#f3f6ff) }
@@ -87,15 +116,16 @@
 .hero-chat-bubble img{ width:48px; height:48px; border-radius:12px; box-shadow:0 6px 16px rgba(16,24,40,0.12) }
 
 /* Pattern background used on signup — scoped to onboarding so it behaves like the signup page */
-.onboarding-main .carrier-signup-pattern-bg{
+.onboarding-main .carrier-signup-pattern-bg,
+.onboarding-main .onboarding-pattern-bg{
   position:absolute;
   left:50%;
   top:48%;
-  transform:translate(-50%, -50%) scale(1.04);
+  transform:translate(-50%, -50%) scale(1);
   width:100%;
   max-width:1600px;
   height:auto;
-  opacity:0.12; /* slightly stronger so it's visible but subtle */
+  opacity:100; /* slightly stronger so it's visible but subtle */
   pointer-events:none;
   z-index:1;
   display:block;

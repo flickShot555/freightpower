@@ -52,7 +52,17 @@ export default function CarrierOnboarding(){
         <img src={'/src/assets/verification_bg.svg'} alt="Pattern" className="onboarding-pattern-bg"/>
         <div className="onboarding-card">
           <h2>{steps[currentStep-1]}</h2>
-          <p className="muted">Please Provide your Business information</p>
+          {currentStep === 2 ? (
+            <p className="muted">Please Provide Owner Details</p>
+          ) : currentStep === 3 ? (
+            <p className="muted">Please Provide your Fleet Information</p>
+          ) : currentStep === 4 ? (
+            <p className="muted">Please Provide your Compliance Documents</p>
+          ) : currentStep === 5 ? (
+            <p className="muted">Please review the information you provided before submitting.</p>
+          ) : (
+            <p className="muted">Please Provide your Business information</p>
+          )}
 
           <form className="onboarding-form" onSubmit={(e)=>e.preventDefault()}>
             {currentStep === 1 && (
@@ -104,7 +114,11 @@ export default function CarrierOnboarding(){
                 </div>
 
                 <label>Signature Upload <small style={{fontWeight:400,display:'block'}}>(Optional)</small></label>
-                <div className="upload-box">Click to upload or drag and drop<br/><small>SVG, PNG, JPG or GIF (max. 800x400px)</small></div>
+                <div className="upload-box" style={{minHeight:120, display:'flex', alignItems:'center', justifyContent:'center', flexDirection:'column', gap:8}}>
+                  <i className="fa-solid fa-cloud-arrow-up" style={{fontSize:22, color:'grey'}} aria-hidden="true" />
+                  <div style={{color:'grey', fontWeight:700}}>Click to upload or drag and drop</div>
+                  <small>SVG, PNG, JPG or GIF (max. 800x400px)</small>
+                </div>
               </>
             )}
 
@@ -113,50 +127,48 @@ export default function CarrierOnboarding(){
                 <div style={{display:'flex',gap:12}}>
                   <div style={{flex:1}}>
                     <label style={{opacity:1}}>COI</label>
-                    <div className="upload-box">Upload COI</div>
+                    <div className="upload-box"><i className="fa-solid fa-cloud-arrow-up" style={{fontSize:20, color:'grey'}} aria-hidden="true" /><br/>Upload COI</div>
                   </div>
                   <div style={{flex:1}}>
                     <label>W9</label>
-                    <div className="upload-box">Upload W9</div>
+                    <div className="upload-box"><i className="fa-solid fa-cloud-arrow-up" style={{fontSize:20, color:'grey'}} aria-hidden="true" /><br/>Upload W9</div>
                   </div>
                 </div>
 
                 <div style={{display:'flex',gap:12}}>
                   <div style={{flex:1}}>
                     <label>Authority Letter</label>
-                    <div className="upload-box">Upload</div>
+                    <div className="upload-box"><i className="fa-solid fa-cloud-arrow-up" style={{fontSize:20, color:'grey'}} aria-hidden="true" /><br/>Upload Authority Letter</div>
                   </div>
                   <div style={{flex:1}}>
                     <label>Voided Check</label>
-                    <div className="upload-box">Upload</div>
+                    <div className="upload-box"><i className="fa-solid fa-cloud-arrow-up" style={{fontSize:20, color:'grey'}} aria-hidden="true" /><br/>Upload Voided Check</div>
                   </div>
                 </div>
 
                 <label>Additional Licenses or Permits</label>
-                <div className="upload-box">Click to upload or drag and drop<br/><small>SVG, PNG, JPG or GIF (max. 800x400px)</small></div>
+                <div className="upload-box"><i className="fa-solid fa-cloud-arrow-up" style={{fontSize:20, color:'grey'}} aria-hidden="true" /><br/>Click to upload or drag and drop<br/><small>SVG, PNG, JPG or GIF (max. 800x400px)</small></div>
               </>
             )}
 
             {currentStep === 4 && (
               <>
                 <label>Upload MVR (Motor Vehicle Report)</label>
-                <div className="upload-box">Click to upload or drag and drop</div>
+                <div className="upload-box"><i className="fa-solid fa-cloud-arrow-up" style={{fontSize:22, color:'grey'}} aria-hidden="true" /><><br /></>Click to upload or drag and drop</div>
 
                 <label>Upload Medical Certificate</label>
-                <div className="upload-box">Click to upload or drag and drop</div>
+                <div className="upload-box"><i className="fa-solid fa-cloud-arrow-up" style={{fontSize:22, color:'grey'}} aria-hidden="true" /><><br /></>Click to upload or drag and drop</div>
 
                 <label>Drug Test Result (if available)</label>
-                <div className="upload-box">Click to upload or drag and drop</div>
+                <div className="upload-box"><i className="fa-solid fa-cloud-arrow-up" style={{fontSize:22, color:'grey'}} aria-hidden="true" /><><br /></>Click to upload or drag and drop</div>
 
                 <label>FMCSA Clearinghouse Consent</label>
-                <div className="upload-box">Click to upload or drag and drop</div>
+                <div className="upload-box"><i className="fa-solid fa-cloud-arrow-up" style={{fontSize:22, color:'grey'}} aria-hidden="true" /><><br /></>Click to upload or drag and drop</div>
               </>
             )}
 
             {currentStep === 5 && (
               <>
-                <h3 style={{marginTop:0}}>Review & Submit</h3>
-                <p className="muted">Please review the information you provided before submitting.</p>
                 <div style={{border:'1px solid #eef2f7',borderRadius:8,padding:12}}>
                   <p><strong>Company:</strong> Next Role (example)</p>
                   <p><strong>Owner:</strong> Full name (example)</p>

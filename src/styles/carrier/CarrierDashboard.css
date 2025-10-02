@@ -1,4 +1,6 @@
 /* Styles for Carrier Dashboard - simple responsive layout */
+:root{ --fp-topbar-bg: #ffffff; }
+.dark-root{ --fp-topbar-bg: #2c2c2c; }
 .dark-root{
   background:#1e1e1e; /* page background */
   color:#d1d7db; /* primary text (soft white) */
@@ -172,7 +174,9 @@
 .topbar-right{display:flex;align-items:center;gap:10px}
 .btn.small{padding:8px 14px;font-size:14px;border-radius:10px;background:#0ea5e9;color:#fff;border:0;display:inline-flex;align-items:center;gap:8px;transition:transform .12s ease,box-shadow .12s ease,background-color .12s ease}
 .btn.warn{background:#f59e0b;color:#fff;border:0}
-.btn.ghost.small{border:1px solid #e6eef2;background:#f4f6f8;color:#0f1724;padding:8px 12px;border-radius:10px;transition:background-color .12s ease,border-color .12s ease,transform .12s ease}
+.btn.ghost.small{border:1px solid var(--fp-topbar-bg);background:#d5d5d5;color:#0f1724;padding:8px 12px;border-radius:10px;transition:background-color .12s ease,border-color .12s ease,transform .12s ease}
+/* dark mode: button text should be light and border should match dark topbar */
+.dark-root .btn.ghost.small{color:#343434;border-color:white}
 .btn.subtle{padding-top:6px;padding-bottom:6px;font-weight:600}
 .btn.small i{margin-right:8px}
 .notif-icon.img,.bot-icon.img{width:20px;height:20px}
@@ -185,7 +189,8 @@
 /* hover states */
 .btn.small:hover{transform:translateY(-2px);}
 .btn.warn:hover{filter:brightness(.95);transform:translateY(-2px)}
-.btn.ghost.small:hover{background:#eef4f7;border-color:#dbeff6;transform:translateY(-2px)}
+.btn.ghost.small:hover{background:rgba(11,107,154,0.06);border-color:rgba(11,107,154,0.12);transform:translateY(-2px)}
+.dark-root .btn.ghost.small:hover{background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.08)}
 .notif-icon:hover{color:#0b6b9a;transform:translateY(-2px)}
 .bot-icon:hover{color:#0b6b9a;transform:translateY(-2px)}
 .avatar-img{width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid #fff}
@@ -361,7 +366,7 @@
   color:#102027;
 }
 
-.fp-header-titles h2{font-size:36px;color:#0b1720;margin:0 0 6px 0;font-weight:700}
+.fp-header-titles h2{font-size:30px;color:#0b1720;margin:0 0 6px 0;font-weight:700}
 .fp-subtitle{margin:0;color:#94a3a8;font-size:15px;font-weight:600}
 
 .fp-header-controls{display:flex;gap:8px}

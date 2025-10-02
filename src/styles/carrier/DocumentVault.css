@@ -1,4 +1,15 @@
-.dv-root { display:block; min-height: calc(100vh - 120px); width:100%; box-sizing:border-box; padding:18px }
+.dv-root { display:block; min-height: calc(100vh - 120px); width:100%;  }
+/* theme variables to match sidebar and subheading colors */
+:root{
+  --fp-sidebar-bg: #ffffff;
+  --fp-muted-sub: #94a3a8;
+  --fp-divider: #f3f6f8;
+}
+.dark-root{
+  --fp-sidebar-bg: #2c2c2c;
+  --fp-muted-sub: #d1d7db;
+  --fp-divider: rgba(255,255,255,0.06);
+}
 /* left column removed - folders now inline above content */
 .dv-sidebar { display:none }
 
@@ -34,11 +45,16 @@
 /* ensure grid doesn't add extra measured width from children */
 .dv-folders-grid, .folder-card { box-sizing: border-box }
 /* Each card tries to be at least 220px wide and grow; this creates a row of cards that wrap */
-.folder-card { display:flex; align-items:center; justify-content:space-between; padding:14px 18px; border-radius:12px; background:#ffffff; border:1px solid #eef3f6; box-shadow:0 1px 0 rgba(11,24,32,0.03); flex: 1 1 200px; min-width:180px; max-width:320px; box-sizing:border-box }
+.folder-card { display:flex; align-items:center; justify-content:space-between; padding:14px 18px; border-radius:12px; background:var(--fp-sidebar-bg); border:1px solid #eef3f6; box-shadow:0 1px 0 rgba(11,24,32,0.03); flex: 1 1 200px; min-width:180px; max-width:320px; box-sizing:border-box }
 .folder-card-left { display:flex; align-items:center; gap:12px }
 .folder-card .fa-folder { color:#2B7CC4; font-size:18px }
-.folder-card-title { font-weight:700; color:#0b1820; font-size:15px }
-.folder-card-count { color:#94a3a8; font-size:13px }
+.folder-card-title { font-weight:700; color:var(--fp-muted-sub); font-size:15px }
+.folder-card-count { color:var(--fp-muted-sub); font-size:13px }
+
+/* --- Force folder card text dark in light mode --- */
+.folder-card-title, .folder-card-count {
+  color: #23272e;
+}
 
 /* On small screens, cards become full-width stack */
 @media (max-width: 640px) {
@@ -62,6 +78,11 @@
   .dv-folders-grid::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.08); border-radius: 8px }
   .folder-card { flex: 0 0 auto; min-width: 160px; max-width: 300px }
 }
+
+/* Dark-mode adjustments: ensure folder chips match dark sidebar */
+.dark-root .folder-card{ background:var(--fp-sidebar-bg); border-color: rgba(255,255,255,0.04) }
+.dark-root .folder-card-title{ color:var(--fp-muted-sub) }
+.dark-root .folder-card-count{ color:#9ca3af }
 
 /* ensure fp-main can shrink on tablet so content doesn't overflow horizontally */
 @media (max-width: 1024px) {
@@ -109,21 +130,26 @@
 .dv-drop-text { font-weight:700; margin-top:6px }
 .dv-drop-sub { color:#94a3a8; margin-top:6px }
 
-.dv-table-wrap { background:#fff; border-radius:8px; padding:12px; border:1px solid #eef2f6; min-height:200px; overflow-x:auto }
+.dv-table-wrap { background:var(--fp-sidebar-bg); border-radius:8px; padding:12px; border:1px solid #eef2f6; min-height:200px; overflow-x:auto }
 .dv-table { width:100%; border-collapse:collapse; min-width:640px }
-.dv-table th, .dv-table td { padding:10px 8px; text-align:left; border-bottom:1px solid #f3f6f8 }
-.dv-table thead th{font-size:11px;color:#6b7880;letter-spacing:0.8px;font-weight:700}
-.dv-table td{font-size:13px;color:#22343a}
+.dv-table th, .dv-table td { padding:10px 8px; text-align:left; border-bottom:none }
+.dv-table thead th{font-size:11px;color:var(--fp-muted-sub);letter-spacing:0.8px;font-weight:700}
+.dv-table td{font-size:13px;color:var(--fp-muted-sub)}
+
+/* draw a single divider line per row inset from the left so it aligns with content */
+.dv-table tbody tr{position:relative}
+.dv-table tbody tr::after{content:'';position:absolute;left:56px;right:16px;height:1px;background:var(--fp-divider);bottom:0}
+.dv-table tbody tr:last-child::after{display:none}
 .dv-table th.c-check, .dv-table td.c-check { width:36px }
 .dv-table th.c-actions, .dv-table td.c-actions { width:110px; text-align:right }
 .dv-table td.c-actions{position:relative}
 .file-name { display:flex; align-items:center; gap:8px }
-.file-name span{font-weight:700;font-size:13px}
+.file-name span{font-weight:700;font-size:13px;color:var(--fp-muted-sub)}
 .badge { padding:5px 8px; border-radius:999px; font-weight:700; font-size:11px }
 .badge.green { background:#dff7ea; color:#0b7f60 }
 .badge.yellow { background:#fff4d9; color:#b68100 }
 .badge.red { background:#ffe6e6; color:#ef4444 }
-.action { background:transparent; border:0; margin-left:6px; cursor:pointer; color: #9aa6b1}
+.action { background:transparent; border:0; margin-left:6px; cursor:pointer; color: var(--fp-muted-sub)}
 
 /* Remove large focus circle on icon buttons when clicked with mouse, but keep an accessible
   outline for keyboard users (focus-visible). */
