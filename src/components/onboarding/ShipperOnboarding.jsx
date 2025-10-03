@@ -6,6 +6,8 @@ import carrier_ob_3 from '../../assets/carrier_ob_3.jpg'
 import '../../styles/carrier/CarrierSignup.css'
 import './Onboarding.css'
 import Chatbot from '../../components/landing_page/Chatbot'
+import verification from '../../assets/verification_bg.svg'
+import botpic from '../../assets/chatbot.svg'
 
 export default function ShipperOnboarding(){
   const images = [carrier_ob_1, carrier_ob_2, carrier_ob_3]
@@ -95,7 +97,7 @@ export default function ShipperOnboarding(){
       </aside>
 
       <main className="onboarding-main">
-        <img src={'/src/assets/verification_bg.svg'} alt="Pattern" className="onboarding-pattern-bg"/>
+        <img src={verification} alt="Pattern" className="onboarding-pattern-bg"/>
         <div className="onboarding-card">
           <h2>{steps[currentStep-1]}</h2>
           {currentStep === 1 ? (
@@ -331,7 +333,7 @@ export default function ShipperOnboarding(){
         </div>
       </main>
       <div className="hero-chat-bubble" onClick={() => setIsChatOpen(s => !s)} style={{position: 'fixed', right: 18, bottom: 18, zIndex: 999}}>
-        <img src={'/src/assets/chatbot.svg'} alt="AI Assistant" style={{width:42,height:42}} />
+        <img src={botpic} alt="AI Assistant" style={{width:42,height:42}} />
       </div>
       <Chatbot isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
     </div>

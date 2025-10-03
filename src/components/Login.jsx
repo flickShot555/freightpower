@@ -5,6 +5,7 @@ import '../styles/carrier/CarrierLogin.css';
 import carrier_ob_1 from '../assets/carrier_ob_1.png';
 import carrier_ob_2 from '../assets/carrier_ob_2.jpg';
 import carrier_ob_3 from '../assets/carrier_ob_3.jpg';
+import pattern_bg_signup from '../../assets/pattern_bg_signup.svg'
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -35,7 +36,7 @@ const Login = () => {
   return (
     <div className="carrier-signup-container carrier-login-page">
       <div className="carrier-signup-left">
-        <img src={'/src/assets/pattern_bg_signup.svg'} alt="Pattern" className="carrier-signup-pattern-bg" />
+        <img src={pattern_bg_signup} alt="Pattern" className="carrier-signup-pattern-bg" />
         <div className="carrier-signup-form-bg">
           <h1 className="carrier-signup-title">Log in to FreightPower AI</h1>
           <p className="carrier-signup-subtitle">Manage, move, and monitor freight smarter</p>
