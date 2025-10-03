@@ -14,6 +14,7 @@ import ShipperOnboarding from './components/onboarding/ShipperOnboarding'
 import './App.css'
 import Chatbot from './components/landing_page/Chatbot'
 import { useState } from 'react'
+import AI from '/src/assets/chatbot.svg'
 
 function App() {
   const [chatOpen, setChatOpen] = useState(false)
@@ -35,7 +36,7 @@ function InnerRoutes({ chatOpen, chatMinimized, setChatOpen, setChatMinimized })
       {showChat && !chatOpen && !chatMinimized && (
         <div style={{position:'fixed', right:18, bottom:18, zIndex:1200}}>
           <div onClick={() => setChatOpen(s => !s)} style={{width:56,height:56,borderRadius:12,background:'#fff',display:'flex',alignItems:'center',justifyContent:'center',boxShadow:'0 8px 20px rgba(16,24,40,0.12)',cursor:'pointer'}}>
-            <img src={'/src/assets/chatbot.svg'} alt="AI" style={{width:36,height:36}} />
+            <img src={AI} alt="AI" style={{width:36,height:36}} />
           </div>
         </div>
       )}
