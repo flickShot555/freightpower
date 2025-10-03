@@ -12,6 +12,11 @@
   box-sizing: border-box;
 }
 
+/* Set filter checkbox and radio checked color to #0ea5e9 */
+input[type="checkbox"], input[type="radio"] {
+  accent-color: #0ea5e9;
+}
+
 .filter-row {
   display: flex;
   gap: 18px;
@@ -426,8 +431,6 @@
 .dark-root .endorsement{background:rgba(255,255,255,0.05);color:#d1d7db}
 .dark-root .equipment{background:rgba(255,255,255,0.03);color:#d1d7db}
 .dark-root .driver-menu{color:#9aa6b1}
-.dark-root .pagination button{background:#2c2c2c;border-color:rgba(255,255,255,0.04);color:#d1d7db}
-.dark-root .pagination button:hover{background:rgba(255,255,255,0.05)}
 
 .load-card-header {
   display: flex;
@@ -835,7 +838,7 @@
   min-width: 120px;
 }
 .btn-hire {
-  background: #1746a2;
+  background: #0ea5e9;;
   color: #fff;
   border: none;
   border-radius: 7px;
@@ -853,8 +856,14 @@
   color: #64748b;
   cursor: not-allowed;
 }
+
+/* Dark mode: make not available button a darker grey */
+.dark-root .btn-hire.inactive {
+  background: #4c4e4f;
+  color: #7b8794;
+}
 .btn-hire:hover:not(.inactive) {
-  background: #0a2e6b;
+  background: #1995cf;
 }
 .driver-menu {
   display: flex;
@@ -953,7 +962,7 @@
   gap: 8px;
 }
 .btn-hire.v2 {
-  background: #1746a2;
+  background: #0ea5e9;
   color: #fff;
   border: none;
   border-radius: 7px;
@@ -1158,12 +1167,6 @@
     gap: 8px;
     align-items: flex-start;
   }
-  
-  .drivers-pagination {
-    flex-direction: column;
-    gap: 12px;
-    text-align: center;
-  }
 }
 @media (max-width: 768px) {
   .marketplace-nav {
@@ -1356,4 +1359,111 @@
 select, select option {
   color: #181d23 !important;
   background: #fff !important;
+}
+
+/* Pagination Styling */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.pagination button {
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  color: #374151;
+  font-size: 1rem;
+  font-weight: 500;
+  border-radius: 8px;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Dark mode: set pagination icon color to sidebar color */
+.dark-root .pagination button {
+  background-color: var(--fp-sidebar-bg, #181d23);
+  color: white;
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+.pagination button.active, .pagination button[aria-current="page"] {
+  background: #0ea5e9;;
+  color: #ffffff;
+  border-color: #0ea5e9;
+}
+
+.pagination button:hover:not(.active):not([aria-current="page"]) {
+  background: #e5e7eb;
+  color: #0ea5e9;
+  border-color: #0ea5e9;
+}
+
+.dark-root .pagination button:hover:not(.active):not([aria-current="page"]) {
+  background: #0ea5e9;
+  color: white;
+  border-color: #0ea5e9;
+}
+.pagination span {
+  color: #6b7280;
+  font-size: 1rem;
+  margin: 0 4px;
+}
+
+/* Drivers Actions */
+.drivers-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.btn-export, .btn-post-request {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  border-radius: 8px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+}
+.btn-export {
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  color: #374151;
+}
+.btn-export:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+}
+.btn-post-request {
+  background: #0ea5e9;
+  border: 1px solid #0ea5e9;
+  color: #ffffff;
+}
+.btn-post-request:hover {
+  background: #1995cf;
+  border-color: #1995cf;
+}
+
+/* Responsive Buttons */
+@media (max-width: 768px) {
+  .btn-export, .btn-post-request {
+    font-size: 0.9rem;
+    padding: 6px 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .btn-export, .btn-post-request {
+    font-size: 0.8rem;
+    padding: 4px 8px;
+  }
 }

@@ -1,5 +1,6 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import '../../styles/carrier/Marketplace.css'
+import '../../styles/carrier/ServicesPage.css'
 
 export default function Marketplace() {
   const [activeTab, setActiveTab] = useState('loads') // loads | drivers | services
@@ -9,6 +10,24 @@ export default function Marketplace() {
   const [destination, setDestination] = useState('')
   const [dateRange, setDateRange] = useState('')
   const [distance, setDistance] = useState('')
+  const [serviceTab, setServiceTab] = useState('all')
+  const [showSidebar, setShowSidebar] = useState(true)
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth <= 1024) {
+        setIsMobile(true)
+        setShowSidebar(false)
+      } else {
+        setIsMobile(false)
+        setShowSidebar(true)
+      }
+    }
+    handleResize()
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   // Mock drivers data
   const drivers = [
@@ -301,6 +320,7 @@ export default function Marketplace() {
       {/* Drivers Content */}
       {activeTab === 'drivers' && (
         <div className="drivers-content">
+
           <div className="drivers-filterbar">
             <div className="filter-row">
               <div className="filter-group">
@@ -363,6 +383,15 @@ export default function Marketplace() {
               </div>
             </div>
           </div>
+
+          <div className="drivers-actions">
+          <button className="btn-export">
+            <i className="fa-solid fa-download"></i> Export
+          </button>
+          <button className="btn-post-request">
+            <i className="fa-solid fa-plus"></i> Post Driver Request
+          </button>
+            </div>
 
           <div className="drivers-list">
             {drivers.map(driver => (
@@ -431,11 +460,13 @@ export default function Marketplace() {
           <div className="drivers-pagination">
             <span>Showing 1-5 of 1,247 drivers</span>
             <div className="pagination">
-              <button>1</button>
+              <button aria-label="Previous page">&lt;</button>
+              <button className="active" aria-current="page">1</button>
               <button>2</button>
               <button>3</button>
               <span>...</span>
               <button>25</button>
+              <button aria-label="Next page">&gt;</button>
             </div>
           </div>
         </div>
@@ -443,11 +474,320 @@ export default function Marketplace() {
 
       {/* Services Content */}
       {activeTab === 'services' && (
-        <div className="services-content">
-          <div className="coming-soon">
-            <i className="fa-solid fa-tools fa-3x" />
-            <h3>Service Marketplace Coming Soon</h3>
-            <p>Find maintenance, repair, and other logistics services</p>
+        <div className="services-page">
+          {/* Service Tabs */}
+          <div className="services-header">
+            <div className="services-tabs">
+              <button className={`service-tab ${serviceTab === 'all' ? 'active' : ''}`} onClick={() => setServiceTab('all')}>
+                <i className="fa-solid fa-th"></i> All Services
+              </button>
+              <button className={`service-tab ${serviceTab === 'fuel' ? 'active' : ''}`} onClick={() => setServiceTab('fuel')}>
+                <i className="fa-solid fa-gas-pump"></i> Fuel
+              </button>
+              <button className={`service-tab ${serviceTab === 'parking' ? 'active' : ''}`} onClick={() => setServiceTab('parking')}>
+                <i className="fa-solid fa-square-parking"></i> Parking
+              </button>
+              <button className={`service-tab ${serviceTab === 'parts' ? 'active' : ''}`} onClick={() => setServiceTab('parts')}>
+                <i className="fa-solid fa-cog"></i> Parts
+              </button>
+              <button className={`service-tab ${serviceTab === 'maintenance' ? 'active' : ''}`} onClick={() => setServiceTab('maintenance')}>
+                <i className="fa-solid fa-wrench"></i> Maintenance
+              </button>
+              <button className={`service-tab ${serviceTab === 'factoring' ? 'active' : ''}`} onClick={() => setServiceTab('factoring')}>
+                <i className="fa-solid fa-dollar-sign"></i> Factoring
+              </button>
+              <button className={`service-tab ${serviceTab === 'insurance' ? 'active' : ''}`} onClick={() => setServiceTab('insurance')}>
+                <i className="fa-solid fa-shield-alt"></i> Insurance
+              </button>
+              <button className={`service-tab ${serviceTab === 'food' ? 'active' : ''}`} onClick={() => setServiceTab('food')}>
+                <i className="fa-solid fa-utensils"></i> Food
+              </button>
+              <button className={`service-tab ${serviceTab === 'favourites' ? 'active' : ''}`} onClick={() => setServiceTab('food')}>
+                <i className="fa-solid fa-heart"></i> Favourites
+              </button>
+              <button className={`service-tab ${serviceTab === 'history' ? 'active' : ''}`} onClick={() => setServiceTab('food')}>
+                <i className="fa-solid fa-history"></i> History
+              </button>
+            </div>
+          </div>
+          <div className="services-main">
+            {/* Services Grid and Info */}
+            <div className="services-left">
+              <div className="services-info">
+                <span>Showing 247 service providers</span>
+                <div className="sort-controls">
+                  <label htmlFor="services-sort-select">Sort by:</label>
+                  <select id="services-sort-select" className="filter-select" style={{ minWidth: 120 }}>
+                    <option value="relevance">Relevance</option>
+                    <option value="rating">Rating</option>
+                    <option value="reviews">Reviews</option>
+                    <option value="distance">Distance</option>
+                  </select>
+                  {isMobile && (
+                    <button
+                      className="btn-filter-toggle"
+                      aria-label="Show Filters"
+                      onClick={() => setShowSidebar((v) => !v)}
+                      style={{ marginLeft: 8 }}
+                    >
+                      <i className="fa-solid fa-filter"></i>
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Service Cards Grid */}
+              <div className="services-grid">
+                {/* Pilot Flying J Card */}
+                <div className="service-card">
+                  <div className="card-header">
+                    <div className="provider-info">
+                      <div className="provider-logo red">PJ</div>
+                      <div>
+                        <h3>Pilot Flying J</h3>
+                        <p>Fuel Network</p>
+                      </div>
+                    </div>
+                    <i className="fa-regular fa-heart"></i>
+                  </div>
+                  <div className="service-features">
+                    <span className="feature nationwide"><i class="fa-solid fa-location-dot"></i> Nationwide Coverage</span>
+                    <div className="rating">
+                      <span><i className="fa-solid fa-star" style={{color:'#fbbf24'}}></i> 4.8</span>
+                      <span>(1,247 reviews)</span>
+                    </div>
+                    <span className="discount"><i class="fa-solid fa-tag"></i> 12¢ off per gallon</span>
+                    <span className="cashback">Plus 2% cash back on purchases</span>
+                  </div>
+                  <button className="btn-request">Request Quote</button>
+                </div>
+
+                {/* TruckPro Service Card */}
+                <div className="service-card">
+                  <div className="card-header">
+                    <div className="provider-info">
+                      <div className="provider-logo blue">TP</div>
+                      <div>
+                        <h3>TruckPro Service</h3>
+                        <p>Maintenance & Repair</p>
+                      </div>
+                    </div>
+                    <i className="fa-regular fa-heart"></i>
+                  </div>
+                  <div className="service-features">
+                    <span className="location"><i class="fa-solid fa-location-dot"></i> Dallas, TX - 50 mile radius</span>
+                    <div className="rating">
+                      <span><i className="fa-solid fa-star" style={{color:'#fbbf24'}}></i> 4.9</span>
+                      <span>(456 reviews)</span>
+                    </div>
+                    <span className="emergency"><i class="fa-solid fa-clock"></i> 24/7 Emergency Service</span>
+                    <span className="mobile">Mobile repair units available</span>
+                  </div>
+                  <button className="btn-request">Request Quote</button>
+                </div>
+
+                {/* Progressive Commercial Card */}
+                <div className="service-card">
+                  <div className="card-header">
+                    <div className="provider-info">
+                      <div className="provider-logo">PC</div>
+                      <div>
+                        <h3>Progressive Commercial</h3>
+                        <p>Commercial Insurance</p>
+                      </div>
+                    </div>
+                    <i className="fa-solid fa-heart red"></i>
+                  </div>
+                  <div className="service-features">
+                    <span className="coverage"><i class="fa-solid fa-location-dot"></i> All 50 States</span>
+                    <div className="rating">
+                      <span> 4.6</span>
+                      <span>(2,134 reviews)</span>
+                    </div>
+                    <span className="savings"><i class="fa-solid fa-percent"></i> Save up to 25%</span>
+                    <span className="discount">Multi-policy discount available</span>
+                  </div>
+                  <button className="btn-get-quote">Get Quote</button>
+                </div>
+
+                {/* RTS Financial Card */}
+                <div className="service-card">
+                  <div className="card-header">
+                    <div className="provider-info">
+                      <div className="provider-logo dollar">$</div>
+                      <div>
+                        <h3>RTS Financial</h3>
+                        <p>Invoice Factoring</p>
+                      </div>
+                    </div>
+                    <i className="fa-regular fa-heart"></i>
+                  </div>
+                  <div className="service-features">
+                    <span className="service-type"><i class="fa-solid fa-location-dot"></i> Nationwide Service</span>
+                    <div className="rating">
+                      <span><i className="fa-solid fa-star" style={{color:'#fbbf24'}}></i> 4.7</span>
+                      <span>(892 reviews)</span>
+                    </div>
+                    <span className="funding"><i class="fa-solid fa-bolt"></i> Same-day funding</span>
+                    <span className="rate">Rates starting at 1.5%</span>
+                  </div>
+                  <button className="btn-apply">Apply Now</button>
+                </div>
+
+                {/* SecurePark Network Card */}
+                <div className="service-card">
+                  <div className="card-header">
+                    <div className="provider-info">
+                      <div className="provider-logo purple">SP</div>
+                      <div>
+                        <h3>SecurePark Network</h3>
+                        <p>Truck Parking</p>
+                      </div>
+                    </div>
+                    <i className="fa-regular fa-heart"></i>
+                  </div>
+                  <div className="service-features">
+                    <span className="locations"><i class="fa-solid fa-location-dot"></i> 150+ Locations</span>
+                    <div className="rating">
+                      <span><i className="fa-solid fa-star" style={{color:'#fbbf24'}}></i> 4.5</span>
+                      <span>(678 reviews)</span>
+                    </div>
+                    <span className="security"><i class="fa-solid fa-shield-alt"></i> Secure & Monitored</span>
+                    <span className="available">24/7 security & reservations</span>
+                  </div>
+                  <button className="btn-reserve">Reserve Spot</button>
+                </div>
+
+                {/* FleetParts Direct Card */}
+                <div className="service-card">
+                  <div className="card-header">
+                    <div className="provider-info">
+                      <div className="provider-logo orange">FP</div>
+                      <div>
+                        <h3>FleetParts Direct</h3>
+                        <p>Truck Parts & Components</p>
+                      </div>
+                    </div>
+                    <i className="fa-regular fa-heart"></i>
+                  </div>
+                  <div className="service-features">
+                    <span className="shipping"><i class="fa-solid fa-location-dot"></i> Same-day shipping</span>
+                    <div className="rating">
+                      <span><i className="fa-solid fa-star" style={{color:'#fbbf24'}}></i> 4.8</span>
+                      <span>(1,523 reviews)</span>
+                    </div>
+                    <span className="free-shipping"><i class="fa-solid fa-truck"></i> Free shipping $200+</span>
+                    <span className="oem">OEM & aftermarket parts</span>
+                  </div>
+                  <button className="btn-browse">Browse Parts</button>
+                </div>
+              </div>
+
+              <div className="load-more">
+                <button className="btn-load-more">Load More Providers</button>
+              </div>
+            </div>
+
+            {/* Filters Sidebar */}
+            {(showSidebar || !isMobile) && (
+              <div className={`services-sidebar${showSidebar && isMobile ? ' active' : ''}`}>
+                {isMobile && (
+                  <button
+                    className="btn-filter-close"
+                    aria-label="Close Filters"
+                    onClick={() => setShowSidebar(false)}
+                    style={{ float: 'right', marginBottom: 12 }}
+                  >
+                    <i className="fa-solid fa-times"></i>
+                  </button>
+                )}
+                <h3>Filters</h3>
+                
+                <div className="filter-section">
+                  <h4>Location</h4>
+                  <input type="text" placeholder="Enter city or ZIP code" className="location-input" />
+                  <div className="radius-selector">
+                    <label>Radius</label>
+                    <select>
+                      <option>25 miles</option>
+                      <option>50 miles</option>
+                      <option>100 miles</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="filter-section">
+                  <h4>Minimum Rating</h4>
+                  <div className="rating-filters">
+                    <label><input type="radio" name="rating" />
+                      <i className="fa-solid fa-star" style={{color:'#fbbf24'}}></i>
+                      <i className="fa-solid fa-star" style={{color:'#fbbf24'}}></i>
+                      <i className="fa-solid fa-star" style={{color:'#fbbf24'}}></i>
+                      <i className="fa-solid fa-star" style={{color:'#fbbf24'}}></i>
+                      <i className="fa-solid fa-star" style={{color:'#fbbf24'}}></i>
+                      5 stars
+                    </label>
+                    <label><input type="radio" name="rating" />
+                      <i className="fa-solid fa-star" style={{color:'#fbbf24'}}></i>
+                      <i className="fa-solid fa-star" style={{color:'#fbbf24'}}></i>
+                      <i className="fa-solid fa-star" style={{color:'#fbbf24'}}></i>
+                      <i className="fa-solid fa-star" style={{color:'#fbbf24'}}></i>
+                      4+ stars
+                    </label>
+                    <label><input type="radio" name="rating" />
+                      <i className="fa-solid fa-star" style={{color:'#fbbf24'}}></i>
+                      <i className="fa-solid fa-star" style={{color:'#fbbf24'}}></i>
+                      <i className="fa-solid fa-star" style={{color:'#fbbf24'}}></i>
+                      3+ stars
+                    </label>
+                  </div>
+                </div>
+
+                <div className="filter-section">
+                  <h4>Service Features</h4>
+                  <div className="feature-checkboxes">
+                    <label><input type="checkbox" /> 24/7 Service</label>
+                    <label><input type="checkbox" checked /> Mobile Service</label>
+                    <label><input type="checkbox" checked /> Same-day Service</label>
+                    <label><input type="checkbox" /> Warranty Included</label>
+                  </div>
+                </div>
+
+                <div className="filter-section">
+                  <h4>Price Range</h4>
+                  <div className="price-filters">
+                    <label><input type="radio" name="price" /> $ - Budget</label>
+                    <label><input type="radio" name="price" checked /> $$ - Moderate</label>
+                    <label><input type="radio" name="price" /> $$$ - Premium</label>
+                  </div>
+                </div>
+
+                <div className="filter-actions">
+                  <button className="btn-apply-filters">Apply Filters</button>
+                  <button className="btn-clear-filters">Clear All Filters</button>
+                </div>
+
+                <div className="quick-actions">
+                  <h4>Quick Actions</h4>
+                  <button className="quick-action-btn service">
+                    <i className="fa-solid fa-add"></i>
+                    Request Service
+                  </button>
+                  <button className="quick-action-btn emergency">
+                    <i className="fa-solid fa-exclamation-circle"></i>
+                    Request Emergency Service
+                  </button>
+                  <button className="quick-action-btn maintenance">
+                    <i className="fa-solid fa-calendar"></i>
+                    Schedule Maintenance
+                  </button>
+                  <button className="quick-action-btn insurance">
+                    <i className="fa-solid fa-shield"></i>
+                    Get Insurance Quote
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}

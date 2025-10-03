@@ -5,6 +5,9 @@ import MyLoads from './MyLoads';
 import DocumentVault from './DocumentVault';
 import ShipperPartners from './ShipperPartners';
 import Marketplace from './Marketplace';
+import DriversAndDispatches from './DriversAndDispatches';
+import FactoringInvoicing from './FactoringInvoicing';
+import Integrations from './Integrations';
 // icon images replaced by Font Awesome icons
 
 export default function CarrierDashboard() {
@@ -296,6 +299,12 @@ export default function CarrierDashboard() {
         return <ShipperPartners />;
       case 'marketplace':
         return <Marketplace />;
+      case 'drivers':
+        return <DriversAndDispatches />;
+      case 'factoring':
+        return <FactoringInvoicing />;
+      case 'integrations':
+        return <Integrations />;
       default:
         return (
           <div>
