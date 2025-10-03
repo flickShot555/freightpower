@@ -26,7 +26,7 @@ export default function RoleSelection(){
   return (
     <div className="carrier-signup-container carrier-login-page">
       <div className="carrier-signup-left">
-        <img src={'/src/assets/pattern_bg_signup.svg'} alt="Pattern" className="carrier-signup-pattern-bg" />
+        <img src={'/pattern_bg_signup.svg'} alt="Pattern" className="carrier-signup-pattern-bg" />
         <div className="carrier-signup-form-bg">
           <h1 className="carrier-signup-title">Create Your FreightPower Account</h1>
           <p className="carrier-signup-subtitle">Manage, move, and monitor freight smarter</p>
