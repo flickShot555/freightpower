@@ -4,7 +4,7 @@ import '../styles/carrier/CarrierSignup.css'
 import carrier_ob_1 from '../assets/carrier_ob_1.png'
 import carrier_ob_2 from '../assets/carrier_ob_2.jpg'
 import carrier_ob_3 from '../assets/carrier_ob_3.jpg'
-import pattern_bg_signup from '../../assets/pattern_bg_signup.svg'
+import pattern_bg_signup from '../assets/pattern_bg_signup.svg'
 
 export default function Signup(){
   const images = [carrier_ob_1, carrier_ob_2, carrier_ob_3]
