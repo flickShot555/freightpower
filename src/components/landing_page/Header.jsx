@@ -100,8 +100,8 @@ export default function Header() {
 
   return (
     <header className={`header ${isScrolled ? 'scrolled' : 'transparent'}`}>
-      <div className="header-container">
-        <div className="header-content">
+      <div className="landing-header-container">
+        <div className="landing-header-content">
           {/* Logo */}
           <div className="logo">
             <Link 
@@ -114,20 +114,20 @@ export default function Header() {
           </div>
 
           {/* Navigation Menu */}
-          <nav className="nav">
-            <a href="#features" onClick={(e) => handleNavClick(e, 'features')} className={`nav-link ${activeSection === 'features' ? 'active' : ''} ${isScrolled ? 'scrolled' : 'transparent'}`}>
+          <nav className="landing-nav">
+            <a href="#features" onClick={(e) => handleNavClick(e, 'features')} className={`landing-nav-link ${activeSection === 'features' ? 'active' : ''} ${isScrolled ? 'scrolled' : 'transparent'}`}>
               Features
             </a>
-            <a href="#how-it-works" onClick={(e) => handleNavClick(e, 'how-it-works')} className={`nav-link ${activeSection === 'how-it-works' ? 'active' : ''} ${isScrolled ? 'scrolled' : 'transparent'}`}>
+            <a href="#how-it-works" onClick={(e) => handleNavClick(e, 'how-it-works')} className={`landing-nav-link ${activeSection === 'how-it-works' ? 'active' : ''} ${isScrolled ? 'scrolled' : 'transparent'}`}>
               How it Works
             </a>
-            <a href="#testimonials" onClick={(e) => handleNavClick(e, 'testimonials')} className={`nav-link ${activeSection === 'testimonials' ? 'active' : ''} ${isScrolled ? 'scrolled' : 'transparent'}`}>
+            <a href="#testimonials" onClick={(e) => handleNavClick(e, 'testimonials')} className={`landing-nav-link ${activeSection === 'testimonials' ? 'active' : ''} ${isScrolled ? 'scrolled' : 'transparent'}`}>
               Marketplace
             </a>
-            <a href="#about" onClick={(e) => handleNavClick(e, 'about')} className={`nav-link ${activeSection === 'about' ? 'active' : ''} ${isScrolled ? 'scrolled' : 'transparent'}`}>
+            <a href="#about" onClick={(e) => handleNavClick(e, 'about')} className={`landing-nav-link ${activeSection === 'about' ? 'active' : ''} ${isScrolled ? 'scrolled' : 'transparent'}`}>
               About Us
             </a>
-            <a href="#pricing" onClick={(e) => handleNavClick(e, 'pricing')} className={`nav-link ${activeSection === 'pricing' ? 'active' : ''} ${isScrolled ? 'scrolled' : 'transparent'}`}>
+            <a href="#pricing" onClick={(e) => handleNavClick(e, 'pricing')} className={`landing-nav-link ${activeSection === 'pricing' ? 'active' : ''} ${isScrolled ? 'scrolled' : 'transparent'}`}>
               Pricing
             </a>
           </nav>

@@ -7,8 +7,8 @@
 .header a:focus-visible,
 .logo-text:focus,
 .logo-text:focus-visible,
-.nav-link:focus,
-.nav-link:focus-visible,
+.landing-nav-link:focus,
+.landing-nav-link:focus-visible,
 .cta-button:focus,
 .cta-button:focus-visible {
   outline: none !important;
@@ -34,7 +34,7 @@
   background-color: transparent;
 }
 
-.header-container {
+.landing-header-container {
   max-width: 85rem;
   margin: 0 auto;
   margin-top: 20px;
@@ -42,18 +42,18 @@
 }
 
 @media (min-width: 640px) {
-  .header-container {
+  .landing-header-container {
     padding: 0 1.5rem;
   }
 }
 
 @media (min-width: 1024px) {
-  .header-container {
+  .landing-header-container {
     padding: 0 2rem;
   }
 }
 
-.header-content {
+.landing-header-content {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -97,26 +97,26 @@
   color: #1f2937;
 }
 
-.nav {
+.landing-nav {
   display: none;
   align-items: center;
   gap: 1.5rem;
 }
 
 @media (min-width: 768px) {
-  .nav {
+  .landing-nav {
     display: flex;
     gap: 1.5rem;
   }
 }
 
 @media (min-width: 1024px) {
-  .nav {
+  .landing-nav {
     gap: 2rem;
   }
 }
 
-.nav-link {
+.landing-nav-link {
   font-size: 0.875rem;
   font-weight: 400;
   color: #000;
@@ -126,37 +126,37 @@
 }
 
 @media (min-width: 640px) {
-  .nav-link {
+  .landing-nav-link {
     font-size: 0.875rem;
   }
 }
 
 @media (min-width: 768px) {
-  .nav-link {
+  .landing-nav-link {
     font-size: 0.75rem;
   }
 }
 
 @media (min-width: 1024px) {
-  .nav-link {
+  .landing-nav-link {
     font-size: 1.125rem;
   }
 }
 
-.nav-link.scrolled {
+.landing-nav-link.scrolled {
   color: #374151;
 }
 
-.nav-link.transparent {
+.landing-nav-link.transparent {
   color: #1f2937;
 }
 
-.nav-link:hover {
+.landing-nav-link:hover {
   color: #2563eb;
 }
 
 /* Active underline indicator */
-.nav-link.active::after {
+.landing-nav-link.active::after {
   content: '';
   position: absolute;
   left: 0;
@@ -168,7 +168,7 @@
 }
 
 /* Slight lift for active to match hover feel */
-.nav-link.active {
+.landing-nav-link.active {
   color: #2563eb;
   transform: translateY(-2px);
 }
