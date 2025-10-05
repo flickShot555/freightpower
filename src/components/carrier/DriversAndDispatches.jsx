@@ -112,21 +112,18 @@ const DriversAndDispatches = () => {
             className={`driver-tab ${activeTab === 'directory' ? 'active' : ''}`}
             onClick={() => setActiveTab('directory')}
           >
-            <i className="fas fa-user"></i>
             Driver Directory
           </button>
           <button 
             className={`driver-tab ${activeTab === 'dispatch' ? 'active' : ''}`}
             onClick={() => setActiveTab('dispatch')}
           >
-            <i className="fas fa-clipboard-list"></i>
             Dispatch Board
           </button>
           <button 
             className={`driver-tab ${activeTab === 'app' ? 'active' : ''}`}
             onClick={() => setActiveTab('app')}
           >
-            <i className="fas fa-mobile-alt"></i>
             Driver App
           </button>
         </div>

@@ -8,6 +8,15 @@ import Marketplace from './Marketplace';
 import DriversAndDispatches from './DriversAndDispatches';
 import FactoringInvoicing from './FactoringInvoicing';
 import Integrations from './Integrations';
+import ComplianceSafety from './ComplianceSafety';
+import ConsentESignature from './ConsentESignature';
+import Messaging from './Messaging';
+import AlertsNotifications from './AlertsNotifications';
+import Analytics from './Analytics';
+import Calendar from './Calendar';
+import Settings from './Settings';  
+import HelpHub from './HelpHub';
+// Note: Font Awesome icons are used instead of custom SVGs for simplicity
 // icon images replaced by Font Awesome icons
 
 export default function CarrierDashboard() {
@@ -42,7 +51,6 @@ export default function CarrierDashboard() {
     {
       title: 'MANAGEMENT',
       items: [
-        { key: 'hiring', label: 'Hiring & Onboarding', icon: 'fa-solid fa-user-tie' },
         { key: 'compliance', label: 'Compliance & Safety', icon: 'fa-solid fa-shield-halved' },
         { key: 'esign', label: 'Consent & eSignature', icon: 'fa-solid fa-pen-fancy' }
       ]
@@ -305,6 +313,22 @@ export default function CarrierDashboard() {
         return <FactoringInvoicing />;
       case 'integrations':
         return <Integrations />;
+      case 'compliance':
+        return <ComplianceSafety />;
+      case 'esign':
+        return <ConsentESignature />;
+      case 'messaging':
+        return <Messaging />;
+      case 'alerts':
+        return <AlertsNotifications />;
+      case 'analytics':
+        return <Analytics />;
+      case 'calendar':
+        return <Calendar />;
+      case 'settings':
+        return <Settings />;
+      case 'help':
+        return <HelpHub />;
       default:
         return (
           <div>

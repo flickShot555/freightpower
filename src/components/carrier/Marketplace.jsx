@@ -175,21 +175,18 @@ export default function Marketplace() {
             className={`marketplace-tab ${activeTab === 'loads' ? 'active' : ''}`}
             onClick={() => setActiveTab('loads')}
           >
-            <i className="fa-solid fa-truck" />
             Loads
           </button>
           <button
             className={`marketplace-tab ${activeTab === 'drivers' ? 'active' : ''}`}
             onClick={() => setActiveTab('drivers')}
           >
-            <i className="fa-solid fa-user" />
             Drivers
           </button>
           <button
             className={`marketplace-tab ${activeTab === 'services' ? 'active' : ''}`}
             onClick={() => setActiveTab('services')}
           >
-            <i className="fa-solid fa-tools" />
             Services
           </button>
         </div>
@@ -218,7 +215,7 @@ export default function Marketplace() {
 
         <div className="filters-section">
           <select
-            className="filter-select"
+            className="marketplace-filter-select"
             value={equipmentType}
             onChange={(e) => setEquipmentType(e.target.value)}
           >
@@ -230,7 +227,7 @@ export default function Marketplace() {
 
           <input
             type="text"
-            className="filter-input"
+            className="marketplace-filter-input"
             placeholder="Origin"
             value={origin}
             onChange={(e) => setOrigin(e.target.value)}
@@ -238,7 +235,7 @@ export default function Marketplace() {
 
           <input
             type="text"
-            className="filter-input"
+            className="marketplace-filter-input"
             placeholder="Destination"
             value={destination}
             onChange={(e) => setDestination(e.target.value)}
@@ -246,14 +243,14 @@ export default function Marketplace() {
 
           <input
             type="text"
-            className="filter-input"
+            className="marketplace-filter-input"
             placeholder="mm/dd/yyyy"
             value={dateRange}
             onChange={(e) => setDateRange(e.target.value)}
           />
 
           <select
-            className="filter-select"
+            className="marketplace-filter-select"
             value={distance}
             onChange={(e) => setDistance(e.target.value)}
           >
@@ -321,60 +318,73 @@ export default function Marketplace() {
       {activeTab === 'drivers' && (
         <div className="drivers-content">
 
-          <div className="drivers-filterbar">
-            <div className="filter-row">
-              <div className="filter-group">
-                <label className="filter-label">Location &amp; Radius</label>
-                <div className="location-radius">
-                  <input className="filter-input" placeholder="City, State or ZIP" />
-                </div>
-              </div>
-              <div className="location-radius">
-                  <select className="filter-select radius-select">
+          <div className="marketplace-drivers-filters">
+            <div className="marketplace-filters-top-row">
+              <div className="marketplace-filter-group">
+                <label className="marketplace-filter-label">Location & Radius</label>
+                <div className="marketplace-location-inputs">
+                  <input 
+                    className="marketplace-filter-input marketplace-location-input" 
+                    placeholder="City, State or ZIP"
+                    value=""
+                    onChange={() => {}}
+                  />
+                  <select className="marketplace-filter-select marketplace-radius-select">
                     <option>25 miles</option>
                     <option>50 miles</option>
                     <option>100 miles</option>
                   </select>
                 </div>
-              <div className="filter-group">
-                <label className="filter-label">CDL Class</label>
-                <select className="filter-select">
+              </div>
+              
+              <div className="marketplace-filter-group">
+                <label className="marketplace-filter-label">CDL Class</label>
+                <select className="marketplace-filter-select">
                   <option>All Classes</option>
-                  <option>A</option>
-                  <option>B</option>
-                  <option>C</option>
+                  <option>CDL Class A</option>
+                  <option>CDL Class B</option>
+                  <option>CDL Class C</option>
                 </select>
               </div>
-              <div className="filter-group">
-                <label className="filter-label">Status</label>
-                <select className="filter-select">
+              
+              <div className="marketplace-filter-group">
+                <label className="marketplace-filter-label">Status</label>
+                <select className="marketplace-filter-select">
                   <option>All Status</option>
                   <option>Available</option>
-                  <option>Inactive</option>
+                  <option>Assigned</option>
+                  <option>Off Duty</option>
                 </select>
               </div>
-              <div className="filter-group">
-                <label className="filter-label">Compliance</label>
-                <select className="filter-select">
+              
+              <div className="marketplace-filter-group">
+                <label className="marketplace-filter-label">Compliance</label>
+                <select className="marketplace-filter-select">
                   <option>All</option>
                   <option>Compliant</option>
                   <option>Non-Compliant</option>
                 </select>
               </div>
             </div>
-            <div className="endorsements-row">
-              <span className="filter-label">Endorsements</span>
-              <button className="endorsement-chip selected">Hazmat</button>
-              <button className="endorsement-chip">Tanker</button>
-              <button className="endorsement-chip">Double/Triple</button>
-              <button className="endorsement-chip">Passenger</button>
-              <button className="endorsement-chip">School Bus</button>
+            
+            <div className="marketplace-endorsements-row">
+              <span className="marketplace-filter-label">Endorsements</span>
+              <div className="marketplace-endorsement-chips">
+                <button className="marketplace-endorsement-chip">Hazmat</button>
+                <button className="marketplace-endorsement-chip">Tanker</button>
+                <button className="marketplace-endorsement-chip marketplace-selected">Double/Triple</button>
+                <button className="marketplace-endorsement-chip">Passenger</button>
+                <button className="marketplace-endorsement-chip">School Bus</button>
+              </div>
             </div>
-            <div className="drivers-toolbar">
-              <div className="drivers-count">1,247 drivers found</div>
-              <div className="drivers-sort">
+          </div>
+          
+          <div className="marketplace-drivers-results-bar">
+            <div className="marketplace-results-count">1,247 drivers found</div>
+            <div className="marketplace-results-controls">
+              <div className="marketplace-sort-group">
                 <label>Sort by:</label>
-                <select>
+                <select className="marketplace-sort-select">
                   <option>Relevance</option>
                   <option>Rating</option>
                   <option>Experience</option>
@@ -393,64 +403,89 @@ export default function Marketplace() {
           </button>
             </div>
 
-          <div className="drivers-list">
+          <div className="marketplace-drivers-list">
             {drivers.map(driver => (
-              <div key={driver.id} className="driver-card" style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between'}}>
-                <div style={{display:'flex',alignItems:'flex-start',gap:10}}>
-                  <div className="driver-avatar" style={{alignSelf:'flex-start'}}>
-                    <img src={driver.photo} alt={driver.name} />
+              <div key={driver.id} className="marketplace-driver-card">
+                <div className="marketplace-driver-header">
+                  <div className="marketplace-driver-left">
+                    <div className="marketplace-driver-avatar">
+                      <img src={driver.photo} alt={driver.name} />
+                    </div>
+                    <div className="marketplace-driver-info">
+                      <div className="marketplace-driver-name-row">
+                        <h3 className="marketplace-driver-name">{driver.name}</h3>
+                        <div className="marketplace-driver-rating">
+                          <i className="fa-solid fa-star" />
+                          <span>{driver.rating}</span>
+                          <span className="marketplace-trips-count">• {driver.trips} trips</span>
+                        </div>
+                      </div>
+                      
+                      <div className="marketplace-driver-details">
+                        <div className="marketplace-detail-item">
+                          <span className="marketplace-detail-label">CDL INFO</span>
+                          <span className="marketplace-detail-value">Class {driver.class}</span>
+                          <span className="marketplace-detail-sub">Exp: 03/2025</span>
+                        </div>
+                        
+                        <div className="marketplace-detail-item">
+                          <span className="marketplace-detail-label">LOCATION</span>
+                          <span className="marketplace-detail-value">{driver.location}</span>
+                          <span className="marketplace-detail-sub">{driver.lastActivity}</span>
+                        </div>
+                        
+                        <div className="marketplace-detail-item">
+                          <span className="marketplace-detail-label">STATUS</span>
+                          <span className={`marketplace-detail-value marketplace-status-${driver.available ? 'available' : 'unavailable'}`}>
+                            <i className="fa-solid fa-circle" />
+                            {driver.available ? 'Available' : 'Not Available'}
+                          </span>
+                        </div>
+                        
+                        <div className="marketplace-detail-item">
+                          <span className="marketplace-detail-label">AI SAFETY SCORE</span>
+                          <span className="marketplace-detail-value marketplace-safety-score">
+                            {driver.safetyScore}/100
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="marketplace-driver-tags">
+                        <div className="marketplace-endorsements">
+                          <span className="marketplace-tags-label">Endorsements:</span>
+                          {driver.endorsements.map((endorsement, index) => (
+                            <span key={index} className="marketplace-endorsement-tag">{endorsement}</span>
+                          ))}
+                        </div>
+                        
+                        <div className="marketplace-equipment-status">
+                          {driver.equipmentTypes.map((equipment, index) => (
+                            <span key={index} className={`marketplace-equipment-tag ${equipment.includes('Valid') || equipment.includes('Active') || equipment.includes('Clean') ? 'valid' : equipment.includes('Expiring') ? 'warning' : 'invalid'}`}>
+                              <i className={`fa-solid ${equipment.includes('Valid') || equipment.includes('Active') || equipment.includes('Clean') ? 'fa-check-circle' : equipment.includes('Expiring') ? 'fa-exclamation-triangle' : 'fa-times-circle'}`} />
+                              {equipment}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div className="driver-info">
-                    <div style={{display:'flex', alignItems:'center', gap:8}}>
-                      <div className="driver-name" style={{fontWeight:700, fontSize:'1rem'}}>{driver.name}</div>
-                      <span style={{color:'#fbbf24', fontWeight:600, fontSize:'0.95rem', marginLeft:4}}>
-                        <i className="fa-solid fa-star" style={{marginRight:2}} />
-                        {driver.rating}
-                      </span>
-                      <span style={{color:'#64748b', fontSize:'0.92rem', marginLeft:8}}>&#8226; {driver.trips} trips</span>
+                  
+                  <div className="marketplace-driver-actions">
+                    <button className={`marketplace-btn-hire ${driver.available ? 'available' : 'unavailable'}`}>
+                      <i className="fa-solid fa-plus" />
+                      Hire Driver
+                    </button>
+                    <div className="marketplace-driver-menu">
+                      <button className="marketplace-menu-btn" title="View Details">
+                        <i className="fa-solid fa-file-text" />
+                      </button>
+                      <button className="marketplace-menu-btn" title="Message">
+                        <i className="fa-solid fa-message" />
+                      </button>
+                      <button className="marketplace-menu-btn" title="Favorite">
+                        <i className="fa-regular fa-heart" />
+                      </button>
                     </div>
-                    <div style={{display:'flex', gap:32, marginTop:6, marginBottom:2}}>
-                      <div>
-                        <div style={{color:'#94a3b8', fontWeight:600, fontSize:'0.85rem'}}>CDL INFO</div>
-                        <div style={{fontWeight:600, fontSize:'0.95rem'}}>Class {driver.class}</div>
-                        <div style={{color:'#64748b', fontSize:'0.9rem'}}>Exp: 03/2025</div>
-                      </div>
-                      <div>
-                        <div style={{color:'#94a3b8', fontWeight:600, fontSize:'0.85rem'}}>LOCATION</div>
-                        <div style={{fontWeight:600, fontSize:'0.95rem'}}>{driver.location}</div>
-                        <div style={{color:'#64748b', fontSize:'0.9rem'}}>2 hours ago</div>
-                      </div>
-                      <div>
-                        <div style={{color:'#94a3b8', fontWeight:600, fontSize:'0.85rem'}}>STATUS</div>
-                        <div style={{color:'#22c55e', fontWeight:600, fontSize:'0.95rem'}}><i className="fa-solid fa-circle" style={{fontSize:'0.7em', marginRight:4}}/> Available</div>
-                      </div>
-                      <div>
-                        <div style={{color:'#94a3b8', fontWeight:600, fontSize:'0.85rem'}}>AI SAFETY SCORE</div>
-                        <div style={{color:'#16a34a', fontWeight:700, fontSize:'0.95rem'}}>95/100</div>
-                      </div>
-                    </div>
-                    <div className="driver-endorsements" style={{marginTop:4}}>
-                      <span style={{color:'#64748b', fontWeight:500, fontSize:'0.92rem'}}>Endorsements:</span>
-                      {driver.endorsements.map((endorsement, index) => (
-                        <span key={index} className={`endorsement ${endorsement.toLowerCase().replace(/[/\s]/g, '-')}`} style={{fontSize:'0.92rem'}}>{endorsement}</span>
-                      ))}
-                    </div>
-                    <div className="driver-equipment">
-                      {driver.equipmentTypes.map((equipment, index) => (
-                        <span key={index} className={`equipment ${equipment.toLowerCase().replace(/\s/g, '-')}`} style={{fontSize:'0.92rem'}}>
-                          <i className={`fa-solid ${equipment.includes('Valid') || equipment.includes('Active') || equipment.includes('Clean') ? 'fa-check-circle' : equipment.includes('Expiring') ? 'fa-exclamation-triangle' : 'fa-times-circle'}`} />
-                          {equipment}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-                <div className="driver-actions">
-                  <button className={`btn-hire ${driver.available ? 'active' : 'inactive'}`}>{driver.available ? 'Hire Driver' : 'Not Available'}</button>
-                  <div className="driver-menu">
-                    <i className="fa-solid fa-file-invoice" />
-                    <i className="fa-solid fa-message" />
-                    <i className="fa-regular fa-heart" />
                   </div>
                 </div>
               </div>
@@ -517,7 +552,7 @@ export default function Marketplace() {
                 <span>Showing 247 service providers</span>
                 <div className="sort-controls">
                   <label htmlFor="services-sort-select">Sort by:</label>
-                  <select id="services-sort-select" className="filter-select" style={{ minWidth: 120 }}>
+                  <select id="services-sort-select" className="marketplace-filter-select" style={{ minWidth: 120 }}>
                     <option value="relevance">Relevance</option>
                     <option value="rating">Rating</option>
                     <option value="reviews">Reviews</option>

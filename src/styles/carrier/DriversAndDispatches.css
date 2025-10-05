@@ -888,10 +888,10 @@
 	color: #d1d7db;
 }
 .dark-root .drivers-header-content h1 {
-	color: #d1d7db;
+	color: #fff;
 }
 .dark-root .drivers-subtitle {
-	color: #9aa6b1;
+	color: #b9c0c4;
 }
 .dark-root .btn-add-driver {
 	background: #0ea5e9;
@@ -1102,7 +1102,6 @@
 .driver-tab {
 	background: transparent;
 	border: none;
-	padding: 8px 0;
 	font-weight: 600;
 	font-size: 16px;
 	color: #6b7280;

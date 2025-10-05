@@ -256,7 +256,6 @@
 .integrations-tab {
   background: transparent;
   border: none;
-  padding: 8px 0;
   font-weight: 600;
   font-size: 16px;
   color: #6b7280;
@@ -524,11 +523,11 @@
 }
 
 .dark-root .integrations-header-content h1 {
-  color: #d1d7db;
+  color: #fff;
 }
 
 .dark-root .integrations-subtitle {
-  color: #9aa6b1;
+  color: #b9c0c4;
 }
 
 .dark-root .integrations-nav {
