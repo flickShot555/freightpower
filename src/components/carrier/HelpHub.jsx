@@ -133,10 +133,10 @@ const HelpHub = () => {
   ];
 
   const tabs = [
-    { key: 'ai-assistant', label: 'AI Assistant', icon: 'fa-solid fa-robot' },
-    { key: 'my-tickets', label: 'My Tickets', icon: 'fa-solid fa-ticket' },
-    { key: 'resources', label: 'Resources', icon: 'fa-solid fa-folder' },
-    { key: 'schedule-support', label: 'Schedule Support', icon: 'fa-regular fa-calendar' }
+    { key: 'ai-assistant', label: 'AI Assistant', },
+    { key: 'my-tickets', label: 'My Tickets', },
+    { key: 'resources', label: 'Resources', },
+    { key: 'schedule-support', label: 'Schedule Support', }
   ];
 
   const handleSendMessage = () => {

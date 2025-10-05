@@ -94,29 +94,29 @@ const AlertsNotifications = () => {
 
   const getPriorityBadgeClass = (priority) => {
     switch (priority) {
-      case 'Critical': return 'priority-critical';
-      case 'Warning': return 'priority-warning';
-      case 'Success': return 'priority-success';
-      case 'Info': return 'priority-info';
-      case 'Update': return 'priority-update';
-      default: return 'priority-info';
+      case 'Critical': return 'alert-priority-critical';
+      case 'Warning': return 'alert-priority-warning';
+      case 'Success': return 'alert-priority-success';
+      case 'Info': return 'alert-priority-info';
+      case 'Update': return 'alert-priority-update';
+      default: return 'alert-priority-info';
     }
   };
 
   return (
-    <div className="alerts-notifications">
+    <div className="alert-notifications">
       {/* Header */}
-      <div className="alerts-header">
-        <div className="header-content">
+      <div className="alert-header">
+        <div className="alert-header-content">
           <h1>Alerts & Notifications</h1>
-          <p className="header-subtitle">Manage your notifications and alert preferences</p>
+          <p className="alert-header-subtitle">Manage your notifications and alert preferences</p>
         </div>
-        <div className="header-actions">
-          <button className="export-btn">
+        <div className="alert-header-actions">
+          <button className="alert-export-btn">
             <i className="fas fa-download"></i>
             Export
           </button>
-          <button className="settings-btn">
+          <button className="alert-settings-btn">
             <i className="fas fa-cog"></i>
             Settings
           </button>
@@ -124,15 +124,15 @@ const AlertsNotifications = () => {
       </div>
 
       {/* Tabs */}
-      <div className="alerts-tabs">
+      <div className="alert-tabs">
         <button 
-          className={`tab-btn ${activeTab === 'Notification Center' ? 'active' : ''}`}
+          className={`alert-tab-btn ${activeTab === 'Notification Center' ? 'active' : ''}`}
           onClick={() => setActiveTab('Notification Center')}
         >
           Notification Center
         </button>
         <button 
-          className={`tab-btn ${activeTab === 'Settings' ? 'active' : ''}`}
+          className={`alert-tab-btn ${activeTab === 'Settings' ? 'active' : ''}`}
           onClick={() => setActiveTab('Settings')}
         >
           Settings
@@ -142,9 +142,9 @@ const AlertsNotifications = () => {
       {activeTab === 'Notification Center' && (
         <>
           {/* Filter Bar */}
-          <div className="alerts-filters">
-            <div className="search-section">
-              <div className="search-box">
+          <div className="alert-filters">
+            <div className="alert-search-section">
+              <div className="alert-search-box">
                 <i className="fas fa-search"></i>
                 <input
                   type="text"
@@ -155,11 +155,11 @@ const AlertsNotifications = () => {
               </div>
             </div>
             
-            <div className="filter-section">
+            <div className="alert-filter-section">
               <select
                 value={categoryFilter}
                 onChange={(e) => setCategoryFilter(e.target.value)}
-                className="filter-select"
+                className="alert-filter-select"
               >
                 {categories.map(category => (
                   <option key={category} value={category}>{category}</option>
@@ -169,53 +169,53 @@ const AlertsNotifications = () => {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="filter-select"
+                className="alert-filter-select"
               >
                 {statuses.map(status => (
                   <option key={status} value={status}>{status}</option>
                 ))}
               </select>
               
-              <button className="mark-all-read-btn">
+              <button className="alert-mark-all-read-btn">
                 Mark All as Read
               </button>
             </div>
           </div>
 
           {/* Notifications List */}
-          <div className="notifications-container">
+          <div className="alert-notifications-container">
             {filteredNotifications.map(notification => (
               <div 
                 key={notification.id}
-                className={`notification-card ${!notification.isRead ? 'unread' : ''}`}
+                className={`alert-notification-card ${!notification.isRead ? 'unread' : ''}`}
                 data-type={notification.type}
                 style={{ 
                   backgroundColor: notification.bgColor,
                   borderLeftColor: notification.borderColor 
                 }}
               >
-                <div className="notification-header">
-                  <div className="notification-meta">
-                    <span className="notification-icon">
+                <div className="alert-notification-header">
+                  <div className="alert-notification-meta">
+                    <span className="alert-notification-icon">
                   <i className={notification.icon}></i>
                     </span>
-                    <span className="notification-type">{notification.type}</span>
-                    <span className={`priority-badge ${getPriorityBadgeClass(notification.priority)}`}>
+                    <span className="alert-notification-type">{notification.type}</span>
+                    <span className={`alert-priority-badge ${getPriorityBadgeClass(notification.priority)}`}>
                       {notification.priority}
                     </span>
-                    <span className="notification-time">{notification.timestamp}</span>
+                    <span className="alert-notification-time">{notification.timestamp}</span>
                   </div>
-                  {!notification.isRead && <div className="unread-indicator"></div>}
+                  {!notification.isRead && <div className="alert-unread-indicator"></div>}
                 </div>
                 
-                <div className="notification-content">
-                  <h3 className="notification-title">{notification.title}</h3>
-                  <p className="notification-description">{notification.description}</p>
+                <div className="alert-notification-content">
+                  <h3 className="alert-notification-title">{notification.title}</h3>
+                  <p className="alert-notification-description">{notification.description}</p>
                 </div>
                 
-                <div className="notification-actions">
+                <div className="alert-notification-actions">
                   {notification.actions.map((action, index) => (
-                    <button key={index} className="action-btn">
+                    <button key={index} className="alert-action-btn">
                       {action}
                     </button>
                   ))}
@@ -224,7 +224,7 @@ const AlertsNotifications = () => {
             ))}
             
             {filteredNotifications.length === 0 && (
-              <div className="no-notifications">
+              <div className="alert-no-notifications">
                 <i className="fas fa-bell-slash"></i>
                 <p>No notifications found matching your filters.</p>
               </div>
@@ -232,204 +232,204 @@ const AlertsNotifications = () => {
           </div>
 
           {/* Load More */}
-          <div className="load-more-section">
-            <button className="load-more-btn">Load More Notifications</button>
+          <div className="alert-load-more-section">
+            <button className="alert-load-more-btn">Load More Notifications</button>
           </div>
         </>
       )}
 
       {activeTab === 'Settings' && (
-        <div className="settings-content">
+        <div className="alert-settings-content">
           {/* Alert Categories */}
-          <div className="settings-section">
-            <h3 className="section-title">Alert Categories</h3>
-            <p className="section-subtitle">Enable or disable specific types of notifications</p>
+          <div className="alert-settings-section">
+            <h3 className="alert-section-title">Alert Categories</h3>
+            <p className="alert-section-subtitle">Enable or disable specific types of notifications</p>
             
-            <div className="category-list">
-              <div className="category-item">
-                <div className="category-info">
-                  <div className="category-icon loads">
+            <div className="alert-category-list">
+              <div className="alert-category-item">
+                <div className="alert-category-info">
+                  <div className="alert-category-icon loads">
                     <i className="fa-solid fa-truck"></i>
                   </div>
-                  <div className="category-details">
+                  <div className="alert-category-details">
                     <h4>Loads</h4>
                     <p>Deliveries, Updates, Compliance</p>
                   </div>
                 </div>
-                <label className="toggle-switch">
+                <label className="alert-toggle-switch">
                   <input type="checkbox" defaultChecked />
-                  <span className="slider"></span>
+                  <span className="alert-slider"></span>
                 </label>
               </div>
 
-              <div className="category-item">
-                <div className="category-info">
-                  <div className="category-icon compliance">
+              <div className="alert-category-item">
+                <div className="alert-category-info">
+                  <div className="alert-category-icon compliance">
                     <i className="fa-solid fa-shield-halved"></i>
                   </div>
-                  <div className="category-details">
+                  <div className="alert-category-details">
                     <h4>Compliance</h4>
                     <p>Expiring Docs, Safety Alerts, FMCSA Updates</p>
                   </div>
                 </div>
-                <label className="toggle-switch">
+                <label className="alert-toggle-switch">
                   <input type="checkbox" defaultChecked />
-                  <span className="slider"></span>
+                  <span className="alert-slider"></span>
                 </label>
               </div>
 
-              <div className="category-item">
-                <div className="category-info">
-                  <div className="category-icon finance">
+              <div className="alert-category-item">
+                <div className="alert-category-info">
+                  <div className="alert-category-icon finance">
                     <i className="fa-solid fa-dollar-sign"></i>
                   </div>
-                  <div className="category-details">
+                  <div className="alert-category-details">
                     <h4>Finance</h4>
                     <p>Invoice Paid, Factoring Status</p>
                   </div>
                 </div>
-                <label className="toggle-switch">
+                <label className="alert-toggle-switch">
                   <input type="checkbox" defaultChecked />
-                  <span className="slider"></span>
+                  <span className="alert-slider"></span>
                 </label>
               </div>
 
-              <div className="category-item">
-                <div className="category-info">
-                  <div className="category-icon dispatch">
+              <div className="alert-category-item">
+                <div className="alert-category-info">
+                  <div className="alert-category-icon dispatch">
                     <i className="fa-solid fa-route"></i>
                   </div>
-                  <div className="category-details">
+                  <div className="alert-category-details">
                     <h4>Driver/Dispatch</h4>
                     <p>HOS Violations, Equipment, Inspections</p>
                   </div>
                 </div>
-                <label className="toggle-switch">
+                <label className="alert-toggle-switch">
                   <input type="checkbox" defaultChecked />
-                  <span className="slider"></span>
+                  <span className="alert-slider"></span>
                 </label>
               </div>
 
-              <div className="category-item">
-                <div className="category-info">
-                  <div className="category-icon system">
+              <div className="alert-category-item">
+                <div className="alert-category-info">
+                  <div className="alert-category-icon system">
                     <i className="fa-solid fa-cog"></i>
                   </div>
-                  <div className="category-details">
+                  <div className="alert-category-details">
                     <h4>System</h4>
                     <p>Maintenance Events, Updates, Security Alerts</p>
                   </div>
                 </div>
-                <label className="toggle-switch">
+                <label className="alert-toggle-switch">
                   <input type="checkbox" defaultChecked />
-                  <span className="slider"></span>
+                  <span className="alert-slider"></span>
                 </label>
               </div>
             </div>
           </div>
 
           {/* Delivery Methods */}
-          <div className="settings-section">
-            <h3 className="section-title">Delivery Methods</h3>
-            <p className="section-subtitle">Choose how you want to receive notifications for each category</p>
+          <div className="alert-settings-section">
+            <h3 className="alert-section-title">Delivery Methods</h3>
+            <p className="alert-section-subtitle">Choose how you want to receive notifications for each category</p>
             
-            <div className="delivery-table">
-              <div className="delivery-header">
-                <div className="category-col">Category</div>
-                <div className="method-col">
+            <div className="alert-delivery-table">
+              <div className="alert-delivery-header">
+                <div className="alert-category-col">Category</div>
+                <div className="alert-method-col">
                   <i className="fa-solid fa-bell"></i>
                   In-App
                 </div>
-                <div className="method-col">
+                <div className="alert-method-col">
                   <i className="fa-solid fa-envelope"></i>
                   Email
                 </div>
-                <div className="method-col">
+                <div className="alert-method-col">
                   <i className="fa-solid fa-mobile-screen"></i>
                   SMS
                 </div>
-                <div className="method-col">
+                <div className="alert-method-col">
                   <i className="fa-solid fa-satellite-dish"></i>
                   Push
                 </div>
               </div>
 
-              <div className="delivery-row">
-                <div className="category-name">Loads</div>
-                <div className="method-checkbox">
+              <div className="alert-delivery-row">
+                <div className="alert-category-name">Loads</div>
+                <div className="alert-method-checkbox">
                   <input type="checkbox" defaultChecked />
                 </div>
-                <div className="method-checkbox">
+                <div className="alert-method-checkbox">
                   <input type="checkbox" defaultChecked />
                 </div>
-                <div className="method-checkbox">
+                <div className="alert-method-checkbox">
                   <input type="checkbox" />
                 </div>
-                <div className="method-checkbox">
+                <div className="alert-method-checkbox">
                   <input type="checkbox" defaultChecked />
                 </div>
               </div>
 
-              <div className="delivery-row">
-                <div className="category-name">Compliance</div>
-                <div className="method-checkbox">
+              <div className="alert-delivery-row">
+                <div className="alert-category-name">Compliance</div>
+                <div className="alert-method-checkbox">
                   <input type="checkbox" defaultChecked />
                 </div>
-                <div className="method-checkbox">
+                <div className="alert-method-checkbox">
                   <input type="checkbox" defaultChecked />
                 </div>
-                <div className="method-checkbox">
+                <div className="alert-method-checkbox">
                   <input type="checkbox" />
                 </div>
-                <div className="method-checkbox">
+                <div className="alert-method-checkbox">
                   <input type="checkbox" />
                 </div>
               </div>
 
-              <div className="delivery-row">
-                <div className="category-name">Finance</div>
-                <div className="method-checkbox">
+              <div className="alert-delivery-row">
+                <div className="alert-category-name">Finance</div>
+                <div className="alert-method-checkbox">
                   <input type="checkbox" defaultChecked />
                 </div>
-                <div className="method-checkbox">
+                <div className="alert-method-checkbox">
                   <input type="checkbox" defaultChecked />
                 </div>
-                <div className="method-checkbox">
+                <div className="alert-method-checkbox">
                   <input type="checkbox" />
                 </div>
-                <div className="method-checkbox">
+                <div className="alert-method-checkbox">
                   <input type="checkbox" />
                 </div>
               </div>
 
-              <div className="delivery-row">
-                <div className="category-name">Driver/Dispatch</div>
-                <div className="method-checkbox">
+              <div className="alert-delivery-row">
+                <div className="alert-category-name">Driver/Dispatch</div>
+                <div className="alert-method-checkbox">
                   <input type="checkbox" defaultChecked />
                 </div>
-                <div className="method-checkbox">
+                <div className="alert-method-checkbox">
                   <input type="checkbox" />
                 </div>
-                <div className="method-checkbox">
+                <div className="alert-method-checkbox">
                   <input type="checkbox" />
                 </div>
-                <div className="method-checkbox">
+                <div className="alert-method-checkbox">
                   <input type="checkbox" />
                 </div>
               </div>
 
-              <div className="delivery-row">
-                <div className="category-name">System</div>
-                <div className="method-checkbox">
+              <div className="alert-delivery-row">
+                <div className="alert-category-name">System</div>
+                <div className="alert-method-checkbox">
                   <input type="checkbox" defaultChecked />
                 </div>
-                <div className="method-checkbox">
+                <div className="alert-method-checkbox">
                   <input type="checkbox" />
                 </div>
-                <div className="method-checkbox">
+                <div className="alert-method-checkbox">
                   <input type="checkbox" />
                 </div>
-                <div className="method-checkbox">
+                <div className="alert-method-checkbox">
                   <input type="checkbox" defaultChecked />
                 </div>
               </div>
@@ -437,79 +437,79 @@ const AlertsNotifications = () => {
           </div>
 
           {/* Quiet Hours */}
-          <div className="settings-section">
-            <h3 className="section-title">Quiet Hours</h3>
-            <p className="section-subtitle">Set hours when you don't want to receive push notifications</p>
+          <div className="alert-settings-section">
+            <h3 className="alert-section-title">Quiet Hours</h3>
+            <p className="alert-section-subtitle">Set hours when you don't want to receive push notifications</p>
             
-            <div className="quiet-hours-toggle">
-              <label className="toggle-switch">
+            <div className="alert-quiet-hours-toggle">
+              <label className="alert-toggle-switch">
                 <input type="checkbox" defaultChecked />
-                <span className="slider"></span>
+                <span className="alert-slider"></span>
               </label>
-              <span className="toggle-label">Enable Quiet Hours</span>
+              <span className="alert-toggle-label">Enable Quiet Hours</span>
             </div>
 
-            <div className="time-inputs">
-              <div className="time-group">
+            <div className="alert-time-inputs">
+              <div className="alert-time-group">
                 <label>Start Time</label>
-                <div className="time-input">
+                <div className="alert-time-input">
                   <input type="time" defaultValue="22:00" />
                 </div>
               </div>
-              <div className="time-separator">to</div>
-              <div className="time-group">
+              <div className="alert-time-separator">to</div>
+              <div className="alert-time-group">
                 <label>End Time</label>
-                <div className="time-input">
+                <div className="alert-time-input">
                   <input type="time" defaultValue="06:00" />
                 </div>
               </div>
             </div>
 
-            <div className="quiet-hours-note">
+            <div className="alert-quiet-hours-note">
               <i className="fa-solid fa-info-circle"></i>
               <span>Alerts will still be logged in your notification feed but won't trigger push notifications during quiet hours</span>
             </div>
           </div>
 
           {/* Digest Mode */}
-          <div className="settings-section">
-            <h3 className="section-title">Digest Mode</h3>
-            <p className="section-subtitle">Choose how frequently you want to receive notification summaries</p>
+          <div className="alert-settings-section">
+            <h3 className="alert-section-title">Digest Mode</h3>
+            <p className="alert-section-subtitle">Choose how frequently you want to receive notification summaries</p>
             
-            <div className="digest-options">
-              <label className="digest-option">
+            <div className="alert-digest-options">
+              <label className="alert-digest-option">
                 <input type="radio" name="digest" value="realtime" defaultChecked />
-                <div className="option-content">
-                  <div className="option-icon">
+                <div className="alert-option-content">
+                  <div className="alert-option-icon">
                     <i className="fa-solid fa-bolt"></i>
                   </div>
-                  <div className="option-details">
+                  <div className="alert-option-details">
                     <h4>Real-Time</h4>
                     <p>Receive notifications immediately as they occur</p>
                   </div>
                 </div>
               </label>
 
-              <label className="digest-option">
+              <label className="alert-digest-option">
                 <input type="radio" name="digest" value="daily" />
-                <div className="option-content">
-                  <div className="option-icon">
+                <div className="alert-option-content">
+                  <div className="alert-option-icon">
                     <i className="fa-solid fa-calendar-day"></i>
                   </div>
-                  <div className="option-details">
+                  <div className="alert-option-details">
                     <h4>Daily Digest</h4>
                     <p>Get a daily summary once per day</p>
                   </div>
                 </div>
               </label>
 
-              <label className="digest-option">
+              <label className="alert-digest-option">
                 <input type="radio" name="digest" value="weekly" />
-                <div className="option-content">
-                  <div className="option-icon">
+                <div className="alert-option-content">
+                  <div className="alert-option-icon">
                     <i className="fa-solid fa-calendar-week"></i>
                   </div>
-                  <div className="option-details">
+                  <div className="alert-option-details">
                     <h4>Weekly Digest</h4>
                     <p>Receive a summary once per week</p>
                   </div>
@@ -519,40 +519,40 @@ const AlertsNotifications = () => {
           </div>
 
           {/* Escalation Rules */}
-          <div className="settings-section">
-            <h3 className="section-title">Escalation Rules</h3>
-            <p className="section-subtitle">Automatically escalate critical alerts if not acknowledged</p>
+          <div className="alert-settings-section">
+            <h3 className="alert-section-title">Escalation Rules</h3>
+            <p className="alert-section-subtitle">Automatically escalate critical alerts if not acknowledged</p>
             
-            <div className="escalation-toggle">
-              <label className="toggle-switch">
+            <div className="alert-escalation-toggle">
+              <label className="alert-toggle-switch">
                 <input type="checkbox" />
-                <span className="slider"></span>
+                <span className="alert-slider"></span>
               </label>
-              <span className="toggle-label">Enable Escalation Rules</span>
+              <span className="alert-toggle-label">Enable Escalation Rules</span>
             </div>
           </div>
 
           {/* Test & App Settings */}
-          <div className="settings-section">
-            <h3 className="section-title">Test & App Settings</h3>
-            <p className="section-subtitle">Test your notification settings before saving changes</p>
+          <div className="alert-settings-section">
+            <h3 className="alert-section-title">Test & App Settings</h3>
+            <p className="alert-section-subtitle">Test your notification settings before saving changes</p>
             
-            <div className="test-settings">
-              <div className="test-notification">
-                <label className="toggle-switch">
+            <div className="alert-test-settings">
+              <div className="alert-test-notification">
+                <label className="alert-toggle-switch">
                   <input type="checkbox" />
-                  <span className="slider"></span>
+                  <span className="alert-slider"></span>
                 </label>
-                <span className="toggle-label">Test Notification</span>
+                <span className="alert-toggle-label">Test Notification</span>
               </div>
 
-              <button className="test-button">Send Test</button>
+              <button className="alert-test-button">Send Test</button>
             </div>
 
-            <div className="app-settings-note">
-              <div className="note-content">
+            <div className="alert-app-settings-note">
+              <div className="alert-note-content">
                 <i className="fa-solid fa-info-circle"></i>
-                <div className="note-text">
+                <div className="alert-note-text">
                   <strong>Pro Tip</strong>
                   <p>Use the test notification feature to verify your delivery methods are working correctly. All changes are auto-saved when toggled, but content settings require manual saving.</p>
                 </div>
@@ -561,8 +561,8 @@ const AlertsNotifications = () => {
           </div>
 
           {/* Save Settings Button */}
-          <div className="settings-actions">
-            <button className="save-settings-btn">
+          <div className="alert-settings-actions">
+            <button className="alert-save-settings-btn">
               <i className="fa-solid fa-check"></i>
               Save Settings
             </button>
