@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import '../../styles/landing_page/header.css';
 
@@ -6,15 +6,47 @@ export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('');
+  const scrollContainerRef = useRef(null);
 
+  // Detect the real scrollable container (window or a div)
   useEffect(() => {
+    // Find the first scrollable parent
+    function getScrollableParent(node) {
+      while (node && node !== document.body) {
+        const style = window.getComputedStyle(node);
+        const overflowY = style.overflowY;
+        if ((overflowY === 'auto' || overflowY === 'scroll') && node.scrollHeight > node.clientHeight) {
+          return node;
+        }
+        node = node.parentElement;
+      }
+      return window;
+    }
+
+    // Use the main app/root container as a starting point
+    const main = document.querySelector('.min-h-screen') || document.body;
+    const scrollable = getScrollableParent(main);
+    scrollContainerRef.current = scrollable;
+
     const handleScroll = () => {
-      const scrollTop = window.scrollY;
+      const scrollTop = scrollable === window ? window.scrollY : scrollable.scrollTop;
       setIsScrolled(scrollTop > 10);
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    if (scrollable === window) {
+      window.addEventListener('scroll', handleScroll);
+    } else {
+      scrollable.addEventListener('scroll', handleScroll);
+    }
+    // Run once to set initial state
+    handleScroll();
+    return () => {
+      if (scrollable === window) {
+        window.removeEventListener('scroll', handleScroll);
+      } else {
+        scrollable.removeEventListener('scroll', handleScroll);
+      }
+    };
   }, []);
 
   const toggleMobileMenu = () => {
@@ -26,68 +58,65 @@ export default function Header() {
     const sections = ids.map(id => document.getElementById(id)).filter(Boolean);
     if (!sections.length) return;
 
-  // Account for fixed header by calculating header height at runtime and using a negative top rootMargin.
-  // Use multiple thresholds and pick the section with the largest intersectionRatio to determine the active section.
-  const headerEl = document.querySelector('.header');
-  const headerHeight = headerEl ? Math.ceil(headerEl.getBoundingClientRect().height) : 64; // px
-  const observer = new IntersectionObserver((entries) => {
-      // Find the entry with the largest intersectionRatio
-      let maxEntry = null;
-      entries.forEach(entry => {
-        if (!maxEntry || entry.intersectionRatio > maxEntry.intersectionRatio) {
-          maxEntry = entry;
+    // Account for fixed header by calculating header height at runtime and using a negative top rootMargin.
+    // Use multiple thresholds and pick the section with the largest intersectionRatio to determine the active section.
+    const headerEl = document.querySelector('.landing-header');
+    const headerHeight = headerEl ? Math.ceil(headerEl.getBoundingClientRect().height) : 64; // px
+    const scrollable = scrollContainerRef.current || null;
+    let observer;
+    if (sections.length) {
+      observer = new window.IntersectionObserver((entries) => {
+        // Find the entry with the largest intersectionRatio
+        let maxEntry = null;
+        entries.forEach(entry => {
+          if (!maxEntry || entry.intersectionRatio > maxEntry.intersectionRatio) {
+            maxEntry = entry;
+          }
+        });
+        if (maxEntry && maxEntry.isIntersecting) {
+          setActiveSection(maxEntry.target.id);
         }
-      });
+      }, { root: scrollable === window ? null : scrollable, rootMargin: `-${headerHeight}px 0px 0px 0px`, threshold: [0, 0.25, 0.5, 0.75, 1] });
+      sections.forEach(s => observer.observe(s));
+    }
 
-      if (maxEntry && maxEntry.isIntersecting) {
-        setActiveSection(maxEntry.target.id);
-      }
-  }, { root: null, rootMargin: `-${headerHeight}px 0px 0px 0px`, threshold: [0, 0.25, 0.5, 0.75, 1] });
-
-    sections.forEach(s => observer.observe(s));
-    return () => observer.disconnect();
-  }, []);
-
-  // Fallback/robust active-section detection using scroll position and header height.
-  // This ensures the nav updates even if IntersectionObserver misses short sections or timing.
-  useEffect(() => {
-    const ids = ['features','how-it-works','testimonials','about','pricing'];
-    const sections = ids.map(id => document.getElementById(id)).filter(Boolean);
-    if (!sections.length) return;
-
-    const getHeaderHeight = () => {
-      const headerEl = document.querySelector('.header');
-      return headerEl ? headerEl.getBoundingClientRect().height : 64;
-    };
-
-    const onScrollActive = () => {
-      const headerH = getHeaderHeight();
-      const scrollPosition = window.scrollY + headerH + 2; // small buffer
-
-      // Find the section whose top is closest to the scrollPosition
-      let closest = null;
-      let closestDistance = Infinity;
-      for (let i = 0; i < sections.length; i++) {
-        const s = sections[i];
-        const top = s.offsetTop;
-        const distance = Math.abs(top - scrollPosition);
-        if (distance < closestDistance) {
-          closestDistance = distance;
-          closest = s;
+    // Fallback: update activeSection on scroll, but debounce and only update if section is in view
+    let fallbackTimeout = null;
+    const fallbackScrollHandler = () => {
+      if (fallbackTimeout) clearTimeout(fallbackTimeout);
+      fallbackTimeout = setTimeout(() => {
+        const scrollTop = scrollable === window ? window.scrollY : scrollable.scrollTop;
+        const headerH = headerHeight;
+        const scrollPosition = scrollTop + headerH + 2;
+        let found = null;
+        for (let i = 0; i < sections.length; i++) {
+          const s = sections[i];
+          const top = s.offsetTop;
+          const bottom = top + s.offsetHeight;
+          if (scrollPosition >= top && scrollPosition < bottom) {
+            found = s;
+            break;
+          }
         }
-      }
-
-      if (closest && closest.id && activeSection !== closest.id) {
-        setActiveSection(closest.id);
-      }
+        if (found && found.id && activeSection !== found.id) {
+          setActiveSection(found.id);
+        }
+      }, 50); // debounce for 50ms
     };
+    if (scrollable) {
+      scrollable.addEventListener('scroll', fallbackScrollHandler);
+    }
+    // Run once to set initial active
+    fallbackScrollHandler();
 
-    window.addEventListener('scroll', onScrollActive, { passive: true });
-    // run once to set initial active
-    onScrollActive();
+    return () => {
+      if (observer) observer.disconnect();
+      if (scrollable) scrollable.removeEventListener('scroll', fallbackScrollHandler);
+      if (fallbackTimeout) clearTimeout(fallbackTimeout);
+    };
+  }, [scrollContainerRef, activeSection]);
 
-    return () => window.removeEventListener('scroll', onScrollActive);
-  }, [activeSection]);
+  // Removed duplicate fallback useEffect to prevent conflicting nav highlight updates.
 
   const handleNavClick = (e, id) => {
     e.preventDefault();
@@ -99,15 +128,22 @@ export default function Header() {
   };
 
   return (
-    <header className={`header ${isScrolled ? 'scrolled' : 'transparent'}`}>
+    <header className={`landing-header ${isScrolled ? 'scrolled' : 'transparent'}`}>
       <div className="landing-header-container">
         <div className="landing-header-content">
           {/* Logo */}
-          <div className="logo">
+          <div className="landing-logo">
             <Link 
               to="/" 
-              className="logo-text"
-              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              className="landing-logo-text"
+              onClick={() => {
+                const scrollable = scrollContainerRef.current || window;
+                if (scrollable === window) {
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else {
+                  scrollable.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+              }}
             >
               FreightPower
             </Link>

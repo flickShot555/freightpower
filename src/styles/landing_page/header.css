@@ -1,12 +1,12 @@
 /* Header Component Styles */
 
 /* Remove focus outlines for header elements */
-.header button:focus,
-.header button:focus-visible,
-.header a:focus,
-.header a:focus-visible,
-.logo-text:focus,
-.logo-text:focus-visible,
+.landing-header button:focus,
+.landing-header button:focus-visible,
+.landing-header a:focus,
+.landing-header a:focus-visible,
+.landing-logo-text:focus,
+.landing-logo-text:focus-visible,
 .landing-nav-link:focus,
 .landing-nav-link:focus-visible,
 .cta-button:focus,
@@ -15,7 +15,7 @@
   box-shadow: none !important;
 }
 
-.header {
+.landing-header {
   position: fixed;
   top: 0;
   left: 0;
@@ -24,13 +24,13 @@
   transition: all 300ms;
 }
 
-.header.scrolled {
+.landing-header.scrolled {
   background-color: rgba(255, 255, 255, 0.95);
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
   backdrop-filter: blur(4px);
 }
 
-.header.transparent {
+.landing-header.transparent {
   background-color: transparent;
 }
 
@@ -60,12 +60,12 @@
   height: 4rem;
 }
 
-.logo {
+.landing-logo {
   display: flex;
   align-items: center;
 }
 
-.logo-text {
+.landing-logo-text {
   font-size: 1.25rem;
   font-weight: 400 !important;
   font-family: 'Inter', system-ui, sans-serif;
@@ -75,25 +75,25 @@
   text-decoration: none;
 }
 
-.logo-text:visited {
+.landing-logo-text:visited {
   color: #1f2937;
 }
 
 @media (min-width: 640px) {
-  .logo-text {
+  .landing-logo-text {
     font-size: 1.2rem;
     font-weight: 400 !important;
   }
 }
 
 @media (min-width: 1024px) {
-  .logo-text {
+  .landing-logo-text {
     font-size: 1.75rem;
     font-weight: 400 !important;
   }
 }
 
-.logo-text:hover {
+.landing-logo-text:hover {
   color: #1f2937;
 }
 
@@ -364,8 +364,8 @@
 }
 
 /* Force logo font weight override */
-.header .logo .logo-text,
-.logo-text {
+.landing-header .landing-logo .landing-logo-text,
+.landing-header .landing-logo-text {
   font-weight: 600 !important;
   font-family: 'Inter', sans-serif !important;
 }

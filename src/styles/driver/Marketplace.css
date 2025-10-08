@@ -1,0 +1,853 @@
+/* Marketplace Component Styles */
+
+.mp-alert-card {
+  grid-column: span 3;
+}
+
+.mp-alert-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+  border-radius: 8px;
+  border: 1px solid #ffc107;
+}
+
+.dark-root .mp-alert-content {
+  background: #4b3b00;
+  border-color: #856404;
+  color: #ffeaa7;
+}
+
+.mp-alert-icon {
+  font-size: 1.5rem;
+  color: #856404;
+}
+
+.dark-root .mp-alert-icon {
+  color: #ffeaa7;
+}
+
+.mp-alert-text {
+  flex: 1;
+}
+
+.mp-alert-title {
+  font-weight: 600;
+  color: #856404;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.dark-root .mp-alert-title {
+  color: #ffeaa7;
+}
+
+.mp-alert-subtitle {
+  color: #856404;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.dark-root .mp-alert-subtitle {
+  color: #ffeaa7;
+}
+
+.mp-become-available-btn {
+  background: #ff6b35;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.dark-root .mp-become-available-btn {
+  background: #ff8c00;
+}
+
+.mp-become-available-btn:hover {
+  background: #e55a2b;
+}
+
+/* GPS Services Card */
+.mp-gps-services-card {
+  grid-column: span 2;
+}
+
+.mp-view-controls {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.mp-search-container {
+  margin: 1rem 0;
+}
+
+.mp-search-input {
+  display: flex;
+  align-items: center;
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 0.5rem;
+}
+
+.dark-root .mp-search-input {
+  background: #2c2c2c;
+  border-color: #353535;
+  color: #d1d7db;
+}
+
+.mp-search-input i {
+  color: #6c757d;
+  margin: 0 0.5rem;
+}
+
+.mp-search-input input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  outline: none;
+  padding: 0.5rem;
+}
+
+.mp-search-btn {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  margin-left: 0.5rem;
+  cursor: pointer;
+}
+
+.mp-service-icons-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.mp-service-icon-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.dark-root .mp-service-icon-item {
+  background: #2c2c2c;
+  color: #d1d7db;
+}
+
+.mp-service-icon-item:hover {
+  background: #e9ecef;
+  transform: translateY(-2px);
+}
+
+.dark-root .mp-service-icon-item:hover {
+  background: #3a3a3a;
+}
+
+.mp-service-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  color: white;
+}
+
+.mp-service-icon.fuel {
+  background: #007bff;
+}
+
+.mp-service-icon.parking {
+  background: #28a745;
+}
+
+.mp-service-icon.repair {
+  background: #fd7e14;
+}
+
+.mp-service-icon.cdl {
+  background: #6f42c1;
+}
+
+.mp-service-icon.training {
+  background: #dc3545;
+}
+
+.mp-service-icon.eld {
+  background: #20c997;
+}
+
+.mp-service-icon-item span {
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+/* AI Highlights Card */
+.mp-highlights-card .card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.mp-ai-icon {
+  color: #ffc107;
+}
+
+.mp-highlight-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.mp-highlight-item:last-child {
+  border-bottom: none;
+}
+
+.mp-highlight-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  color: white;
+}
+
+.mp-highlight-icon.fuel-discount {
+  background: #007bff;
+}
+
+.mp-highlight-icon.cdl-reminder {
+  background: #ffc107;
+}
+
+.mp-highlight-content h4 {
+  margin: 0 0 0.25rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.mp-highlight-content p {
+  margin: 0;
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+/* Nearby Providers Card */
+.mp-nearby-providers-card {
+  grid-column: span 3;
+}
+
+.mp-filter-controls {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.mp-filter-btn,
+.mp-favorites-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  color: #495057;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.mp-filter-btn:hover,
+.mp-favorites-btn:hover {
+  background: #e9ecef;
+}
+
+.dark-root .mp-filter-btn:hover,
+.dark-root .mp-favorites-btn:hover {
+  background: #3a3a3a;
+}
+
+.mp-provider-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.mp-provider-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+}
+
+.dark-root .mp-provider-item {
+  background: #2c2c2c;
+  border-color: #353535;
+  color: #d1d7db;
+}
+
+.mp-provider-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  color: white;
+}
+
+.mp-provider-icon.shell {
+  background: #ffdd00;
+  color: #dc3545;
+}
+
+.mp-provider-icon.repair {
+  background: #fd7e14;
+}
+
+.mp-provider-icon.parking {
+  background: #28a745;
+}
+
+.mp-provider-icon.legal {
+  background: #6f42c1;
+}
+
+.mp-provider-info {
+  flex: 1;
+}
+
+.mp-provider-info h4 {
+  margin: 0 0 0.25rem 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.mp-provider-info p {
+  margin: 0 0 0.5rem 0;
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.mp-provider-description {
+  color: #495057 !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.mp-provider-offer,
+.mp-provider-service,
+.mp-provider-availability {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.mp-provider-offer {
+  background: #d4edda;
+  color: #155724;
+}
+
+.mp-provider-service {
+  background: #cce5ff;
+  color: #004085;
+}
+
+.mp-provider-availability {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.mp-provider-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
+.mp-verification-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.mp-verification-badge.verified {
+  background: #d4edda;
+  color: #155724;
+}
+
+.mp-verification-badge.connected {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.mp-verification-badge.offer {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.mp-details-btn,
+.mp-contact-btn,
+.mp-reserve-btn,
+.mp-learn-more-btn {
+  padding: 0.375rem 0.75rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.mp-details-btn {
+  background: #007bff;
+  color: white;
+}
+
+.mp-contact-btn {
+  background: #28a745;
+  color: white;
+}
+
+.mp-reserve-btn {
+  background: #6610f2;
+  color: white;
+}
+
+.mp-learn-more-btn {
+  background: #6c757d;
+  color: white;
+}
+
+.mp-details-btn:hover {
+  background: #0056b3;
+}
+
+.mp-contact-btn:hover {
+  background: #1e7e34;
+}
+
+.mp-reserve-btn:hover {
+  background: #520dc2;
+}
+
+.mp-learn-more-btn:hover {
+  background: #545b62;
+}
+
+/* Post-Hire Marketplace Styles */
+.mp-availability-card {
+  grid-column: span 2;
+}
+
+.mp-status-badge.currently-available {
+  background: #d4edda;
+  color: #155724;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.mp-availability-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.mp-visibility-status {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border-radius: 8px;
+}
+
+.mp-status-icon {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #28a745;
+}
+
+.mp-consent-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  background: #e7f3ff;
+  border: 1px solid #b3d9ff;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.dark-root .mp-consent-info {
+  background: #1e3a5f;
+  border-color: #3a5068;
+}
+
+.mp-consent-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: #0066cc;
+  color: white;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  width: fit-content;
+}
+
+.dark-root .mp-consent-badge {
+  background: #1e8fff6d;
+}
+
+.mp-consent-text {
+  color: #0066cc;
+  font-size: 0.9rem;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.mp-promote-card {
+  background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+  border: 1px solid #ffc107;
+  color: #856404;
+  border-radius: 8px;
+}
+
+.dark-root .mp-promote-card {
+  background: #4b3b00;
+  border-color: #856404;
+  color: #ffeaa7;
+}   
+
+.mp-promote-content {
+  padding: 1.5rem;
+  text-align: left;
+}
+
+.mp-promote-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.mp-promote-icon {
+  font-size: 1.5rem;
+  color: #ff8c00;
+}
+
+.dark-root  .mp-promote-icon {
+  color: #ffeaa7;
+}
+
+.mp-promote-header h4 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #856404;
+}
+
+.dark-root .mp-promote-header h4 {
+  color: #ffeaa7;
+}
+
+.mp-promote-text {
+  margin: 0 0 1.25rem 0;
+  font-size: 0.9rem;
+  color: #856404;
+  line-height: 1.4;
+}
+
+.dark-root .mp-promote-text {
+  color: #ffeaa7;
+}
+
+.mp-promote-btn {
+  background: #ff8c00;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.25rem;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.9rem;
+}
+
+.mp-promote-btn:hover {
+  background: #e07b00;
+  transform: translateY(-2px);
+}
+
+.mp-ai-insights-card {
+  grid-column: span 3;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.mp-ai-insights-card .mp-ai-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.mp-ai-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.mp-ai-insights-card .mp-ai-icon {
+  font-size: 1.5rem;
+  color: #ffffff;
+}
+
+.mp-insights-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.mp-insight-item {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 1.5rem;
+  border-radius: 8px;
+  backdrop-filter: blur(10px);
+}
+
+.mp-insight-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.mp-insight-header i {
+  font-size: 1.2rem;
+}
+
+.mp-insight-header span {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.mp-insight-item p {
+  margin: 0;
+  opacity: 0.9;
+  line-height: 1.5;
+}
+
+.mp-services-card {
+  grid-column: span 3;
+}
+
+.mp-search-bar {
+  position: relative;
+  max-width: 300px;
+}
+
+.mp-search-bar i {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6c757d;
+}
+
+.mp-search-bar input {
+  width: 100%;
+  padding: 0.5rem 0.5rem 0.5rem 2.5rem;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  outline: none;
+}
+
+.dark-root .mp-search-bar input {
+  background: #2c2c2c;
+  border-color: #353535;
+  color: #d1d7db;
+}
+
+.mp-services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.mp-service-category {
+  background: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+  transition: all 0.2s;
+}
+
+.dark-root .mp-service-category {
+  background: #2c2c2c;
+  border-color: #353535;
+  color: #d1d7db;
+}
+
+.mp-service-category:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.mp-service-category .mp-service-icon {
+  width: 56px;
+  height: 56px;
+  margin-bottom: 1rem;
+  font-size: 1.75rem;
+}
+
+.mp-service-category .mp-service-icon.cdl-protection {
+  background: #6f42c1;
+}
+
+.mp-service-category .mp-service-icon.eld-solutions {
+  background: #20c997;
+}
+
+.mp-service-category .mp-service-icon.fuel-programs {
+  background: #007bff;
+}
+
+.mp-service-category .mp-service-icon.roadside {
+  background: #fd7e14;
+}
+
+.mp-service-category .mp-service-icon.training {
+  background: #dc3545;
+}
+
+.mp-service-category .mp-service-icon.financial {
+  background: #28a745;
+}
+
+.mp-service-category h4 {
+  margin: 0 0 0.75rem 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.mp-service-category p {
+  margin: 0 0 1rem 0;
+  color: #6c757d;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.mp-service-offer,
+.mp-service-options,
+.mp-service-savings,
+.mp-service-availability,
+.mp-service-certifications,
+.mp-service-partners {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.mp-service-offer {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.mp-service-options,
+.mp-service-partners {
+  background: #e2e6ea;
+  color: #495057;
+}
+
+.mp-service-savings {
+  background: #d4edda;
+  color: #155724;
+}
+
+.mp-service-availability {
+  background: #cce5ff;
+  color: #004085;
+}
+
+.mp-service-certifications {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.mp-connect-btn {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+  width: 100%;
+}
+
+.mp-connect-btn:hover {
+  background: #0056b3;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .mp-insights-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .mp-services-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .mp-service-icons-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .mp-alert-card,
+  .mp-gps-services-card,
+  .mp-ai-insights-card,
+  .mp-nearby-providers-card,
+  .mp-services-card,
+  .mp-availability-card {
+    grid-column: span 1;
+  }
+}
