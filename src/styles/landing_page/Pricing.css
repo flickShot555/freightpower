@@ -60,6 +60,9 @@
   .pricing-title {
     font-size: 2.75rem;
   }
+  .pricing-features-title {
+    text-align: center!important;
+  }
 }
 
 @media (max-width: 640px) {

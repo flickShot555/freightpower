@@ -395,21 +395,21 @@
   right: 12px;
 }
 
-.status-indicator {
-  padding: 4px 8px;
+.integration-status-indicator {
+  padding: 4px 4px;
   border-radius: 16px;
-  font-size: 11px;
+  font-size: 9px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
-.status-indicator.connected {
+.integration-status-indicator.connected {
   background: #dcfce7;
   color: #166534;
 }
 
-.status-indicator.not-connected {
+.integration-status-indicator.not-connected {
   background: #fef3c7;
   color: #92400e;
 }
@@ -676,21 +676,56 @@
   .integrations-header {
     gap: 12px;
   }
-  
-  .filters-container {
-    flex-direction: row;
-    gap: 8px;
-    flex-wrap: nowrap;
-    align-items: center;
-    max-width: 100vw;
-    overflow-x: auto;
-  }
-  
+
+  /* Make the controls stack: search full-width on top, filters in a scrollable row below */
   .integrations-controls {
-    flex-direction: row;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+  }
+
+  .search-container {
+    width: 100%;
+    max-width: none;
+    min-width: 0; /* allow shrinking in flex container */
+  }
+
+  .filters-container {
+    display: flex;
+    flex-direction: column;
     gap: 8px;
-    align-items: flex-start;
-    flex-wrap: wrap;
+    align-items: center;
+    flex-wrap: nowrap;
+    max-width: 100%;
+    overflow-x: auto;
+    padding-bottom: 6px; /* breathing room for scroll */
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Ensure each filter stays a reasonable size and doesn't force wrapping */
+  .filter-select {
+    min-width: 140px;
+    flex: 0 0 auto;
+  }
+
+  /* Slightly smaller selects on very small phones */
+  @media (max-width: 420px) {
+    .filter-select {
+      min-width: 120px;
+    }
+  }
+
+  /* Keep the integration tabs on a single horizontal line and allow scrolling */
+  .integrations-tabs {
+    flex-wrap: nowrap;
+  }
+
+  .integrations-tab {
+    white-space: normal;
+    max-width: 140px;
+    text-align: center;
+    word-break: break-word;
   }
 }
 
@@ -1333,6 +1368,35 @@
   .btn-reconnect {
     width: 100%;
   }
+
+  /* Stack search above filter selects for My Connections */
+  .connections-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: stretch;
+  }
+
+  .connections-controls .search-container {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .connections-controls .filters-container {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 6px;
+  }
+
+  .connections-controls .filter-select {
+    min-width: 140px;
+    flex: 0 0 auto;
+  }
 }
 
 /* Sync Logs Styles */
@@ -1356,7 +1420,7 @@
   overflow-x: visible;
 }
 
-.filter-group {
+.sync-filter-group {
   display: flex;
   flex-direction: row;
   gap: 12px;
@@ -1398,14 +1462,16 @@
     gap: 12px;
     padding: 0;
   }
-  .filter-group {
+  .sync-filter-group {
     flex-direction: column;
     width: 100%;
     gap: 8px;
+    order: 2;
   }
   .sync-logs-search {
     min-width: 0;
     width: 100%;
+    order: 1;
   }
 }
 
@@ -1728,7 +1794,7 @@
 }
 
 /* Pagination */
-.pagination {
+.integration-pagination {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -1736,12 +1802,12 @@
   border-top: 1px solid #f1f5f9;
 }
 
-.pagination span {
+.integration-pagination span {
   font-size: 14px;
   color: #64748b;
 }
 
-.pagination-controls {
+.integration-pagination-controls {
   display: flex;
   gap: 4px;
   align-items: center;
@@ -2095,11 +2161,11 @@
   border-color: rgba(255,255,255,0.1);
 }
 
-.dark-root .pagination {
+.dark-root .integration-pagination {
   border-top-color: rgba(255,255,255,0.04);
 }
 
-.dark-root .pagination span {
+.dark-root .integration-pagination span {
   color: #9aa6b1;
 }
 
@@ -2206,7 +2272,7 @@
   position: relative;
 }
 
-.sync-logs-filters .filter-group {
+.sync-logs-filters .sync-filter-group {
   flex: 2;
   min-width: 220px;
   max-width: 600px;
@@ -2245,7 +2311,7 @@
   z-index: 2;
 }
 
-.sync-logs-filters .filter-group {
+.sync-logs-filters .sync-filter-group {
   order: 1;
   display: flex;
   flex-direction: row;
@@ -2266,19 +2332,45 @@
 @media (max-width: 640px) {
   .sync-logs-filters {
     flex-direction: column;
+    align-items: flex-start;
     gap: 12px;
     padding: 0;
+    width: 100%;
   }
   .search-container {
-    order: 0;
     width: 100%;
-    max-width: none;
   }
-  .filter-group {
-    order: 1;
-    flex-direction: column;
+  .sync-filter-group {
     width: 100%;
     gap: 8px;
+    align-items: stretch;
+  }
+
+  /* When stacked on small screens, cancel the right push and make selects full width */
+  .sync-logs-filters .sync-filter-group {
+    margin-left: 0; /* override desktop margin-left:auto */
+  }
+
+  .sync-logs-filters .sync-filter-group .filter-select {
+    width: 100%;
     max-width: none;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+  .integration-pagination {
+    flex-direction: column!important;
+    align-items: flex-start;
+    gap: 12px;
+  }
+}
+
+/* Very small screens: stack the filter group vertically */
+@media (max-width: 450px) {
+  .sync-logs-filters .sync-filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    align-items: stretch;
   }
 }

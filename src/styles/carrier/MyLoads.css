@@ -10,6 +10,43 @@
   margin-bottom: 12px;
 }
 
+/* Mobile: title/subtitle with Add Load button aligned to the right on the same row; search input below full-width */
+@media (max-width: 640px) {
+  .ml-header {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    position: relative; /* allow absolutely-positioned button */
+  }
+
+  /* keep title block first */
+  .ml-header .fp-header-titles { order: 1; }
+
+  /* position the primary add button in the top-right so it visually sits on the same row as the title */
+  .ml-header .ml-actions { order: 2; }
+  .ml-header .ml-actions .ml-toolbar { display:flex; justify-content:flex-end; align-items:center; }
+  .ml-header .ml-actions .btn.primary.small {
+    position: absolute;
+    right: 12px;
+    top: 6px;
+    z-index: 2;
+  }
+
+  /* place the search input under the heading and make it full width */
+  .ml-header .ml-actions .ml-search {
+    width: 100%;
+    margin-top: 4px;
+    box-sizing: border-box;
+    order: 3;
+    /* make room for the absolute button on the right so placeholder/text isn't covered */
+    padding-right: 110px;
+  }
+
+  /* allow toolbar content to wrap if needed */
+  .ml-header .ml-actions .ml-toolbar { gap:8px; flex-wrap:wrap; }
+}
+
 /* header uses shared .fp-header-titles / .fp-subtitle styles from CarrierDashboard.css */
 
 .ml-actions .ml-toolbar { display: flex; gap: 8px; align-items: center; }

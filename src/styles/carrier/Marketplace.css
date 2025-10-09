@@ -1512,14 +1512,41 @@ input[type="checkbox"], input[type="radio"] {
     justify-content: center;
   }
   
+  /* Make filters a horizontal, scrollable row on narrow screens so they sit inline */
   .filters-section {
-    flex-direction: column;
-    gap: 8px;
+    flex-direction: row;
+    gap: 10px;
+    flex-wrap: wrap; /* allow two logical rows */
+    align-items: center;
+    justify-content: flex-start;
   }
-  
+
+  /* Dropdowns (selects) should appear first and line up on the first row */
+  .filters-section .marketplace-filter-select {
+    order: 1;
+    flex: 0 0 auto;
+    min-width: 110px;
+  }
+
+  /* Inputs (Origin/Destination/Date) should appear on the second row */
+  .filters-section .marketplace-filter-input {
+    order: 2;
+    flex: 1 1 140px;
+    min-width: 120px;
+  }
+
+  /* Ensure radius and similar selects remain with other selects */
+  .filters-section .marketplace-radius-select {
+    order: 1;
+  }
+
   .filter-select,
-  .filter-input {
-    width: 100%;
+  .filter-input,
+  .marketplace-filter-select,
+  .marketplace-filter-input {
+    width: auto;
+    min-width: 160px; /* reasonable default for inputs */
+    flex: 0 0 auto;
   }
 
   /* Driver cards responsive */
@@ -1551,19 +1578,28 @@ input[type="checkbox"], input[type="radio"] {
   }
 }
 @media (max-width: 768px) {
+  /* Keep nav tabs in a horizontal row on tablet/mobile; allow horizontal scroll if needed */
   .marketplace-nav {
-    flex-direction: column;
-    gap: 16px;
-    align-items: stretch;
+    flex-direction: row;
+    gap: 12px;
+    align-items: center;
+    width: 100%;
   }
 
   .marketplace-tabs {
-    justify-content: space-around;
+    display: flex;
+    gap: 12px;
+    justify-content: flex-start;
+    align-items: center;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 6px;
+    /* keep the underline behavior */
   }
 
   .marketplace-tab {
-    flex: 1;
-    justify-content: center;
+    flex: none;
+    white-space: nowrap;
   }
 
   .view-toggle {
@@ -1584,7 +1620,11 @@ input[type="checkbox"], input[type="radio"] {
   }
 
   .filters-section {
-    grid-template-columns: 1fr;
+    /* Keep filters as a horizontal scroll row on smaller devices */
+  flex-direction: row;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: flex-start;
   }
 
   .loads-grid {
@@ -1607,9 +1647,15 @@ input[type="checkbox"], input[type="radio"] {
 }
 
 @media (max-width: 480px) {
+  /* Small screens: keep tabs horizontal and allow scroll — mirrors Shipper/Broker nav behavior */
   .marketplace-tabs {
-    flex-direction: column;
+    display: flex;
     gap: 8px;
+    align-items: center;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 6px;
+    white-space: nowrap;
   }
 
   .marketplace-tab {
@@ -1765,6 +1811,39 @@ select, select option {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.drivers-pagination {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+}
+
+.drivers-pagination > span {
+  flex: 1 1 auto;
+  text-align: left;
+  color: #6b7280;
+  font-size: 0.95rem;
+}
+
+.drivers-pagination .pagination {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: nowrap;
+}
+
+.drivers-pagination .pagination button,
+.drivers-pagination .pagination .active {
+  min-width: 36px;
+  height: 36px;
+  padding: 0 6px;
+  border-radius: 8px;
 }
 
 /* Dark mode: set pagination icon color to sidebar color */
@@ -1954,5 +2033,25 @@ select, select option {
   .marketplace-menu-btn {
     width: 28px;
     height: 28px;
+  }
+
+  @media (max-width: 900px) {
+    .drivers-pagination {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+}
+.drivers-pagination .pagination {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: ROW;
+  gap: 8px;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: nowrap;
+}
   }
 }

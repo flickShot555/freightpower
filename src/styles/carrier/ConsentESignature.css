@@ -58,22 +58,18 @@
   border-color: #cbd5e1;
 }
 
-.consent-header .btn-action.create-agreement {
-  color: #2563eb;
-  border-color: #93c5fd;
-  background: #eff6ff;
-}
-
-.consent-header .btn-action.upload-template {
-  color: #059669;
-  border-color: #86efac;
-  background: #ecfdf5;
+@media (max-width: 450px) {
+  .consent-header .btn-action {
+    padding: 8px 12px;
+    font-size: 11px;
+  }
+  
 }
 
 /* Navigation Tabs */
 .consent-tabs {
   display: flex;
-  gap: 24px;
+  gap: 24px; /* parity with Marketplace/Integrations */
   align-items: flex-end;
   padding-top: 20px;
   padding-bottom: 6px;
@@ -85,15 +81,16 @@
 .tab-btn {
   background: transparent;
   border: none;
-  padding: 8px 0;
-  font-weight: 600;
-  font-size: 16px;
+  margin: 0;
   color: #6b7280;
+  font-weight: 600;
+  font-size: 16px; /* base, same as Marketplace/Integrations */
+  padding: 10px 16px;
+  position: relative;
   cursor: pointer;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 8px;
-  position: relative;
   transition: color 0.2s;
 }
 
@@ -113,6 +110,45 @@
 
 .tab-btn:hover {
   color: #374151;
+}
+
+/* Responsive parity with Marketplace/Integrations while keeping wrap (no scrolling) */
+@media (max-width: 900px) {
+  .consent-tabs {
+    gap: 14px;
+  }
+
+  .tab-btn {
+    font-size: 13px;
+    padding: 6px 0;
+  }
+
+  .consent-tabs {
+    /* keep tabs on a single horizontal line and allow scrolling if they overflow */
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 450px) {
+  .consent-tabs {
+    /* keep tabs on a single horizontal line and avoid row-wrapping */
+    flex-wrap: nowrap;
+    gap: 8px; /* reduce gap so tabs take less horizontal space */
+  }
+
+  .tab-btn {
+    font-size: 12px;
+    /* allow label text to wrap inside each tab (two-line labels) while keeping tabs in one row */
+    white-space: normal !important;
+    text-align: center;
+    word-break: break-word !important;
+    display: inline-flex !important; /* keep flex for icon+text alignment */
+    min-width: 0 !important; /* allow flex item to shrink below intrinsic size */
+    max-width: 90px !important; /* constrain width so labels wrap to 2 lines */
+    padding: 4px 6px !important; /* reduce horizontal padding to save space */
+    line-height: 1.1 !important;
+    flex: 0 1 auto !important; /* allow shrinking but don't force growth */
+  }
 }
 
 /* Search and Filter Bar */
@@ -817,8 +853,8 @@
 /* Pagination */
 .pagination {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: row;
+  justify-content: space-between!important;
   padding: 16px 24px;
   border-top: 1px solid #e5e7eb;
 }
@@ -1305,7 +1341,6 @@
 
   .consent-tabs {
     gap: 16px;
-    overflow-x: auto;
     padding-bottom: 2px;
   }
 

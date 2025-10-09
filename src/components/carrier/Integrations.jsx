@@ -285,7 +285,7 @@ export default function Integrations() {
             {filteredIntegrations.map(integration => (
               <div key={integration.id} className="integration-card">
                 <div className="integration-status">
-                  <span className={`status-indicator ${integration.status}`}>
+                  <span className={`integration-status-indicator ${integration.status}`}>
                     {integration.status === 'connected' ? 'Connected' : 'Not Connected'}
                   </span>
                 </div>
@@ -612,7 +612,7 @@ export default function Integrations() {
         <div className="sync-logs-content">
           {/* Filters Row */}
           <div className="sync-logs-filters">
-            <div className="filter-group">
+            <div className="sync-filter-group">
               <select className="filter-select">
                 <option>All Providers</option>
                 <option>QuickBooks</option>
@@ -857,9 +857,9 @@ export default function Integrations() {
               </table>
             </div>
 
-            <div className="pagination">
+            <div className="integration-pagination">
               <span>Showing 1 to 5 of 1,247 entries</span>
-              <div className="pagination-controls">
+              <div className="integration-pagination-controls">
                 <button className="page-btn">Pre</button>
                 <button className="page-btn active">1</button>
                 <button className="page-btn">2</button>

@@ -333,7 +333,8 @@ const AlertsNotifications = () => {
             <h3 className="alert-section-title">Delivery Methods</h3>
             <p className="alert-section-subtitle">Choose how you want to receive notifications for each category</p>
             
-            <div className="alert-delivery-table">
+            <div className="alert-delivery-scrollwrap">
+              <div className="alert-delivery-table">
               <div className="alert-delivery-header">
                 <div className="alert-category-col">Category</div>
                 <div className="alert-method-col">
@@ -432,6 +433,7 @@ const AlertsNotifications = () => {
                 <div className="alert-method-checkbox">
                   <input type="checkbox" defaultChecked />
                 </div>
+              </div>
               </div>
             </div>
           </div>

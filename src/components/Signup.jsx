@@ -81,7 +81,7 @@ export default function Signup(){
 
             <div className="carrier-signup-bottom-actions">
               <div className="carrier-signup-login-actions">
-                <button type="submit" className="carrier-signup-btn">Create Account</button>
+                <button type="submit" className="carrier-signup-btn">Start Onboarding</button>
               </div>
 
               <div className="divider"><span>Need help logging in? Ask our AI Assistant</span></div>

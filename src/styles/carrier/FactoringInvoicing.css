@@ -396,6 +396,20 @@
   align-items: center;
 }
 
+@media (max-width: 900px) {
+  .table-footer {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .pagination {
+    display: flex;
+    flex-direction: row !important;
+  }
+  .pagination .btn-page {
+    flex: 1 1 auto;
+  } 
+}
+
 .btn-page {
   padding: 8px 12px;
   border: 1px solid #e5e7eb;
@@ -709,15 +723,6 @@
     min-width: 800px;
   }
   
-  .table-footer {
-    flex-direction: column;
-    gap: 12px;
-    text-align: center;
-  }
-  
-  .pagination {
-    justify-content: center;
-  }
 }
 
 @media (max-width: 640px) {

@@ -562,12 +562,12 @@ export default function ConsentESignature() {
                 Showing 1 to {Math.min(itemsPerPage, activeDocuments.length)} of {activeDocuments.length} documents
               </div>
               <div className="pagination-controls">
-                <button 
+                <button
                   className="pagination-btn"
                   disabled={currentPage === 1}
                   onClick={() => setCurrentPage(currentPage - 1)}
                 >
-                  Pre
+                  Prev
                 </button>
                 {Array.from({ length: totalPages }, (_, index) => (
                   <button
@@ -578,7 +578,7 @@ export default function ConsentESignature() {
                     {index + 1}
                   </button>
                 ))}
-                <button 
+                <button
                   className="pagination-btn"
                   disabled={currentPage === totalPages}
                   onClick={() => setCurrentPage(currentPage + 1)}

@@ -173,6 +173,12 @@
   margin-bottom: 1rem;
 }
 
+@media (max-width: 600px) {
+  .freight-difference-features {
+    align-items: flex-start;
+  }
+}
+
 @media (min-width: 1024px) {
   .freight-difference-grid {
     grid-template-columns: 1fr 1fr;

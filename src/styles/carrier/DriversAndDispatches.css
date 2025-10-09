@@ -23,6 +23,31 @@
     min-width: 90px;
   }
 }
+
+/* Strong override: force search and dropdowns to share the same centered max width on small screens */
+@media (max-width: 640px) {
+  .drivers-dispatches .drivers-controls { align-items: center; }
+  .drivers-dispatches .drivers-controls .search-container,
+  .drivers-dispatches .drivers-controls .filters-container {
+    width: 100% !important;
+    max-width: 720px !important; /* match the visual search width */
+    box-sizing: border-box !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+  .drivers-dispatches .drivers-controls .filters-container {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+  .drivers-dispatches .drivers-controls .filters-container .filter-select {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+}
 @media (max-width: 600px) {
   .exception-card {
     font-size: 0.9rem;
@@ -1139,6 +1164,44 @@
 	margin-bottom: 24px;
 	flex-wrap: wrap;
 }
+
+/* Small-screen layout: search on first line full width, filters on second line */
+@media (max-width: 640px) {
+  .drivers-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .drivers-controls .search-container {
+    width: 100%;
+    order: 1; /* first line */
+  }
+  .drivers-controls .filters-container {
+    width: 100%;
+    order: 2; /* second line */
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .drivers-controls .filters-container .filter-select {
+    width: 100%;
+    flex: 0 0 auto;
+    min-width: 0;
+  }
+}
+
+/* Ensure search and filters share the same centered max width on small screens */
+@media (max-width: 640px) {
+  .drivers-controls {
+    align-items: center;
+  }
+  .drivers-controls .search-container,
+  .drivers-controls .filters-container {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
 .search-container {
 	position: relative;
 	flex: 1;
@@ -1915,4 +1978,46 @@
   text-decoration: underline;
   font-size: 0.8rem;
   font-weight: 600;
+}
+
+/* Strongly-scoped tab styles to ensure visual parity with ShipperPartners
+   Targets the exact DOM structure used in DriversAndDispatches.jsx and
+   placed at the end of the stylesheet so it wins over earlier rules. */
+.drivers-dispatches .drivers-tabs .driver-tab {
+  background: transparent;
+  border: none;
+  padding: 8px 0;
+  margin: 0;
+  color: #6b7280;
+  font-weight: 600;
+  font-size: 16px;
+  position: relative;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: color 0.18s;
+}
+.drivers-dispatches .drivers-tabs .driver-tab:hover:not(.active) {
+  color: #0ea5e9;
+}
+.drivers-dispatches .drivers-tabs .driver-tab.active,
+.drivers-dispatches .drivers-tabs .driver-tab.active i {
+  color: #0ea5e9;
+}
+.drivers-dispatches .drivers-tabs .driver-tab.active::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #0ea5e9;
+  border-radius: 2px;
+  bottom: -6px;
+}
+
+@media (max-width: 900px) {
+  .drivers-dispatches .drivers-tabs { gap: 14px;}
+  .drivers-dispatches .drivers-tabs .driver-tab { font-size: 14px; padding: 6px 0; }
+  .drivers-dispatches .drivers-tabs .driver-tab.active::after { bottom: -4px; }
 }

@@ -162,7 +162,7 @@
 /* Tabs */
 .alert-tabs {
   display: flex;
-  gap: 24px;
+  gap: 24px; /* same spacing as Marketplace */
   align-items: flex-end;
   padding-bottom: 6px;
   border-bottom: 1px solid #f1f5f9;
@@ -173,15 +173,16 @@
 .alert-tab-btn {
   background: transparent;
   border: none;
-  padding: 8px 0;
-  font-weight: 600;
-  font-size: 16px;
+  margin: 0;
   color: #6b7280;
+  font-weight: 600;
+  font-size: 16px; /* match Marketplace */
+  padding: 10px 16px; /* match Marketplace spacing */
+  position: relative;
   cursor: pointer;
-  display: flex;
+  display: inline-flex; /* keep inline-flex like Marketplace */
   align-items: center;
   gap: 8px;
-  position: relative;
   transition: color 0.2s;
 }
 
@@ -202,6 +203,23 @@
 
 .alert-tab-btn:hover {
   color: #0ea5e9;
+}
+
+/* Responsive: match Marketplace responsive tab sizing */
+@media (max-width: 900px) {
+  .alert-tabs {
+    gap: 14px;
+  }
+
+  .alert-tab-btn {
+    font-size: 13px;
+    padding: 6px 0;
+  }
+
+  .alert-tabs {
+    /* keep tabs on a single horizontal line and allow wrapping behavior consistent with Marketplace */
+    flex-wrap: nowrap;
+  }
 }
 
 /* Filter Bar */
@@ -1109,7 +1127,8 @@ input:checked + .alert-slider:before {
 
   /* Settings Responsive */
   .alert-delivery-table {
-    grid-template-columns: 1fr repeat(4, 60px);
+    /* keep fixed column widths so content doesn't collapse; allow scrolling in wrapper */
+    grid-template-columns: 1fr repeat(4, 72px);
   }
 
   .alert-delivery-header > div,
@@ -1145,6 +1164,21 @@ input:checked + .alert-slider:before {
   }
 }
 
+/* Add a scroll wrapper for the delivery table on small screens
+   so columns keep their widths and horizontal scrolling is available */
+@media (max-width: 640px) {
+  .alert-delivery-scrollwrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+  }
+
+  /* Ensure the inner table keeps its min width equal to the sum of columns */
+  .alert-delivery-scrollwrap .alert-delivery-table {
+    min-width: calc(160px + 72px * 4); /* 160px for the first column (approx) + 4 columns */
+  }
+}
+
 /* Override global checkbox hiding for AlertsNotifications component */
 .alert-notifications input[type="checkbox"] {
   display: block !important;
@@ -1156,4 +1190,28 @@ input:checked + .alert-slider:before {
   opacity: 0;
   width: 0;
   height: 0;
+}
+
+@media (max-width: 550px) {
+  .alert-category-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .alert-category-item {
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+  .alert-category-info {
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .alert-category-details h4 {
+    text-align: center;
+  }
+  .alert-category-details p {
+    text-align: center; }
+  
 }
