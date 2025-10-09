@@ -70,6 +70,57 @@
   color: #3b82f6;
 }
 
+/* Responsive small typography for badges, counts, labels, and selects */
+.dd-progress-percent,
+.dd-progress-percent-new,
+.dd-status-count,
+.dd-status-badge,
+.dd-status-badges,
+.dd-section-count,
+.dd-doc-expires,
+.dd-doc-updated,
+.dd-doc-expires-new,
+.dd-doc-updated-new,
+.dd-doc-description,
+.dd-filter-select,
+.dd-section-header h3,
+.dd-section-title-post h3 {
+  font-size: clamp(0.75rem, 1.2vw, 0.95rem);
+}
+
+/* Make the small badge numbers in the compliance card slightly larger on bigger screens */
+.dd-status-count {
+  font-size: clamp(0.75rem, 1.1vw, 0.95rem);
+  padding: clamp(3px, 0.6vw, 6px) clamp(8px, 1.2vw, 12px);
+}
+
+/* Make the dropdown (All Documents) text responsive and not overflow */
+.dd-filter-select {
+  font-size: clamp(0.8rem, 1.2vw, 1rem);
+  padding: clamp(8px, 1vw, 12px) clamp(10px, 1.6vw, 16px);
+  min-width: 120px;
+  max-width: 100%;
+  box-sizing: border-box;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Make compact header elements responsive (left column cards) */
+.dd-vault-subtitle,
+.dd-doc-title-new,
+.dd-card-title,
+.dd-section-header-new h3 {
+  font-size: clamp(0.8rem, 1.6vw, 1.1rem);
+}
+
+/* Make typography responsive across the document vault */
+.dd-vault-header h1 { font-size: clamp(1.4rem, 3.2vw, 1.9rem); }
+.dd-vault-subtitle { font-size: clamp(0.85rem, 1.2vw, 0.95rem); }
+.dd-doc-title-new { font-size: clamp(13px, 1.4vw, 14px); }
+.dd-doc-expires-new, .dd-doc-updated-new, .dd-doc-description { font-size: clamp(11px, 1vw, 13px); }
+
+
 /* New Progress Bar Styling */
 .dd-progress-container {
   margin-bottom: 24px;
@@ -538,6 +589,69 @@
 
 .dd-consent-btn:hover {
   background: #d97706;
+}
+
+/* Responsive button typography and spacing */
+.dd-upload-doc-btn,
+.dd-consent-btn,
+.dd-view-btn,
+.dd-replace-btn,
+.dd-upload-btn-small,
+.dd-post-hire-btn,
+.dd-back-btn,
+.dd-upload-btn,
+.dd-scan-btn,
+.dd-export-btn,
+.dd-action-btn,
+.dd-view-btn-new,
+.dd-replace-btn {
+  font-size: clamp(0.8rem, 1.2vw, 1rem);
+  padding: clamp(6px, 0.8vw, 12px) clamp(10px, 1.8vw, 20px);
+  line-height: 1.1;
+  min-width: 64px;
+  white-space: normal;
+  text-align: center;
+  overflow-wrap: break-word;
+  box-sizing: border-box;
+}
+
+/* Make primary actions full width on small screens and allow stacking */
+@media (max-width: 768px) {
+  .dd-doc-buttons,
+  .dd-doc-actions,
+  .dd-action-buttons {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .dd-upload-doc-btn,
+  .dd-consent-btn,
+  .dd-post-hire-btn,
+  .dd-upload-btn-small,
+  .dd-back-btn {
+    width: 100%;
+  }
+
+  /* Ensure view/replace pair share available space when side-by-side */
+  .dd-view-btn,
+  .dd-replace-btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 420px) {
+  .dd-upload-doc-btn,
+  .dd-consent-btn,
+  .dd-view-btn,
+  .dd-replace-btn,
+  .dd-upload-btn-small,
+  .dd-post-hire-btn,
+  .dd-back-btn {
+    font-size: clamp(0.75rem, 2.5vw, 0.95rem);
+    padding: 10px;
+  }
 }
 
 .dd-document-section {
@@ -1383,9 +1497,6 @@
 }
 
 @media (max-width: 768px) {
-  .dd-document-vault {
-    padding: 16px;
-  }
   
   .dd-upload-grid {
     grid-template-columns: 1fr;
@@ -1408,4 +1519,29 @@
     flex-direction: column;
     gap: 12px;
   }
+}
+
+/* Document vault: post-hire and cards responsive tweaks */
+@media (max-width: 768px) {
+  .dd-documents-grid { grid-template-columns: 1fr; gap: 16px }
+  .dd-document-card, .dd-document-section-new, .dd-document-section, .dd-post-hire-card { width: 100%; box-sizing: border-box }
+  .dd-document-item { flex-direction: column; align-items: flex-start; gap: 12px }
+  .dd-doc-actions { width: 100%; flex-direction: row; justify-content: space-between }
+  .dd-doc-buttons { width: 100%; display: flex; gap: 8px; }
+  .dd-view-btn, .dd-replace-btn { width: 48%; }
+  .dd-upload-doc-btn, .dd-consent-btn { width: 100%; }
+  .dd-upload-grid { grid-template-columns: repeat(2, 1fr); gap: 12px }
+  .dd-post-hire-grid { grid-template-columns: 1fr; }
+  .dd-post-hire-card { padding: 16px }
+  .dd-card-actions { flex-direction: column; gap: 8px }
+}
+
+@media (max-width: 420px) {
+  .dd-doc-buttons { flex-direction: column }
+  .dd-view-btn, .dd-replace-btn { width: 100%; }
+  .dd-section-header-new { padding: 12px }
+  .dd-document-cards-grid { padding: 8px }
+  .dd-map-placeholder { padding: 20px }
+  .dd-status-badges { flex-wrap: wrap; gap: 4px 8px; justify-content: flex-end;}
+  .dd-status-badge { font-size: 10px; padding: 3px 6px; align-items: flex-end;}
 }

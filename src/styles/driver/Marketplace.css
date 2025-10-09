@@ -851,3 +851,68 @@
     grid-column: span 1;
   }
 }
+
+@media (max-width: 401px) {
+  .mp-alert-card {
+    grid-column: span 2;
+  }
+
+  .mp-alert-content {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .mp-alert-text {
+    text-align: center;
+  }
+
+  .mp-search-btn{
+    display: none!important;
+  }
+
+  .mp-gps-services-card {
+    grid-column: span 2;
+  }
+
+  .mp-nearby-providers-card {
+    grid-column: span 2;
+  }
+
+  .mp-provider-item {
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .mp-provider-info {
+    text-align: center;
+  }
+
+  .mp-service-icons-grid {
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 1rem;
+  }
+
+  .mp-search-container {
+    width: 100%;
+    margin: 1rem 0;
+  }
+
+  .mp-search-input {
+    width: 100%;
+  }
+
+  .mp-provider-actions {
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .mp-filter-controls {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  .mp-highlights-card{
+    grid-column: span 2;
+  }
+}

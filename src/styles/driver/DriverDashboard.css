@@ -2068,3 +2068,107 @@ input:not(:checked) + .dd-toggle-slider:before {
     font-size: 13px;
   }
 }
+
+/* Mobile-first responsiveness fixes for driver dashboard to prevent cut-off */
+@media (max-width: 900px) {
+  /* Make the content flow vertically and allow full-width cards */
+  .dd-content-row {
+    flex-direction: column;
+    min-height: auto;
+  }
+
+  /* Sidebar becomes off-canvas and hidden by default; if opened it will overlay */
+  .dd-sidebar {
+    position: fixed;
+    left: 0;
+    top: 72px;
+    height: calc(100vh - 72px);
+    transform: translateX(-110%);
+    width: 260px;
+    z-index: 60;
+  }
+
+  .dd-sidebar.dd-open {
+    transform: translateX(0);
+    box-shadow: 0 8px 32px rgba(16,24,40,0.12);
+  }
+
+  /* Main area should not be behind the sidebar */
+  .dd-main-area {
+    width: 100%;
+    padding: 16px;
+    box-sizing: border-box;
+  }
+
+  /* Grid of cards becomes single column */
+  .fp-grid, .dd-grid, .dd-service-grid, .dd-service-providers-grid, .dd-load-info-grid {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+
+  /* Ensure cards are full width and don't overflow */
+  .card, .dd-onboarding-card, .dd-marketplace-card, .dd-ai-suggestions-card, .dd-service-item {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box;
+  }
+
+  /* Make map placeholder responsive */
+  .dd-map-placeholder, .dd-live-route-content {
+    width: 100% !important;
+    min-height: 180px;
+  }
+
+  /* Quick actions stack vertically */
+  .dd-quick-actions .btn, .dd-quick-actions .dd-btn { width: 100%; display: block; }
+
+  /* Right column content becomes stacked under left column */
+  .dd-left-column, .dd-right-column { width: 100%; }
+
+  /* Ensure topbar elements wrap rather than overflow */
+  .dd-topbar-row { padding: 0 12px; }
+  .dd-topbar-right { gap: 8px; }
+
+  /* Small adjustments for icons and text sizes */
+  .dd-section-title h3, .card-header h3 { font-size: 1.05rem; }
+}
+
+/* Extra-tight small screens */
+@media (max-width: 420px) {
+  .dd-map-placeholder, .dd-live-route-content { min-height: 140px; }
+  .dd-load-info-grid { grid-template-columns: 1fr !important; }
+  .dd-load-actions { gap: 8px; }
+}
+
+/* Post-Hire specific responsive tweaks */
+@media (max-width: 900px) {
+  /* Make active load card content stack vertically */
+  .dd-active-load-card {
+    padding: 16px;
+  }
+
+  .dd-active-load-header { flex-direction: column; align-items: flex-start; gap: 8px }
+
+  .dd-load-info-grid { grid-template-columns: 1fr !important; gap: 12px }
+
+  .dd-load-info-item { align-items: flex-start }
+
+  .dd-load-actions { display: flex; flex-direction: column; gap: 10px }
+
+  .dd-load-actions .btn, .dd-load-actions .dd-navigate-btn, .dd-load-actions .dd-upload-btn, .dd-load-actions .dd-message-btn { width: 100%; }
+
+  .dd-two-column-layout { grid-template-columns: 1fr !important; padding: 0; gap: 16px }
+
+  .dd-route-details { display: flex; flex-direction: column; gap: 8px }
+
+  .dd-route-actions { display: flex; flex-direction: column; gap: 8px }
+
+  .dd-map-placeholder { padding: 24px 12px; }
+}
+
+@media (max-width: 420px) {
+  .dd-active-load-card { padding: 12px }
+  .dd-load-info-grid { gap: 10px }
+  .dd-load-actions { gap: 8px }
+}
