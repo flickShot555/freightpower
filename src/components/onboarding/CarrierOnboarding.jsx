@@ -20,7 +20,7 @@ export default function CarrierOnboarding(){
     return ()=> clearInterval(t)
   },[])
 
-  const steps = ['Business Info','Owner','Fleet Information','Compliance','Final Review']
+  const steps = ['Business Info','Owner Verification (Optional)','Fleet Information','Compliance','Final Review']
 
   function handleNext(){
     setCurrentStep(s => Math.min(5, s+1))
@@ -55,7 +55,7 @@ export default function CarrierOnboarding(){
         <div className="onboarding-card">
           <h2>{steps[currentStep-1]}</h2>
           {currentStep === 2 ? (
-            <p className="muted">Please Provide Owner Details</p>
+            <p className="muted">Upload your ID document for faster verification</p>
           ) : currentStep === 3 ? (
             <p className="muted">Please Provide your Fleet Information</p>
           ) : currentStep === 4 ? (
@@ -72,11 +72,15 @@ export default function CarrierOnboarding(){
                 <label>Company Name</label>
                 <input placeholder="Next Role" />
 
-                <label>DOT Number <small className="field-note">(with real-time FMCSA check if possible)</small></label>
+                <label>DOT Number <small className="field-note">(with real-time FMCSA check if possible) <span className='fetch-btn'>Fetch from FMCSA</span></small></label>
                 <input placeholder="DOT Number" />
 
-                <label>MC Number</label>
+                <label style={{display:'flex', alignItems:'center', gap:8}}>MC Number
+                  <button type="button" aria-label="MC info" title="MC info" className="mc-info-btn">?
+                  </button>
+                </label>
                 <input placeholder="MC Number" />
+                <div className="mc-subtext">We’ll verify your FMCSA data automatically to speed up approval.</div>
 
                 <label>Company Address</label>
                 <input placeholder="Company Address" />
@@ -87,7 +91,7 @@ export default function CarrierOnboarding(){
                     <input placeholder="email@company.com" />
                   </div>
                   <div className="col">
-                    <label>Phone</label>
+                    <label>Phone <small className="field-note">(optional)</small></label>
                     <input placeholder="+1 (555) 555-5555" />
                   </div>
                 </div>
@@ -106,19 +110,19 @@ export default function CarrierOnboarding(){
 
                 <div style={{display:'flex',gap:12}}>
                   <div style={{flex:1}}>
-                    <label>Phone Number</label>
+                    <label>Phone Number<small className='field-note'> (optional)</small></label>
                     <input placeholder="+1 (555) 555-5555" />
                   </div>
                   <div style={{flex:1}}>
-                    <label>Email Address</label>
+                    <label>Email Address<small className='field-note'> (optional)</small></label>
                     <input placeholder="email@company.com" />
                   </div>
                 </div>
 
-                <label>Signature Upload <small style={{fontWeight:400,display:'block'}}>(Optional)</small></label>
+                <label>Signature Upload <small className='field-note'>(optional)</small></label>
                 <div className="upload-box" style={{minHeight:120, display:'flex', alignItems:'center', justifyContent:'center', flexDirection:'column', gap:8}}>
                   <i className="fa-solid fa-cloud-arrow-up" style={{fontSize:22, color:'grey'}} aria-hidden="true" />
-                  <div style={{color:'grey', fontWeight:700}}>Click to upload or drag and drop</div>
+                  <div style={{color:'grey', fontWeight:700}}>Upload File</div>
                   <small>SVG, PNG, JPG or GIF (max. 800x400px)</small>
                 </div>
               </>
@@ -129,26 +133,26 @@ export default function CarrierOnboarding(){
                 <div style={{display:'flex',gap:12}}>
                   <div style={{flex:1}}>
                     <label style={{opacity:1}}>COI</label>
-                    <div className="upload-box"><i className="fa-solid fa-cloud-arrow-up" style={{fontSize:20, color:'grey'}} aria-hidden="true" /><br/>Upload COI</div>
+                    <div className="upload-box"><i className="fa-solid fa-cloud-arrow-up" style={{fontSize:20, color:'grey'}} aria-hidden="true" /><br/>Upload</div>
                   </div>
                   <div style={{flex:1}}>
-                    <label>W9</label>
-                    <div className="upload-box"><i className="fa-solid fa-cloud-arrow-up" style={{fontSize:20, color:'grey'}} aria-hidden="true" /><br/>Upload W9</div>
+                    <label>W9 <small className='field-note'>(optional) </small></label>
+                    <div className="upload-box"><i className="fa-solid fa-cloud-arrow-up" style={{fontSize:20, color:'grey'}} aria-hidden="true" /><br/>Upload</div>
                   </div>
                 </div>
 
                 <div style={{display:'flex',gap:12}}>
                   <div style={{flex:1}}>
                     <label>Authority Letter</label>
-                    <div className="upload-box"><i className="fa-solid fa-cloud-arrow-up" style={{fontSize:20, color:'grey'}} aria-hidden="true" /><br/>Upload Authority Letter</div>
+                    <div className="upload-box"><i className="fa-solid fa-cloud-arrow-up" style={{fontSize:20, color:'grey'}} aria-hidden="true" /><br/>Upload</div>
                   </div>
                   <div style={{flex:1}}>
                     <label>Voided Check</label>
-                    <div className="upload-box"><i className="fa-solid fa-cloud-arrow-up" style={{fontSize:20, color:'grey'}} aria-hidden="true" /><br/>Upload Voided Check</div>
+                    <div className="upload-box"><i className="fa-solid fa-cloud-arrow-up" style={{fontSize:20, color:'grey'}} aria-hidden="true" /><br/>Upload</div>
                   </div>
                 </div>
 
-                <label>Additional Licenses or Permits</label>
+                <label>Other Fleet Document<small className='field-note'> (optional)</small></label>
                 <div className="upload-box"><i className="fa-solid fa-cloud-arrow-up" style={{fontSize:20, color:'grey'}} aria-hidden="true" /><br/>Click to upload or drag and drop<br/><small>SVG, PNG, JPG or GIF (max. 800x400px)</small></div>
               </>
             )}

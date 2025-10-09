@@ -74,6 +74,7 @@
 .onboarding-form select option[disabled]{ color:#cbd5e1 }
 
 .onboarding-form .field-note{ font-size:12px; color:#cbd5e1; font-weight:400 }
+.field-note .fetch-btn { color: #2563eb!important; cursor: pointer; text-decoration: underline;}
 .onboarding-form .row{ display:flex; gap:12px }
 .onboarding-form .row .col{ flex:1 }
 .divider-line{ height:1px; background:#eef2f7; margin:12px 0 12px 0 }
@@ -89,6 +90,65 @@
 /* upload box used in several onboarding steps */
 .upload-box{ border:1px dashed #e6e9f3; padding:22px; border-radius:8px; text-align:center; color:#6b7280; background:#fff }
 .upload-box small{ display:block; margin-top:8px; color:#cbd5e1 }
+
+/* MC tooltip button and subtext */
+.mc-info-btn{
+  background: transparent;
+  border: 1px solid #e6e9f3;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:700;
+  color:#374151;
+  cursor:help;
+  padding:0;
+}
+
+.mc-info-btn:focus, .mc-info-btn:hover{
+  background:#f8fafc;
+  outline:none;
+}
+
+.mc-subtext{
+  font-size:12px;
+  color:#6b7280;
+  margin-bottom:8px;
+}
+
+/* Tooltip using ::after on the button */
+.mc-info-btn{
+  position: relative;
+}
+.mc-info-btn::after{
+  content: "We’ll verify your FMCSA data automatically to speed up approval.";
+  position: absolute;
+  white-space: nowrap;
+  background: #111827;
+  color: #fff;
+  padding: 8px 10px;
+  border-radius:6px;
+  font-size:12px;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.12s ease, transform 0.12s ease;
+  z-index: 40;
+}
+.mc-info-btn:hover::after, .mc-info-btn:focus::after{
+  opacity: 1;
+  transform: translateX(-50%) translateY(-4px);
+  pointer-events: auto;
+}
+
+/* Make tooltip wrap on narrow screens */
+@media (max-width: 480px) {
+  .mc-info-btn::after{ white-space: normal; max-width: 220px; text-align:center }
+}
 
 /* simple toggle switch */
 .switch{ display:inline-block }
@@ -151,6 +211,29 @@
   .onboarding-main .onboarding-pattern-bg,
   .onboarding-visual .signup-bg{
     display:none !important;
+  }
+
+  /* Make inputs and upload boxes stretch full width on small screens */
+  .onboarding-form input,
+  .onboarding-form select,
+  .onboarding-form textarea {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .upload-box {
+    width: 100%;
+    padding: 18px;
+  }
+
+  /* Make action buttons stack on very small screens */
+  .onboarding-actions { gap: 12px; }
+  .onboarding-actions .btn-primary { flex: 1 1 0; min-width: 0 }
+  .onboarding-actions .btn-secondary { flex: 0 0 auto }
+  @media (max-width: 480px) {
+    .onboarding-actions { flex-direction: column-reverse; align-items: stretch; }
+    .onboarding-actions .btn-primary, .onboarding-actions .btn-secondary { width: 100%; }
+    .onboarding-card { padding: 20px; }
   }
 }
 
