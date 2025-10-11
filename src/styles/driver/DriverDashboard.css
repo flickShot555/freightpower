@@ -16,14 +16,14 @@
 
 /* Post-hire active load card styles */
 .dd-active-load-card {
-  background: linear-gradient(90deg, #0ea4e7 0%, #0a98c6 100%);
+  background: linear-gradient(90deg, #0ea4e7 0%, #0a98c6 100%)!important;
   color: white;
   border-radius: 12px;
   padding: 24px;
 }
 
 .dark-root .dd-active-load-card {
-  background: linear-gradient(90deg, #0ea4e7 0%, #0a98c6 100%);
+  background: linear-gradient(90deg, #0ea4e7 0%, #0a98c6 100%)!important;
   color: white;
   border-radius: 12px;
   padding: 24px;
@@ -37,7 +37,7 @@
 }
 
 .dd-active-load-header h3 {
-  color: white;
+  color: white!important;
   font-size: 20px;
   font-weight: 600;
   margin: 0;

@@ -10,10 +10,8 @@
 .dark-root .fp-sidebar,
 .dark-root .market-grid .load-item,
 .dark-root .offers .offer-item,
-.dark-root .exp-item,
-.dark-root .exp-item.pill,
 .dark-root .integrations-list li{
-  background:#2c2c2c; /* replace whites */
+  background:#2c2c2c!important; /* replace whites */
   border-color: rgba(255,255,255,0.04);
 }
 .dark-root .fp-topbar{border-bottom-color: rgba(255,255,255,0.04)}
@@ -440,12 +438,12 @@
 
 /* Blue gradient card for AI suggestions */
 .suggestions-card{
-  background:linear-gradient(90deg,#0ea4e7 0%, #0a98c6 100%);
+  background:linear-gradient(90deg,#0ea4e7 0%, #0a98c6 100%)!important;
   color:#fff;
   box-shadow:none;
   border-radius:10px;
 }
-.suggestions-card .card-header h3{color:#fff;font-size:18px;font-weight:650}
+.suggestions-card .card-header h3{color: #fff !important;font-size:18px;font-weight:650}
 .suggestions-card .card-header .card-icon{color:#fff}
 .suggestions-card ul{list-style:none;padding:0;margin:12px 0}
 .suggestions-card li{background:rgba(255,255,255,0.12);padding:12px;border-radius:8px;margin-bottom:10px;color:#fff}
@@ -469,12 +467,12 @@
 .exp-item.pill.pink .exp-days.pink{color:#ef4444}
 
 /* Dark mode: make pill backgrounds darker so text is readable on dark backgrounds */
-.dark-root .exp-item.pill.yellow{background:#ffbe6e;border:1px solid rgba(255,255,255,0.06)}
+.dark-root .exp-item.pill.yellow{background:#ffbe6e;border:1px solid rgba(255,255,255,0.06)!important}
 .dark-root .exp-item.pill.yellow .exp-title,
 .dark-root .exp-item.pill.yellow .exp-sub,
 .dark-root .exp-item.pill.yellow .exp-days{color:#ffffff}
 .dark-root .exp-item.pill.yellow .exp-days.yellow{color:#b45309}
-.dark-root .exp-item.pill.pink{background:#ff838b;border:1px solid rgba(255,255,255,0.06)}
+.dark-root .exp-item.pill.pink{background:#ff838b;border:1px solid rgba(255,255,255,0.06)!important}
 .dark-root .exp-item.pill.pink .exp-title,
 .dark-root .exp-item.pill.pink .exp-sub,
 .dark-root .exp-item.pill.pink .exp-days{color:#ffffff}
