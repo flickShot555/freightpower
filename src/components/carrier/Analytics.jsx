@@ -53,64 +53,64 @@ const Analytics = () => {
       {/* Dashboard Content Only (Tabs Removed) */}
       <div className="dashboard-content">
         {/* Statistics Cards */}
-        <div className="stats-grid">
-          <div className="stat-card">
-            <div className="stat-icon">
+        <div className="cd-analytics-stats-grid">
+          <div className="cd-analytics-stat-card">
+            <div className="cd-analytics-stat-icon">
               <i className={analyticsData.loadsDelivered.icon}></i>
             </div>
-            <div className="stat-info">
-              <div className="stat-value">{analyticsData.loadsDelivered.value}</div>
-              <div className="stat-label">Loads Tendered</div>
+            <div className="cd-analytics-stat-info">
+              <div className="cd-analytics-stat-value">{analyticsData.loadsDelivered.value}</div>
+              <div className="cd-analytics-stat-label">Loads Tendered</div>
             </div>
           </div>
 
-          <div className="stat-card">
-            <div className="stat-icon">
+          <div className="cd-analytics-stat-card">
+            <div className="cd-analytics-stat-icon">
               <i className={analyticsData.accepted.icon}></i>
             </div>
-            <div className="stat-info">
-              <div className="stat-value">{analyticsData.accepted.value}</div>
-              <div className="stat-label">Accepted</div>
+            <div className="cd-analytics-stat-info">
+              <div className="cd-analytics-stat-value">{analyticsData.accepted.value}</div>
+              <div className="cd-analytics-stat-label">Accepted</div>
             </div>
           </div>
 
-          <div className="stat-card">
-            <div className="stat-icon">
+          <div className="cd-analytics-stat-card">
+            <div className="cd-analytics-stat-icon">
               <i className={analyticsData.delivered.icon}></i>
             </div>
-            <div className="stat-info">
-              <div className="stat-value">{analyticsData.delivered.value}</div>
-              <div className="stat-label">Delivered</div>
+            <div className="cd-analytics-stat-info">
+              <div className="cd-analytics-stat-value">{analyticsData.delivered.value}</div>
+              <div className="cd-analytics-stat-label">Delivered</div>
             </div>
           </div>
 
-          <div className="stat-card">
-            <div className="stat-icon">
+          <div className="cd-analytics-stat-card">
+            <div className="cd-analytics-stat-icon">
               <i className={analyticsData.onTimePercent.icon}></i>
             </div>
-            <div className="stat-info">
-              <div className="stat-value">{analyticsData.onTimePercent.value}</div>
-              <div className="stat-label">On-Time %</div>
+            <div className="cd-analytics-stat-info">
+              <div className="cd-analytics-stat-value">{analyticsData.onTimePercent.value}</div>
+              <div className="cd-analytics-stat-label">On-Time %</div>
             </div>
           </div>
 
-          <div className="stat-card">
-            <div className="stat-icon">
+          <div className="cd-analytics-stat-card">
+            <div className="cd-analytics-stat-icon">
               <i className={analyticsData.avgRpm.icon}></i>
             </div>
-            <div className="stat-info">
-              <div className="stat-value">{analyticsData.avgRpm.value}</div>
-              <div className="stat-label">Avg. RPM</div>
+            <div className="cd-analytics-stat-info">
+              <div className="cd-analytics-stat-value">{analyticsData.avgRpm.value}</div>
+              <div className="cd-analytics-stat-label">Avg. RPM</div>
             </div>
           </div>
 
-          <div className="stat-card">
-            <div className="stat-icon">
+          <div className="cd-analytics-stat-card">
+            <div className="cd-analytics-stat-icon">
               <i className={analyticsData.avgRpu.icon}></i>
             </div>
-            <div className="stat-info">
-              <div className="stat-value">{analyticsData.avgRpu.value}</div>
-              <div className="stat-label">Avg. RPU</div>
+            <div className="cd-analytics-stat-info">
+              <div className="cd-analytics-stat-value">{analyticsData.avgRpu.value}</div>
+              <div className="cd-analytics-stat-label">Avg. RPU</div>
             </div>
           </div>
         </div>

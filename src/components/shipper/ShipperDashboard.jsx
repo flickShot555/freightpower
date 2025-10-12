@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import TrackingVisibility from './TrackingVisibility';
 import DocumentVault from './DocumentVault';
+import Finance from './Finance';
 import '../../styles/carrier/CarrierDashboard.css';
 import '../../styles/shipper/ShipperDashboard.css';
 import MyCarriers from './MyCarriers';
@@ -284,6 +285,7 @@ export default function ShipperDashboard() {
     if (activeNav === 'marketplace') return <ShipperMarketplace />;
     if (activeNav === 'tracking') return <TrackingVisibility />;
     if (activeNav === 'doc-vault') return <DocumentVault />;
+    if (activeNav === 'finance') return <Finance />;
     return (
       <div>
         <header className="fp-header">

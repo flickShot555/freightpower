@@ -184,7 +184,7 @@
   color: #94a3b8;
 }
 
-.filters-container {
+.factoring-filters-container {
   display: flex;
   flex-direction: row;
   gap: 12px;
@@ -695,7 +695,7 @@
   .search-container {
     max-width: none;
   }
-  .filters-container {
+  .factoring-filters-container {
     justify-content: flex-start;
   }
   .forecast-metrics {
@@ -749,7 +749,7 @@
     min-width: 0;
     justify-content: center;
   }
-  .filters-container {
+  .factoring-filters-container {
     flex-direction: row;
     gap: 8px;
     flex-wrap: nowrap;

@@ -144,7 +144,7 @@ const FactoringInvoicing = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <div className="filters-container">
+        <div className="factoring-filters-container">
           <select 
             className="filter-select"
             value={selectedStatus}

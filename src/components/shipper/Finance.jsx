@@ -1,0 +1,544 @@
+import React, { useState, useEffect } from 'react';
+import '../../styles/shipper/Finance.css';
+import CreateInvoice from './CreateInvoice';
+
+export default function Finance() {
+  const [openDropdown, setOpenDropdown] = useState(null);
+  const [selectedRange, setSelectedRange] = useState('30 Days');
+  const [selectedPartner, setSelectedPartner] = useState('All Partners');
+  const [selectedStatus, setSelectedStatus] = useState('All Status');
+
+  const ranges = ['7 Days', '30 Days', '90 Days', 'Year to Date'];
+  const partners = ['All Partners', 'Atlas Freight', 'Prime Logistics', 'Apex'];
+  const statuses = ['All Status', 'Paid', 'Pending', 'Overdue'];
+  const [activeTab, setActiveTab] = useState('Overview');
+  const tabs = ['Overview', 'Invoices', 'Payments', 'Factoring', 'Banking', 'Analytics'];
+  const [showCreateInvoicePage, setShowCreateInvoicePage] = useState(false);
+
+  useEffect(() => {
+    function onDocClick() { setOpenDropdown(null); }
+    document.addEventListener('click', onDocClick);
+    return () => document.removeEventListener('click', onDocClick);
+  }, []);
+
+  function toggleDropdown(key, e) {
+    e.stopPropagation();
+    setOpenDropdown(prev => prev === key ? null : key);
+  }
+
+  function selectOption(type, value) {
+    if (type === 'range') setSelectedRange(value);
+    if (type === 'partner') setSelectedPartner(value);
+    if (type === 'status') setSelectedStatus(value);
+    setOpenDropdown(null);
+  }
+
+  return (
+    <div className="finance-root">
+      {showCreateInvoicePage ? (
+        <CreateInvoice onClose={() => setShowCreateInvoicePage(false)} />
+      ) : null}
+      <header className="fp-header">
+        <div className="fp-header-titles">
+          <h2>Finance</h2>
+        </div>
+      </header>
+
+      {/* Controls row: range, partners, status, search, actions */}
+
+      <div className="finance-controls">
+
+        <div className="search-box">
+          <input placeholder="Search loads, invoices, partners" />
+        </div>
+
+        <div className="filter" onClick={(e) => toggleDropdown('range', e)} role="button" tabIndex={0} aria-expanded={openDropdown === 'range'}>
+          {selectedRange} <i className="fa-solid fa-chevron-down chevron"/>
+          {openDropdown === 'range' && (
+            <div className="dropdown" onClick={(e) => e.stopPropagation()}>
+              {ranges.map(r => (
+                <div key={r} className="dropdown-item" onClick={() => selectOption('range', r)}>{r}</div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="filter" onClick={(e) => toggleDropdown('partner', e)} role="button" tabIndex={0} aria-expanded={openDropdown === 'partner'}>
+          {selectedPartner} <i className="fa-solid fa-chevron-down chevron"/>
+          {openDropdown === 'partner' && (
+            <div className="dropdown" onClick={(e) => e.stopPropagation()}>
+              {partners.map(p => (
+                <div key={p} className="dropdown-item" onClick={() => selectOption('partner', p)}>{p}</div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="filter" onClick={(e) => toggleDropdown('status', e)} role="button" tabIndex={0} aria-expanded={openDropdown === 'status'}>
+          {selectedStatus} <i className="fa-solid fa-chevron-down chevron"/>
+          {openDropdown === 'status' && (
+            <div className="dropdown" onClick={(e) => e.stopPropagation()}>
+              {statuses.map(s => (
+                <div key={s} className="dropdown-item" onClick={() => selectOption('status', s)}>{s}</div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <section className="finance-top-cards">
+        <div className="card finance-card">
+          <div className="card-icon-invoice"><i className="fa-solid fa-dollar-sign"></i></div>
+          <div>
+            <div className="muted">Total Invoiced</div>
+            <div className="finance-num">$1,208,440</div>
+          </div>
+        </div>
+        <div className="card finance-card">
+          <div className="card-icon-pending-invoice"><i className="fa-solid fa-clock"></i></div>
+          <div>
+            <div className="muted">Pending Invoices</div>
+            <div className="finance-num">$142,890</div>
+          </div>
+        </div>
+        <div className="card finance-card">
+          <div className="card-icon-funds"><i className="fa-solid fa-coins"></i></div>
+          <div>
+            <div className="muted">Factored Funds</div>
+            <div className="finance-num">$84,300</div>
+          </div>
+        </div>
+        <div className="card finance-card">
+          <div className="card-icon-connected-account"><i className="fa-solid fa-bank"></i></div>
+          <div>
+            <div className="muted">Connected Accounts</div>
+            <div className="finance-num">3</div>
+          </div>
+        </div>
+        <div className="card finance-card">
+          <div className="card-icon-cash-flow"><i className="fa-solid fa-chart-line"></i></div>
+          <div>
+            <div className="muted">Cash Flow Trend</div>
+            <div className="finance-num green">+7.2%</div>
+          </div>
+        </div>
+      </section>
+
+      <nav className="fp-tabs" role="tablist" aria-label="Finance navigation">
+        {tabs.map(t => (
+          <button
+            key={t}
+            type="button"
+            role="tab"
+            aria-selected={activeTab === t}
+            tabIndex={0}
+            className={`tab ${activeTab === t ? 'active' : ''}`}
+            onClick={() => setActiveTab(t)}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setActiveTab(t); } }}
+          >
+            {t}
+          </button>
+        ))}
+      </nav>
+
+      {activeTab === 'Overview' ? (
+        <div className="finance-main">
+          <div className="finance-left">
+            <div className="card recent-activity-card">
+              <h3>Recent Financial Activity</h3>
+              <ul className="financial-list">
+                <li className="fin-item positive">
+                  <div className="fin-left">
+                    <div className="fin-icon success">✔</div>
+                    <div>
+                      <strong>Payment Received - Atlas Freight</strong>
+                      <div className="muted">Load #8231 · ACH Transfer · 2 hours ago</div>
+                    </div>
+                  </div>
+                  <div className="fin-right"><span className="fin-amount green">+$1,220</span><div className="muted small">2 hours ago</div></div>
+                </li>
+
+                <li className="fin-item positive">
+                  <div className="fin-left">
+                    <div className="fin-icon purple">▤</div>
+                    <div>
+                      <strong>Factoring Funded - Apex</strong>
+                      <div className="muted">INV-1048 · 90% advance · 4 hours ago</div>
+                    </div>
+                  </div>
+                  <div className="fin-right"><span className="fin-amount blue">+$3,582</span><div className="muted small">4 hours ago</div></div>
+                </li>
+
+                <li className="fin-item negative">
+                  <div className="fin-left">
+                    <div className="fin-icon warn">!</div>
+                    <div>
+                      <strong>Invoice Overdue - Prime Logistics</strong>
+                      <div className="muted">INV-1042 · Due Oct 5 · 3 days overdue</div>
+                    </div>
+                  </div>
+                  <div className="fin-right"><span className="fin-amount red">$2,450</span><div className="muted small">3 days overdue</div></div>
+                </li>
+              </ul>
+            </div>
+
+            <div className="card connected-accounts">
+              <h3>Connected Accounts</h3>
+              <div className="accounts-row">
+                <div className="account-card">
+                  <div className="acct-icon"><i className="fa-solid fa-bank"></i></div>
+                  <div className="acct-body">
+                    <strong>Wells Fargo</strong>
+                    <div className="muted small">$12,340 · Last sync: 15m ago</div>
+                  </div>
+                </div>
+                <div className="account-card">
+                  <div className="acct-icon"><i className="fa-brands fa-stripe"></i></div>
+                  <div className="acct-body">
+                    <strong>Stripe</strong>
+                    <div className="muted small">$2,480 · Last sync: 5m ago</div>
+                  </div>
+                </div>
+                <div className="account-card">
+                  <div className="acct-icon"><i className="fa-solid fa-calculator"></i></div>
+                  <div className="acct-body">
+                    <strong>QuickBooks</strong>
+                    <div className="muted small">Syncing... · In progress</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <aside className="finance-right">
+            <div className="card quick-actions">
+              <h4>Quick Actions</h4>
+              <button className="btn primary" style={{width:'100%',marginBottom:12}} onClick={() => setShowCreateInvoicePage(true)}>Create Invoice</button>
+              <button className="btn ghost" style={{width:'100%',marginBottom:8}}>Generate Rate Confirmation</button>
+              <button className="btn ghost" style={{width:'100%',marginBottom:8}}>Send Payment Reminder</button>
+              <button className="btn ghost" style={{width:'100%'}}>Connect Bank Account</button>
+            </div>
+
+            <div className="card ai-box">
+              <h4>AI Assistant</h4>
+              <p className="muted">3 delivered loads are missing invoices. Would you like me to generate them?</p>
+              <button className="btn primary" style={{marginTop:12, background: 'transparent', border: '2px solid #06b6d4', color: '#fff'}}>Generate All</button>
+            </div>
+          </aside>
+        </div>
+      ) : activeTab === 'Invoices' ? (
+          <div className="finance-left">
+                <div className="invoices-alert">
+                <div className="muted">3 delivered loads don't have invoices yet.</div>
+                <button className="btn-create-now" onClick={() => setShowCreateInvoicePage(true)}>Create Now</button>
+              </div>
+            <div className="card invoices-card">
+              <div className="table-wrap">
+                <table className="invoices-table">
+                  <thead>
+                    <tr className="headings-table-finance">
+                      <th><input type="checkbox"/></th>
+                      <th>INVOICE #</th>
+                      <th>LOAD #</th>
+                      <th>PARTNER</th>
+                      <th>AMOUNT</th>
+                      <th>STATUS</th>
+                      <th>DUE DATE</th>
+                      <th>PAYMENT TYPE</th>
+                      <th>ACTIONS</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[
+                      {id:'INV-2091', load:8320, partner:'Atlas Freight', amount:'$1,240', status:'Paid', due:'Oct 7', payment:'ACH'},
+                      {id:'INV-2092', load:8321, partner:'FedEx Logistics', amount:'$3,980', status:'Pending', due:'Oct 10', payment:'Factoring'},
+                      {id:'INV-2093', load:8325, partner:'Prime Carrier', amount:'$2,350', status:'Overdue', due:'Oct 4', payment:'Manual'},
+                      {id:'INV-2094', load:8328, partner:'Swift Transport', amount:'$1,850', status:'Pending', due:'Oct 12', payment:'ACH'},
+                      {id:'INV-2095', load:8330, partner:'Schneider National', amount:'$4,200', status:'Paid', due:'Oct 5', payment:'Factoring'},
+                    ].map(row => (
+                      <tr key={row.id} className="invoices-row">
+                        <td className="cell"><input type="checkbox"/></td>
+                        <td className="cell strong">{row.id}</td>
+                        <td className="cell">{row.load}</td>
+                        <td className="cell">{row.partner}</td>
+                        <td className="cell">{row.amount}</td>
+                        <td className="cell">
+                          {row.status === 'Paid' && <span className="status-chip paid">Paid</span>}
+                          {row.status === 'Pending' && <span className="status-chip pending">Pending</span>}
+                          {row.status === 'Overdue' && <span className="status-chip overdue">Overdue</span>}
+                        </td>
+                        <td className="cell">{row.due}</td>
+                        <td className="cell">{row.payment}</td>
+                        <td className="cell"><a href="#" className="muted">View</a></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="invoices-footer">
+                <div className="muted">Showing 1 to 5 of 47 results</div>
+                <div className="pagination-buttons">
+                  <button className="btn-num">Pre</button>
+                  <button className="btn-num-active">1</button>
+                  <button className="btn-num">2</button>
+                  <button className="btn-num">3</button>
+                  <button className="btn-num">Next</button>
+                </div>
+              </div>
+            </div>
+        </div>
+      ) : activeTab === 'Payments' ? (
+        <div className="finance-left">
+          <div className="card invoices-card">
+            <div className="table-wrap">
+              <table className="invoices-table">
+                <thead>
+                  <tr className="headings-table-finance">
+                    <th>PAYMENT #</th>
+                    <th>INVOICE #</th>
+                    <th>PARTNER</th>
+                    <th>AMOUNT</th>
+                    <th>STATUS</th>
+                    <th>METHOD</th>
+                    <th>DATE</th>
+                    <th>ACTIONS</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    {id:'PAY-8001', inv:'INV-2091', partner:'Atlas Freight', amount:'$1,240', status:'Completed', method:'ACH', date:'Oct 8'},
+                    {id:'PAY-8002', inv:'INV-2092', partner:'FedEx Logistics', amount:'$3,980', status:'Processing', method:'Factoring', date:'Oct 9'},
+                    {id:'PAY-8003', inv:'INV-2093', partner:'Prime Carrier', amount:'$2,350', status:'Failed', method:'Manual', date:'Oct 5'},
+                  ].map(row => (
+                    <tr key={row.id} className="invoices-row">
+                      <td className="cell strong">{row.id}</td>
+                      <td className="cell">{row.inv}</td>
+                      <td className="cell">{row.partner}</td>
+                      <td className="cell">{row.amount}</td>
+                      <td className="cell"><span className={`status-chip ${row.status === 'Completed' ? 'paid' : row.status === 'Processing' ? 'pending' : 'overdue'}`}>{row.status}</span></td>
+                      <td className="cell">{row.method}</td>
+                      <td className="cell">{row.date}</td>
+                      <td className="cell"><a href="#" className="muted">View</a></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="invoices-footer">
+              <div className="muted">Showing 1 to 3 of 3 results</div>
+              <div className="pagination-buttons">
+                <button className="btn-num">Pre</button>
+                <button className="btn-num-active">1</button>
+                <button className="btn-num">Next</button>
+              </div>
+            </div>
+          </div>
+          <div className="invoices-alert" style={{marginTop: '12px'}}>
+                <div >3 delivered loads don't have invoices yet.</div>
+                <p>View all</p>
+              </div>
+              <div className="invoices-alert payment">
+                <div className="">3 delivered loads don't have invoices yet.</div>
+                <i className='fa-solid fa-close'></i>
+              </div>
+              <div className="invoices-alert deposit">
+                <div className="">3 delivered loads don't have invoices yet.</div>
+                <i className='fa-solid fa-close'></i>
+              </div>  
+        </div>
+      ) : activeTab === 'Factoring' ? (
+        <div className="factoring-main">
+          <div className="finance-left">
+            <div className="card">
+              <h3>Partner Connections</h3>
+              <div className="partner-connections">
+                <div className="partner-card connected">
+                  <div className="partner-initials">AP</div>
+                  <div className="partner-body">
+                    <strong>Apex Factoring</strong>
+                    <div className="muted small">Connected since Aug 2024</div>
+                  </div>
+                  <div className="partner-status connected">Connected</div>
+                </div>
+
+                <div className="partner-card">
+                  <div className="partner-initials">TR</div>
+                  <div className="partner-body">
+                    <strong>Triumph Capital</strong>
+                    <div className="muted small">Available to connect</div>
+                  </div>
+                  <div className="partner-status ">Connect</div>
+                </div>
+
+                <div className="partner-card">
+                  <div className="partner-initials">RT</div>
+                  <div className="partner-body">
+                    <strong>RTS Financial</strong>
+                    <div className="muted small">Available to connect</div>
+                  </div>
+                  <div className="partner-status">Connect</div>
+                </div>
+
+                <div className="partner-card">
+                  <div className="partner-initials">OT</div>
+                  <div className="partner-body">
+                    <strong>OTR Capital</strong>
+                    <div className="muted small">Available to connect</div>
+                  </div>
+                  <div className="partner-status">Connect</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="card" style={{marginTop: '16px'}}>
+              <h3>Recent Submissions</h3>
+              <div className="table-wrap">
+                <table className="invoices-table">
+                  <thead>
+                    <tr className="headings-table-finance">
+                      <th>DATE</th>
+                      <th>INVOICE #</th>
+                      <th>LOAD #</th>
+                      <th>PARTNER</th>
+                      <th>AMOUNT</th>
+                      <th>STATUS</th>
+                      <th>FUNDED DATE</th>
+                      <th>ACTIONS</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[
+                      {date:'Oct 8', id:'INV-2093', load:8325, partner:'Apex Factoring', amount:'$2,950', status:'Funded', funded:'Oct 9'},
+                      {date:'Oct 7', id:'INV-2094', load:8330, partner:'Apex Factoring', amount:'$3,400', status:'Submitted', funded:'—'},
+                      {date:'Oct 6', id:'INV-2091', load:8312, partner:'RTS Financial', amount:'$1,820', status:'Pending', funded:'—'},
+                      {date:'Oct 5', id:'INV-2089', load:8298, partner:'Apex Factoring', amount:'$4,200', status:'Funded', funded:'Oct 6'},
+                      {date:'Oct 4', id:'INV-2087', load:8285, partner:'Apex Factoring', amount:'$2,750', status:'Rejected', funded:'—'},
+                    ].map(row => (
+                      <tr key={row.id} className="invoices-row">
+                        <td className="cell">{row.date}</td>
+                        <td className="cell strong">{row.id}</td>
+                        <td className="cell">{row.load}</td>
+                        <td className="cell">{row.partner}</td>
+                        <td className="cell">{row.amount}</td>
+                        <td className="cell"><span className={`status-chip ${row.status === 'Funded' ? 'paid' : row.status === 'Submitted' ? 'pending' : row.status === 'Pending' ? 'pending' : 'overdue'}`}>{row.status}</span></td>
+                        <td className="cell">{row.funded}</td>
+                        <td className="cell"><a href="#" className="muted">View</a></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div className="card" style={{marginTop: '16px'}}>
+              <h3>AI Insights</h3>
+              <div className='ai-insights'>
+                <div className="insight warning">
+                <div className="insight-text">2 invoices pending &gt;3 days — possible delay with RTS Financial.</div>
+                <a href="#" className="action-link">Resolve</a>
+              </div>
+              <div className="insight success">
+                <div className="insight-text">Apex Factoring funded 3 new invoices today ($9,850).</div>
+              </div>
+              <div className="insight error">
+                <div className="insight-text">Detected missing POD for INV-2102 — please attach before submission.</div>
+                <a href="#" className="action-link">Fix Now</a>
+              </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : activeTab === 'Banking' ? (
+        <div className="banking-main">
+          <div className="finance-left">
+            <div className="card" style={{marginBottom: '20px'}}>
+              <h3>Connected Accounts</h3>
+              <div className="table-wrap">
+                <table className="accounts-table">
+                  <thead>
+                    <tr>
+                      <th>BANK / PLATFORM</th>
+                      <th>ACCOUNT NAME</th>
+                      <th>TYPE</th>
+                      <th>BALANCE</th>
+                      <th>LAST SYNC</th>
+                      <th>STATUS</th>
+                      <th>ACTIONS</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[
+                      {bank:'Wells Fargo', acct:'FreightPower Operating', type:'Checking', balance:'$45,230', sync:'5m ago', status:'Connected', action:'View'},
+                      {bank:'Stripe Payments', acct:'Payout Account', type:'Digital Wallet', balance:'$12,980', sync:'10m ago', status:'Connected', action:'View'},
+                      {bank:'QuickBooks Sync', acct:'Freight Ledger', type:'Integration', balance:'—', sync:'15m ago', status:'Syncing', action:'Manage'},
+                    ].map(row => (
+                      <tr key={row.acct}>
+                        <td>{row.bank}</td>
+                        <td>{row.acct}</td>
+                        <td><span className="chip type" data-type={row.type}>{row.type}</span></td>
+                        <td className={`amount ${row.balance && row.balance.startsWith('+') ? 'positive' : ''}`}>{row.balance}</td>
+                        <td className="muted small">{row.sync}</td>
+                        <td><span className={`status-dot ${row.status === 'Connected' ? 'online' : row.status === 'Syncing' ? 'idle' : 'offline'}`}></span> <span className="muted">{row.status}</span></td>
+                        <td><a href="#" className="muted">{row.action}</a></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div className="card">
+              <h3>Recent Transactions</h3>
+              <div className="table-wrap">
+                <table className="invoices-table transactions-table">
+                  <thead>
+                    <tr className="headings-table-finance">
+                      <th>DATE</th>
+                      <th>PARTNER</th>
+                      <th>DESCRIPTION</th>
+                      <th>AMOUNT</th>
+                      <th>LINKED INVOICE</th>
+                      <th>TYPE</th>
+                      <th>STATUS</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[
+                      {date:'Oct 8', partner:'FedEx Logistics', desc:'Payment Received', amount:'+$3,980', inv:'INV-2092', type:'Credit', status:'Cleared'},
+                      {date:'Oct 7', partner:'Apex Factoring', desc:'Advance Payment', amount:'+$2,950', inv:'INV-2093', type:'Credit', status:'Pending'},
+                      {date:'Oct 6', partner:'Atlas Freight', desc:'Carrier Payment', amount:'-$1,200', inv:'INV-2091', type:'Debit', status:'Cleared'},
+                    ].map(row => (
+                      <tr key={row.inv} className="invoices-row">
+                        <td className="cell">{row.date}</td>
+                        <td className="cell">{row.partner}</td>
+                        <td className="cell">{row.desc}</td>
+                        <td className={`cell ${row.amount.startsWith('-') ? 'negative' : 'positive'}`}>{row.amount}</td>
+                        <td className="cell"><a href="#" className="muted link-pill">{row.inv}</a></td>
+                        <td className="cell">{row.type}</td>
+                        <td className="cell"><span className={`status-chip ${row.status === 'Cleared' ? 'paid' : 'pending'}`}>{row.status}</span></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+{/* 
+          <div className="banking-ai">
+            <div className="ai-card">
+              <h5>AI Banking Assistant</h5>
+              <p className="muted small">Detected 2 unmatched credits ($4,120). Try auto-linking?</p>
+              <button className="btn primary" style={{width:'100%'}}>Auto-link Now</button>
+            </div>
+          </div> */}
+        </div>
+      ) : (
+        <div className="finance-main empty">
+          {/* other tabs intentionally empty for now */}
+        </div>
+      )}
+    </div>
+  );
+}

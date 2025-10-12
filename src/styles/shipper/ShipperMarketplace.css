@@ -260,6 +260,9 @@
   border-bottom:1px solid #f1f5f9;
   margin-bottom:24px;
   width:100%;
+  flex-wrap:nowrap;
+  overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
 }
 
 .sb-mrkt-nav-tab{
@@ -276,6 +279,10 @@
   align-items:center;
   gap:8px;
   transition: color 0.2s;
+  white-space:normal;
+  overflow-wrap:anywhere;
+  word-break:break-word;
+  max-width:220px;
 }
 
 .sb-mrkt-nav-tab.active{ color:#0ea5e9 }
@@ -289,7 +296,12 @@
 @media (max-width: 900px){
   .sb-mrkt-nav-tabs{ gap:14px }
   .sb-mrkt-nav-tab{ font-size:13px; padding:6px 0 }
-  .sb-mrkt-nav-tabs{ flex-wrap: wrap }
+  /* keep nowrap so tabs remain on one line and scroll horizontally */
+  .sb-mrkt-nav-tabs{ flex-wrap: nowrap }
+}
+
+@media (max-width: 400px){
+  .sb-mrkt-nav-tab{ font-size:10px; gap: 0px;}
 }
 /* yahan nowrap rakhna hai taki chhota screen pr bhi ek line me rahe, wrap na ho */
 
