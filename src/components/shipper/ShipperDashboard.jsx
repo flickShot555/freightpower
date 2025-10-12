@@ -6,6 +6,10 @@ import '../../styles/carrier/CarrierDashboard.css';
 import '../../styles/shipper/ShipperDashboard.css';
 import MyCarriers from './MyCarriers';
 import ShipperMarketplace from './ShipperMarketplace';
+import ComplianceOverview from './ComplianceOverview';
+import AiHub from './AiHub';
+import ShipperAnalytics from './Analytics';
+import AccountSettings from '../driver/AccountSettings';
 
 export default function ShipperDashboard() {
   const [activeNav, setActiveNav] = useState('home');
@@ -36,7 +40,7 @@ export default function ShipperDashboard() {
       title: 'SYSTEM',
       items: [
         { key: 'settings', label: 'Settings', icon: 'fa-solid fa-gear' },
-        { key: 'help', label: 'Support Hub', icon: 'fa-regular fa-circle-question' }
+        { key: 'help', label: 'AI Hub', icon: 'fa-regular fa-circle-question' }
       ]
     }
   ];
@@ -286,6 +290,10 @@ export default function ShipperDashboard() {
     if (activeNav === 'tracking') return <TrackingVisibility />;
     if (activeNav === 'doc-vault') return <DocumentVault />;
     if (activeNav === 'finance') return <Finance />;
+    if (activeNav === 'compliance') return <ComplianceOverview />;
+    if (activeNav === 'settings') return <AccountSettings />;
+  if (activeNav === 'help') return <AiHub />;
+  if (activeNav === 'analytics') return <ShipperAnalytics />;
     return (
       <div>
         <header className="fp-header">
