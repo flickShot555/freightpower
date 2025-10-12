@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import '../../styles/driver/ConsentESignature.css';
+import SignDocumentModal from './SignDocumentModal';
+
 
 export default function ConsentESignature() {
   const [activeTab, setActiveTab] = useState('all');
+  const [modalDoc, setModalDoc] = useState(null);
 
   const documents = [
     {
@@ -95,7 +98,7 @@ export default function ConsentESignature() {
               </div>
               <div className="fpdd-consent-card-right">
                 <button className="btn small outlinee">View</button>
-                <button className="btn small primary">Sign</button>
+                <button className="btn small primary" onClick={() => setModalDoc(d)}>Sign</button>
                 <button className="fpdd-more-btn" aria-label="more">⋯</button>
               </div>
             </div>
@@ -146,6 +149,10 @@ export default function ConsentESignature() {
           </div>
         </div>
       </section>
+
+      {modalDoc && (
+        <SignDocumentModal documentItem={modalDoc} onClose={() => setModalDoc(null)} />
+      )}
     </div>
   );
 }
