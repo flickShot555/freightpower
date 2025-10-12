@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import '../../styles/shipper/Finance.css';
 import CreateInvoice from './CreateInvoice';
+import RateConfirmationPanel from './RateConfirmationPanel';
 
 export default function Finance() {
   const [openDropdown, setOpenDropdown] = useState(null);
@@ -12,8 +13,9 @@ export default function Finance() {
   const partners = ['All Partners', 'Atlas Freight', 'Prime Logistics', 'Apex'];
   const statuses = ['All Status', 'Paid', 'Pending', 'Overdue'];
   const [activeTab, setActiveTab] = useState('Overview');
-  const tabs = ['Overview', 'Invoices', 'Payments', 'Factoring', 'Banking', 'Analytics'];
+  const tabs = ['Overview', 'Invoices', 'Payments', 'Factoring', 'Banking'];
   const [showCreateInvoicePage, setShowCreateInvoicePage] = useState(false);
+  const [showRatePanel, setShowRatePanel] = useState(false);
 
   useEffect(() => {
     function onDocClick() { setOpenDropdown(null); }
@@ -214,7 +216,7 @@ export default function Finance() {
             <div className="card quick-actions">
               <h4>Quick Actions</h4>
               <button className="btn primary" style={{width:'100%',marginBottom:12}} onClick={() => setShowCreateInvoicePage(true)}>Create Invoice</button>
-              <button className="btn ghost" style={{width:'100%',marginBottom:8}}>Generate Rate Confirmation</button>
+              <button className="btn ghost" style={{width:'100%',marginBottom:8}} onClick={() => setShowRatePanel(true)}>Generate Rate Confirmation</button>
               <button className="btn ghost" style={{width:'100%',marginBottom:8}}>Send Payment Reminder</button>
               <button className="btn ghost" style={{width:'100%'}}>Connect Bank Account</button>
             </div>
@@ -348,7 +350,7 @@ export default function Finance() {
                 <i className='fa-solid fa-close'></i>
               </div>  
         </div>
-      ) : activeTab === 'Factoring' ? (
+    ) : activeTab === 'Factoring' ? (
         <div className="factoring-main">
           <div className="finance-left">
             <div className="card">
@@ -539,6 +541,7 @@ export default function Finance() {
           {/* other tabs intentionally empty for now */}
         </div>
       )}
+      {showRatePanel && <RateConfirmationPanel onClose={() => setShowRatePanel(false)} />}
     </div>
   );
 }

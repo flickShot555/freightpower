@@ -1,7 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import '../../styles/shipper/CreateInvoice.css';
+import InvoicePreview from './InvoicePreview';
 
 export default function CreateInvoice({ onClose }) {
+  const [showPreview, setShowPreview] = useState(false);
+
+  function openPreview() {
+    setShowPreview(true);
+  }
+
+  function closePreview() {
+    setShowPreview(false);
+  }
+
   return (
     <div className="create-invoice-overlay" onClick={onClose}>
       <div className="create-invoice-modal" onClick={(e) => e.stopPropagation()}>
@@ -15,7 +26,7 @@ export default function CreateInvoice({ onClose }) {
               <div className="create-subtitle">Generate and send an invoice linked to a load and supporting documents</div>
             </div>
             <div className="create-actions">
-              <button className="btn ghost">Preview PDF</button>
+              <button className="btn ghost" onClick={(e) => { e.stopPropagation(); openPreview(); }}>Preview PDF</button>
               <button className="btn ghost">Save Draft</button>
               <button className="btn primary">Create & Send Invoice</button>
             </div>
@@ -194,6 +205,7 @@ export default function CreateInvoice({ onClose }) {
           </div>
         </aside>
           </div>
+          {showPreview && <InvoicePreview invoice={{}} onClose={closePreview} />}
         </div>
       </div>
     </div>

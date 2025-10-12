@@ -7,6 +7,7 @@ import MyCarrier from './MyCarrier';
 import HiringOnboarding from './HiringOnboarding';
 import AccountSettings from './AccountSettings';
 import AiHub from './AiHub';
+import ConsentESignature from './ConsentESignature';
 import '../../styles/driver/DriverDashboard.css';
 
 export default function DriverDashboard() {
@@ -35,8 +36,6 @@ export default function DriverDashboard() {
     {
       title: 'SUPPORT',
       items: [
-        { key: 'providers', label: 'Service Providers', icon: 'fa-solid fa-handshake' },
-        { key: 'insights', label: 'Insights', icon: 'fa-solid fa-chart-line' },
         { key: 'settings', label: 'Account & Settings', icon: 'fa-solid fa-gear' },
         { key: 'help', label: 'AI Hub', icon: 'fa-solid fa-robot' }
       ]
@@ -416,6 +415,8 @@ export default function DriverDashboard() {
         return <MyCarrier />;
       case 'hiring':
         return <HiringOnboarding />;
+      case 'esign':
+        return <ConsentESignature />;
       case 'settings':
         return <AccountSettings />;
       case 'help':
