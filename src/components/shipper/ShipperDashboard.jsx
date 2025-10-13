@@ -9,7 +9,7 @@ import ShipperMarketplace from './ShipperMarketplace';
 import ComplianceOverview from './ComplianceOverview';
 import AiHub from './AiHub';
 import ShipperAnalytics from './Analytics';
-import AccountSettings from '../driver/AccountSettings';
+import Settings from './Settings';
 
 export default function ShipperDashboard() {
   const [activeNav, setActiveNav] = useState('home');
@@ -291,7 +291,7 @@ export default function ShipperDashboard() {
     if (activeNav === 'doc-vault') return <DocumentVault />;
     if (activeNav === 'finance') return <Finance />;
     if (activeNav === 'compliance') return <ComplianceOverview />;
-    if (activeNav === 'settings') return <AccountSettings />;
+    if (activeNav === 'settings') return <Settings />;
   if (activeNav === 'help') return <AiHub />;
   if (activeNav === 'analytics') return <ShipperAnalytics />;
     return (
