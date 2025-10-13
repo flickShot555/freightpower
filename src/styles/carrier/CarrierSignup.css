@@ -340,6 +340,37 @@
   background: #2563eb;
 }
 
+/* Scoped override: force native checkbox visuals on signup pages
+   Some global styles remove native checkbox appearance; restore it here. */
+.carrier-signup-container input[type="checkbox"],
+.carrier-login-page input[type="checkbox"],
+.carrier-signup-field input[type="checkbox"]{
+  -webkit-appearance: checkbox !important;
+  -moz-appearance: checkbox !important;
+  appearance: checkbox !important;
+  width:18px !important;
+  height:18px !important;
+  display:inline-block !important;
+  opacity:1 !important;
+  margin:0 8px 0 0 !important;
+  background:#fff !important;
+  border:2px solid #cbd5e1 !important;
+  vertical-align:middle !important;
+  /* brand accent color for supported browsers */
+  accent-color: #2563eb !important;
+}
+.carrier-signup-container input[type="checkbox"]::before,
+.carrier-signup-container input[type="checkbox"]::after{ content:none !important }
+
+/* Explicit checked/indeterminate visuals for browsers that don't fully support accent-color */
+.carrier-signup-container input[type="checkbox"]:checked,
+.carrier-login-page input[type="checkbox"]:checked,
+.carrier-signup-field input[type="checkbox"]:checked{
+  background-color: #2563eb !important;
+  border-color: #2563eb !important;
+  color: #fff !important;
+}
+
 
 /* When buttons are shown side-by-side, don't let the primary button stretch full width */
 .carrier-signup-login-actions .carrier-signup-btn,

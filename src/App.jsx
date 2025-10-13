@@ -4,10 +4,14 @@ import HelpCenter from './components/landing_page/HelpCenter'
 import RoleSelection from './components/landing_page/RoleSelection'
 import Signup from './components/Signup'
 import Login from './components/Login'
+import AdminSignup from './components/AdminSignup'
+import AdminLogin from './components/AdminLogin'
 import Verification from './components/verification/Verification'
+import AdminVerification from './components/verification/AdminVerification'
 import CarrierDashboard from './components/carrier/CarrierDashboard'
 import DriverDashboard from './components/driver/DriverDashboard'
 import ShipperDashboard from './components/shipper/ShipperDashboard'
+import AdminDashboard from './components/admin/AdminDashboard'
 import CarrierOnboarding from './components/onboarding/CarrierOnboarding'
 import DriverOnboarding from './components/onboarding/DriverOnboarding'
 import ShipperOnboarding from './components/onboarding/ShipperOnboarding'
@@ -47,12 +51,16 @@ function InnerRoutes({ chatOpen, chatMinimized, setChatOpen, setChatMinimized })
   <Route path="/select-role" element={<RoleSelection />} />
   <Route path="/signup" element={<Signup />} />
   <Route path="/login" element={<Login />} />
+  <Route path="/admin-signup" element={<AdminSignup />} />
+  <Route path="/admin-login" element={<AdminLogin />} />
   <Route path="/onboarding/carrier" element={<CarrierOnboarding />} />
   <Route path="/onboarding/driver" element={<DriverOnboarding />} />
   <Route path="/onboarding/shipper" element={<ShipperOnboarding />} />
   <Route path="/verify" element={<Verification />} />
+  <Route path="/admin-verify" element={<AdminVerification />} />
   <Route path="/carrier-dashboard" element={<CarrierDashboard />} />
   <Route path="/driver-dashboard" element={<DriverDashboard />} />
+  <Route path="/admin-dashboard" element={<AdminDashboard />} />
   <Route path="/shipper-dashboard" element={<ShipperDashboard />} />
       </Routes>
       {showChat && <Chatbot isOpen={chatOpen} onClose={() => setChatOpen(false)} onMinimizeChange={(min)=>{ setChatMinimized(min) }} />}
