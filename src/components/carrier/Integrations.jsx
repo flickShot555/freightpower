@@ -269,7 +269,7 @@ export default function Integrations() {
             </div>
             <div className="filters-container">
               <select 
-                className="filter-select"
+                className="int-filter-select"
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
               >
@@ -290,10 +290,9 @@ export default function Integrations() {
                   </span>
                 </div>
                 
-                <div className="integration-icon-container">
+                <div className="iintegration-icon-container">
                   <div 
-                    className="integration-icon"
-                    style={{ backgroundColor: integration.iconBg }}
+                    className="iintegration-icon"
                   >
                     <i className={integration.icon}></i>
                   </div>
@@ -334,7 +333,7 @@ export default function Integrations() {
             </div>
             <div className="filters-container">
               <select 
-                className="filter-select"
+                className="int-filter-select"
                 value={connectionsCategory}
                 onChange={(e) => setConnectionsCategory(e.target.value)}
               >
@@ -346,7 +345,7 @@ export default function Integrations() {
                 <option value="Factoring">Factoring</option>
               </select>
               <select 
-                className="filter-select"
+                className="int-filter-select"
                 value={connectionsStatus}
                 onChange={(e) => setConnectionsStatus(e.target.value)}
               >
@@ -375,8 +374,8 @@ export default function Integrations() {
               7 connections
             </label>
             <div className="connections-actions">
-              <button className="btn-refresh">Refresh Selected</button>
-              <button className="btn-reconnect">Reconnect Selected</button>
+              <button className="btn small ghost-cd">Refresh Selected</button>
+              <button className="btn small ghost-cd">Reconnect Selected</button>
             </div>
           </div>
 
@@ -415,7 +414,6 @@ export default function Integrations() {
                       <div className="connection-info">
                         <div 
                           className="connection-icon"
-                          style={{ backgroundColor: connection.iconBg }}
                         >
                           <i className={connection.icon}></i>
                         </div>
@@ -427,15 +425,12 @@ export default function Integrations() {
                       </div>
                     </td>
                     <td>
-                      <span className={`category-badge ${connection.category.toLowerCase()}`}>
+                      <span className={`int-category-badge ${connection.category.toLowerCase()}`}>
                         {connection.category}
                       </span>
                     </td>
                     <td>
-                      <span className={`status-badge ${connection.status.toLowerCase()}`}>
-                        {connection.status === 'Active' && <i className="fas fa-circle"></i>}
-                        {connection.status === 'Warning' && <i className="fas fa-exclamation-triangle"></i>}
-                        {connection.status === 'Disconnected' && <i className="fas fa-times-circle"></i>}
+                      <span className={`int-status-badge ${connection.status.toLowerCase()}`}>
                         {connection.status}
                       </span>
                     </td>
@@ -529,24 +524,24 @@ export default function Integrations() {
           </div>
 
           {/* Recent Sync Activity */}
-          <div className="recent-activity">
+          <div className="recent-activityy">
             <h3>Recent Sync Activity</h3>
-            <div className="activity-list">
+            <div className="activityy-list">
               {recentActivity.map((activity, index) => (
-                <div key={index} className={`activity-item ${activity.status}`}>
-                  <div className="activity-icon">
+                <div key={index} className={`activityy-item ${activity.status}`}>
+                  <div className="activityy-icon">
                     {activity.status === 'success' && <i className="fas fa-check-circle"></i>}
                     {activity.status === 'in-progress' && <i className="fas fa-sync-alt fa-spin"></i>}
                     {activity.status === 'warning' && <i className="fas fa-exclamation-triangle"></i>}
                     {activity.status === 'failed' && <i className="fas fa-times-circle"></i>}
                   </div>
-                  <div className="activity-content">
-                    <div className="activity-main">
+                  <div className="activityy-content">
+                    <div className="activityy-main">
                       <strong>{activity.name}</strong> {activity.action}
                     </div>
-                    <div className="activity-details">{activity.details}</div>
+                    <div className="activityy-details">{activity.details}</div>
                   </div>
-                  <div className={`activity-status ${activity.status}`}>
+                  <div className={`activityy-status ${activity.status}`}>
                     {activity.status === 'success' && 'Success'}
                     {activity.status === 'in-progress' && 'In Progress'}
                     {activity.status === 'warning' && 'Warning'}
@@ -613,7 +608,7 @@ export default function Integrations() {
           {/* Filters Row */}
           <div className="sync-logs-filters">
             <div className="sync-filter-group">
-              <select className="filter-select">
+              <select className="int-filter-select">
                 <option>All Providers</option>
                 <option>QuickBooks</option>
                 <option>Motive</option>
@@ -621,7 +616,7 @@ export default function Integrations() {
                 <option>Dropbox</option>
                 <option>FactorFox</option>
               </select>
-              <select className="filter-select">
+              <select className="int-filter-select">
                 <option>All Categories</option>
                 <option>Accounting</option>
                 <option>ELD</option>
@@ -629,7 +624,7 @@ export default function Integrations() {
                 <option>Storage</option>
                 <option>Factoring</option>
               </select>
-              <select className="filter-select">
+              <select className="int-filter-select">
                 <option>All Status</option>
                 <option>Success</option>
                 <option>Warning</option>
@@ -647,7 +642,6 @@ export default function Integrations() {
             <div className="sync-stat-card total">
               <div className="stat-header">
                 <span className="stat-label">Total Syncs (24h)</span>
-                <i className="fas fa-sync-alt stat-icon"></i>
               </div>
               <div className="stat-value">1,247</div>
               <div className="stat-change positive">+5.2% vs yesterday</div>
@@ -655,7 +649,6 @@ export default function Integrations() {
             <div className="sync-stat-card success">
               <div className="stat-header">
                 <span className="stat-label">Success Rate</span>
-                <i className="fas fa-check-circle stat-icon"></i>
               </div>
               <div className="stat-value">94.2%</div>
               <div className="stat-change positive">+3.1% improvement</div>
@@ -663,7 +656,6 @@ export default function Integrations() {
             <div className="sync-stat-card warning">
               <div className="stat-header">
                 <span className="stat-label">Warnings</span>
-                <i className="fas fa-exclamation-triangle stat-icon"></i>
               </div>
               <div className="stat-value">43</div>
               <div className="stat-change negative">+8.3% increase</div>
@@ -671,7 +663,6 @@ export default function Integrations() {
             <div className="sync-stat-card failed">
               <div className="stat-header">
                 <span className="stat-label">Failed Syncs</span>
-                <i className="fas fa-times-circle stat-icon"></i>
               </div>
               <div className="stat-value">29</div>
               <div className="stat-change negative">+6.7% increase</div>
@@ -725,11 +716,11 @@ export default function Integrations() {
                         <span className="record-status">3 Updated, 2 Skipped</span>
                       </div>
                     </td>
-                    <td><span className="status-badge success">Success</span></td>
+                    <td><span className="int-status-badge active">Success</span></td>
                     <td>
                       <div className="action-buttons">
-                        <button className="action-btn view"><i className="fas fa-eye"></i></button>
-                        <button className="action-btn retry"><i className="fas fa-redo"></i></button>
+                        <button className="action-btnn view"><i className="fas fa-eye"></i></button>
+                        <button className="action-btnn retry"><i className="fas fa-redo"></i></button>
                       </div>
                     </td>
                   </tr>
@@ -755,11 +746,11 @@ export default function Integrations() {
                         <span className="record-status">3 Updated, 2 Skipped</span>
                       </div>
                     </td>
-                    <td><span className="status-badge warning">Warning</span></td>
+                    <td><span className="int-status-badge warning">Warning</span></td>
                     <td>
                       <div className="action-buttons">
-                        <button className="action-btn view"><i className="fas fa-eye"></i></button>
-                        <button className="action-btn retry"><i className="fas fa-redo"></i></button>
+                        <button className="action-btnn view"><i className="fas fa-eye"></i></button>
+                        <button className="action-btnn retry"><i className="fas fa-redo"></i></button>
                       </div>
                     </td>
                   </tr>
@@ -785,11 +776,11 @@ export default function Integrations() {
                         <span className="record-status">Created, 3 Updated, 2 Failed</span>
                       </div>
                     </td>
-                    <td><span className="status-badge failed">Failed</span></td>
+                    <td><span className="int-status-badge disconnected">Failed</span></td>
                     <td>
                       <div className="action-buttons">
-                        <button className="action-btn view"><i className="fas fa-eye"></i></button>
-                        <button className="action-btn retry"><i className="fas fa-redo"></i></button>
+                        <button className="action-btnn view"><i className="fas fa-eye"></i></button>
+                        <button className="action-btnn retry"><i className="fas fa-redo"></i></button>
                       </div>
                     </td>
                   </tr>
@@ -815,11 +806,11 @@ export default function Integrations() {
                         <span className="record-status">Uploaded, 13 Skipped, 2 Skipped</span>
                       </div>
                     </td>
-                    <td><span className="status-badge success">Success</span></td>
+                    <td><span className="int-status-badge active">Success</span></td>
                     <td>
                       <div className="action-buttons">
-                        <button className="action-btn view"><i className="fas fa-eye"></i></button>
-                        <button className="action-btn retry"><i className="fas fa-redo"></i></button>
+                        <button className="action-btnn view"><i className="fas fa-eye"></i></button>
+                        <button className="action-btnn retry"><i className="fas fa-redo"></i></button>
                       </div>
                     </td>
                   </tr>
@@ -845,11 +836,11 @@ export default function Integrations() {
                         <span className="record-status">Created, 6 Updated, 1 Skipped</span>
                       </div>
                     </td>
-                    <td><span className="status-badge success">Success</span></td>
+                    <td><span className="int-status-badge active">Success</span></td>
                     <td>
                       <div className="action-buttons">
-                        <button className="action-btn view"><i className="fas fa-eye"></i></button>
-                        <button className="action-btn retry"><i className="fas fa-redo"></i></button>
+                        <button className="action-btnn view"><i className="fas fa-eye"></i></button>
+                        <button className="action-btnn retry"><i className="fas fa-redo"></i></button>
                       </div>
                     </td>
                   </tr>
@@ -857,9 +848,9 @@ export default function Integrations() {
               </table>
             </div>
 
-            <div className="integration-pagination">
+            <div className="pagination">
               <span>Showing 1 to 5 of 1,247 entries</span>
-              <div className="integration-pagination-controls">
+              <div className="pagination-controls">
                 <button className="page-btn">Pre</button>
                 <button className="page-btn active">1</button>
                 <button className="page-btn">2</button>
@@ -914,27 +905,27 @@ export default function Integrations() {
                 <div className="health-items">
                   <div className="health-item">
                     <span className="health-provider">QuickBooks</span>
-                    <span className="health-status healthy">Healthy</span>
+                    <span className="int-status-badge active">Healthy</span>
                     <span className="health-time">Last sync: 15 min ago</span>
                   </div>
                   <div className="health-item">
                     <span className="health-provider">Motive</span>
-                    <span className="health-status warning">Warning</span>
+                    <span className="int-status-badge warning">Warning</span>
                     <span className="health-time">Last sync: 30 min ago</span>
                   </div>
                   <div className="health-item">
                     <span className="health-provider">Melio</span>
-                    <span className="health-status error">Error</span>
+                    <span className="int-status-badge disconnected">Error</span>
                     <span className="health-time">Last sync: 45 min ago</span>
                   </div>
                   <div className="health-item">
                     <span className="health-provider">Dropbox</span>
-                    <span className="health-status healthy">Healthy</span>
+                    <span className="int-status-badge active">Healthy</span>
                     <span className="health-time">Last sync: 1 hour ago</span>
                   </div>
                   <div className="health-item">
                     <span className="health-provider">FactorFox</span>
-                    <span className="health-status healthy">Healthy</span>
+                    <span className="int-status-badge active">Healthy</span>
                     <span className="health-time">Last sync: 1 hour ago</span>
                   </div>
                 </div>

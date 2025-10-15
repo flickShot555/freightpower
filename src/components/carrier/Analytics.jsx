@@ -37,13 +37,13 @@ const Analytics = () => {
           <select 
             value={timeRange} 
             onChange={(e) => setTimeRange(e.target.value)}
-            className="time-range-select"
+            className="time-range-select" style={{borderRadius: "100px"}}
           >
             {timeRanges.map(range => (
               <option key={range} value={range}>{range}</option>
             ))}
           </select>
-          <button className="export-all-btn">
+          <button className="btn small ghost-cd">
             <i className="fa-solid fa-download"></i>
             Export All
           </button>

@@ -206,7 +206,7 @@ export default function Marketplace() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
-            <button className="search-btn">
+            <button className="btn small-cd">
               <i className="fa-solid fa-search" />
               Search
             </button>
@@ -293,7 +293,7 @@ export default function Marketplace() {
                 </div>
                 <div className="load-meta">
                   <div className="carrier-info">
-                    <i className="fa-solid fa-truck carrier-icon" />
+                    <i className="fa-solid fa-truck" />
                     {load.carrier}
                   </div>
                   <div className="distance-info">
@@ -304,8 +304,8 @@ export default function Marketplace() {
               </div>
 
               <div className="load-actions">
-                <button className="btn-book-now">Bid/Counter</button>
-                <button className="btn-accept">Accept</button>
+                <button className="btn small-cd" style={{width: '100%'}}>Bid/Counter</button>
+                <button className="btn small ghost-cd"style={{width: '100%'}}>Accept</button>
               </div>
 
               <div className="posted-time">{load.postedTime}</div>
@@ -395,10 +395,10 @@ export default function Marketplace() {
           </div>
 
           <div className="drivers-actions">
-          <button className="btn-export">
+          <button className="btn small ghost-cd">
             <i className="fa-solid fa-download"></i> Export
           </button>
-          <button className="btn-post-request">
+          <button className="btn small-cd">
             <i className="fa-solid fa-plus"></i> Post Driver Request
           </button>
             </div>
@@ -594,7 +594,7 @@ export default function Marketplace() {
                     <span className="discount"><i class="fa-solid fa-tag"></i> 12¢ off per gallon</span>
                     <span className="cashback">Plus 2% cash back on purchases</span>
                   </div>
-                  <button className="btn-request">Request Quote</button>
+                  <button className="btn small-cd" style={{width:'100%'}}>Request Quote</button>
                 </div>
 
                 {/* TruckPro Service Card */}
@@ -615,10 +615,10 @@ export default function Marketplace() {
                       <span><i className="fa-solid fa-star" style={{color:'#fbbf24'}}></i> 4.9</span>
                       <span>(456 reviews)</span>
                     </div>
-                    <span className="emergency"><i class="fa-solid fa-clock"></i> 24/7 Emergency Service</span>
+                    <span className="cd-emergency"><i class="fa-solid fa-clock"></i> 24/7 Emergency Service</span>
                     <span className="mobile">Mobile repair units available</span>
                   </div>
-                  <button className="btn-request">Request Quote</button>
+                  <button className="btn small-cd" style={{width:'100%'}}>Request Quote</button>
                 </div>
 
                 {/* Progressive Commercial Card */}
@@ -642,7 +642,7 @@ export default function Marketplace() {
                     <span className="savings"><i class="fa-solid fa-percent"></i> Save up to 25%</span>
                     <span className="discount">Multi-policy discount available</span>
                   </div>
-                  <button className="btn-get-quote">Get Quote</button>
+                  <button className="btn small-cd" style={{width:'100%'}}>Get Quote</button>
                 </div>
 
                 {/* RTS Financial Card */}
@@ -666,7 +666,7 @@ export default function Marketplace() {
                     <span className="funding"><i class="fa-solid fa-bolt"></i> Same-day funding</span>
                     <span className="rate">Rates starting at 1.5%</span>
                   </div>
-                  <button className="btn-apply">Apply Now</button>
+                  <button className="btn small-cd" style={{width:'100%'}}>Apply Now</button>
                 </div>
 
                 {/* SecurePark Network Card */}
@@ -690,7 +690,7 @@ export default function Marketplace() {
                     <span className="security"><i class="fa-solid fa-shield-alt"></i> Secure & Monitored</span>
                     <span className="available">24/7 security & reservations</span>
                   </div>
-                  <button className="btn-reserve">Reserve Spot</button>
+                  <button className="btn small-cd" style={{width:'100%'}}>Reserve Spot</button>
                 </div>
 
                 {/* FleetParts Direct Card */}
@@ -714,12 +714,12 @@ export default function Marketplace() {
                     <span className="free-shipping"><i class="fa-solid fa-truck"></i> Free shipping $200+</span>
                     <span className="oem">OEM & aftermarket parts</span>
                   </div>
-                  <button className="btn-browse">Browse Parts</button>
+                  <button className="btn small-cd" style={{width:'100%'}}>Browse Parts</button>
                 </div>
               </div>
 
               <div className="load-more">
-                <button className="btn-load-more">Load More Providers</button>
+                <button className="btn small ghost-cd">Load More Providers</button>
               </div>
             </div>
 
@@ -798,25 +798,25 @@ export default function Marketplace() {
                 </div>
 
                 <div className="filter-actions">
-                  <button className="btn-apply-filters">Apply Filters</button>
-                  <button className="btn-clear-filters">Clear All Filters</button>
+                  <button className="btn small-cd">Apply Filters</button>
+                  <button className="btn small ghost-cd">Clear All Filters</button>
                 </div>
 
                 <div className="quick-actions">
                   <h4>Quick Actions</h4>
-                  <button className="quick-action-btn service">
+                  <button className="btn small ghost-cd" style={{ width: '100%' }}>
                     <i className="fa-solid fa-add"></i>
                     Request Service
                   </button>
-                  <button className="quick-action-btn emergency">
+                  <button className="btn small ghost-cd" style={{ width: '100%' }}>
                     <i className="fa-solid fa-exclamation-circle"></i>
                     Request Emergency Service
                   </button>
-                  <button className="quick-action-btn maintenance">
+                  <button className="btn small ghost-cd" style={{ width: '100%' }}>
                     <i className="fa-solid fa-calendar"></i>
                     Schedule Maintenance
                   </button>
-                  <button className="quick-action-btn insurance">
+                  <button className="btn small ghost-cd" style={{ width: '100%' }}>
                     <i className="fa-solid fa-shield"></i>
                     Get Insurance Quote
                   </button>

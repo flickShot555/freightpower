@@ -78,11 +78,11 @@ const FactoringInvoicing = () => {
           <p className="factoring-subtitle">Manage invoices, payments, and factoring operations</p>
         </div>
         <div className="factoring-actions">
-          <button className="btn-export">
+          <button className="btn small ghost-cd">
             <i className="fas fa-download"></i>
             Export
           </button>
-          <button className="btn-create-invoice">
+          <button className="btn small-cd">
             <i className="fas fa-plus"></i>
             Create Invoice
           </button>
@@ -92,7 +92,7 @@ const FactoringInvoicing = () => {
       {/* Metrics Cards */}
       <div className="factoring-metrics">
         <div className="metric-card">
-          <div className="metric-icon blue">
+          <div className="metric-icon">
             <i className="fas fa-file-invoice-dollar"></i>
           </div>
           <div className="metric-content">
@@ -102,7 +102,7 @@ const FactoringInvoicing = () => {
         </div>
         
         <div className="metric-card">
-          <div className="metric-icon yellow">
+          <div className="metric-icon">
             <i className="fas fa-bolt"></i>
           </div>
           <div className="metric-content">
@@ -112,7 +112,7 @@ const FactoringInvoicing = () => {
         </div>
         
         <div className="metric-card">
-          <div className="metric-icon green">
+          <div className="metric-icon">
             <i className="fas fa-check-circle"></i>
           </div>
           <div className="metric-content">
@@ -122,7 +122,7 @@ const FactoringInvoicing = () => {
         </div>
         
         <div className="metric-card">
-          <div className="metric-icon purple">
+          <div className="metric-icon">
             <i className="fas fa-chart-line"></i>
           </div>
           <div className="metric-content">
@@ -146,7 +146,7 @@ const FactoringInvoicing = () => {
         </div>
         <div className="factoring-filters-container">
           <select 
-            className="filter-select"
+            className="filter-selected"
             value={selectedStatus}
             onChange={(e) => setSelectedStatus(e.target.value)}
           >
@@ -156,7 +156,7 @@ const FactoringInvoicing = () => {
             <option>Overdue</option>
           </select>
           <select 
-            className="filter-select"
+            className="filter-selected"
             value={selectedFactoring}
             onChange={(e) => setSelectedFactoring(e.target.value)}
           >
@@ -203,7 +203,7 @@ const FactoringInvoicing = () => {
                 <td className="amount">{formatCurrency(invoice.amount)}</td>
                 <td className="due-date">{invoice.dueDate}</td>
                 <td>
-                  <span className={`status-badge ${getStatusColor(invoice.status)}`}>
+                  <span className={`cd-in-status-badge ${getStatusColor(invoice.status)}`}>
                     {invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)}
                   </span>
                 </td>

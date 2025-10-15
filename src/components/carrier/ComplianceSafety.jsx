@@ -121,12 +121,12 @@ export default function ComplianceSafety() {
           <p className="header-subtitle">Monitor FMCSA compliance, safety ratings, and risk management</p>
         </div>
         <div className="header-actions">
-          <button className="btn-action available-snapshots">
-            <i className="fa-solid fa-camera"></i>
+          <button className="btn small-cd">
+            <i className="fa-solid fa-camera" style={{color: 'white'}}></i>
             Available Snapshots
           </button>
-          <button className="btn-action sync-fmcsa">
-            <i className="fa-solid fa-sync"></i>
+          <button className="btn small-cd">
+            <i className="fa-solid fa-sync" style={{color: 'white'}}></i>
             Sync FMCSA
           </button>
         </div>
@@ -228,7 +228,7 @@ export default function ComplianceSafety() {
                     <div className="task-description">{task.description}</div>
                     <div className="task-actions">
                       {task.actions.map((action, idx) => (
-                        <button key={idx} className="task-action-btn">{action}</button>
+                        <button key={idx} className="btn small ghost-cd">{action}</button>
                       ))}
                     </div>
                   </div>
@@ -291,7 +291,7 @@ export default function ComplianceSafety() {
                 <span className="breakdown-value">{scoreBreakdown.safetyHistory}%</span>
               </div>
             </div>
-            <button className="view-score-breakdown">View Score Breakdown</button>
+            <button className="btn small-cd" style={{width: '100%'}}>View Score Breakdown</button>
           </div>
 
           {/* Compliance Documents */}
@@ -317,7 +317,7 @@ export default function ComplianceSafety() {
                       <div className="document-status" style={{fontSize: '0.93rem', color: '#64748b'}}>Active</div>
                     )}
                     {doc.status === 'missing' && (
-                      <div className="document-status missing" style={{fontSize: '0.93rem', color: '#dc2626'}}>Missing</div>
+                      <div className="document-status missing">Missing</div>
                     )}
                   </div>
                   <i className={`fa-solid ${
@@ -325,13 +325,13 @@ export default function ComplianceSafety() {
                     doc.status === 'active' ? 'fa-circle-check' :
                     doc.status === 'warning' ? 'fa-triangle-exclamation' :
                     'fa-circle-xmark'
-                  } doc-status-icon ${doc.status}`} style={{fontSize: 22, marginLeft: 'auto', color: (
+                  } doc-status-icon ${doc.status}`} style={{ marginLeft: 'auto', color: (
                     doc.status === 'valid' || doc.status === 'active' ? '#22c55e' :
                     doc.status === 'warning' ? '#f59e0b' : '#dc2626')}}></i>
                 </div>
               ))}
             </div>
-            <button className="go-to-vault-btn">Go to Document Vault</button>
+            <button className="btn small-cd"style={{width: '100%'}}>Go to Document Vault</button>
           </div>
         </div>
       </div>

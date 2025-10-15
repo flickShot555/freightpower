@@ -8,8 +8,6 @@
 .dark-root .fp-topbar,
 .dark-root .card,
 .dark-root .fp-sidebar,
-.dark-root .market-grid .load-item,
-.dark-root .offers .offer-item,
 .dark-root .integrations-list li{
   background:#2c2c2c!important; /* replace whites */
   border-color: rgba(255,255,255,0.04);
@@ -28,14 +26,11 @@
 .dark-root .nav-item{color:#cfe8ed}
 .dark-root .nav-item:hover .label{color:#d1d7db}
 .dark-root .nav-item:hover .icon{color:inherit}
-.dark-root .chip{color:#d1d7db}
-.dark-root .chip.yellow{color:#1f2937}
 .dark-root .badge{color:#d1d7db}
 .dark-root .dark-toggle{background:#4b4b4b;border-color:#5a5a5a}
 .dark-root .dark-toggle .dark-toggle-knob{background:#2c2c2c}
 .dark-root .muted{color:#ffffff}
 .dark-root .role{color:#ffffff}
-.dark-root .load-sub{color:#ffffff}
 .dark-root .market-col .col-title{color:#ffffff}
 .dark-root .note-sub{color:#ffffff}
 .dark-root .fp-subtitle{color:#b9c0c4}
@@ -43,11 +38,6 @@
 .dark-root .nav-group-title{color:#9fb0b4}
 .dark-root .nav-item{color:#cfe8ed}
 .dark-root .nav-item:hover .label{color:#ffffff}
-.dark-root .chip{color:#ffffff}
-.dark-root .chip.yellow{color:#1f2937}
-.dark-root .badge{color:#ffffff}
-.dark-root .dark-toggle{background:#4b4b4b;border-color:#5a5a5a}
-.dark-root .dark-toggle .dark-toggle-knob{background:#2c2c2c}
 
 /* ensure any remaining hard-coded white backgrounds are overridden */
 .dark-root .fp-topbar{background:#2c2c2c}
@@ -56,7 +46,7 @@
 .dark-root .exp-item.pill{background:#2c2c2c}
 .dark-root .exp-right .badge{background:transparent}
 .dark-root .sidebar-dark-control .dark-toggle{border-color:#444}
-.dark-root .sidebar-dark-control .dark-toggle[aria-pressed="true"]{background:#0b6b9a}
+.dark-root .sidebar-dark-control .dark-toggle[aria-pressed="true"]{background: linear-gradient(#7FA4F6 0%, #3B57A7 100%);}
 .dark-root .sidebar-dark-control .dark-toggle[aria-pressed="true"] .dark-toggle-knob{transform:translateX(20px);background:#2c2c2c}
 
 /* Enforce heading vs body color split in dark mode:
@@ -85,7 +75,6 @@
 .dark-root .load-sub,
 .dark-root .pickup,
 .dark-root .drivers .driver-sub,
-.dark-root .offers .offer-left .muted,
 .dark-root .note-sub,
 .dark-root .integrations-list li,
 .dark-root .nav-item,
@@ -110,13 +99,6 @@
 .dark-root .notif-icon,
 .dark-root .bot-icon,
 .dark-root .btn i{color:#d1d7db !important}
-
-/* Keep the AI Suggestions card identical to light mode in dark theme */
-.dark-root .suggestions-card{
-  background:linear-gradient(90deg,#0ea4e7 0%, #0a98c6 100%) !important;
-  color:#ffffff !important;
-  box-shadow:none !important;
-}
 
 /* Specific expiring-card icon should be black in dark mode (only this icon) */
 .dark-root .expiring-card .card-icon{color:#ffffff !important}
@@ -160,23 +142,21 @@
 .id-value{font-weight:400;color:#59656b}
 
 .second-left{display:flex;align-items:center;gap:18px}
-.chips{display:flex;gap:8px}
 .fleet-stats{display:flex;gap:12px;color:#334155}
 .fleet-item{background:transparent;padding:6px 8px;border-radius:8px;font-size:13px}
-.chip{padding:8px 14px;border-radius:999px;font-size:13px;color:#fff;display:inline-block}
-.chip.success{background:#12b76a}
-.chip.info{background:#06b6d4}
-.chip.yellow{background:#f59e0b;color:#1f2937}
-.chip.blue{background:#0ea5e9}
+.chip-cd{padding:8px 14px;border-radius:999px;font-size:13px;color:#fff;display:inline-block}
+.chip-cd.success{background: linear-gradient(#5ad08b 0, #0c824b 100%);}
+.chip-cd.info{background: linear-gradient(#06b6d4 0%, #046e81 100%);}
+.chip-cd.yellow{background: linear-gradient( #f59e0b 0%, #ba7a0c 100%);}
+.chip-cd.blue{background:linear-gradient(#2bb8fa 0%, #0a76a8 100%)}
 
 .topbar-right{display:flex;align-items:center;gap:10px}
-.btn.small{padding:8px 14px;font-size:14px;border-radius:10px;background:#0ea5e9;color:#fff;border:0;display:inline-flex;align-items:center;gap:8px;transition:transform .12s ease,box-shadow .12s ease,background-color .12s ease}
-.btn.warn{background:#f59e0b;color:#fff;border:0}
-.btn.ghost.small{border:1px solid var(--fp-topbar-bg);background:#d5d5d5;color:#0f1724;padding:8px 12px;border-radius:10px;transition:background-color .12s ease,border-color .12s ease,transform .12s ease}
+.btn.small-cd{padding:8px 14px;font-size:14px;border-radius:100px;background:linear-gradient(#7FA4F6 0%, #3B57A7 100%);color:#fff;border:0;display:inline-flex;align-items:center;gap:8px;transition:transform .12s ease,box-shadow .12s ease,background-color .12s ease}
+.btn.ghost-cd.small{border:1px solid var(--fp-topbar-bg);background:transparent;color:#0f1724;padding:8px 12px;border-radius:100px;transition:background-color .12s ease,border-color .12s ease,transform .12s ease; box-shadow: 0 0 0 1px #E5E5E5, 0 4px 8px -5px rgba(0,0,0,0.15);}
 /* dark mode: button text should be light and border should match dark topbar */
-.dark-root .btn.ghost.small{color:#343434;border-color:white}
+.dark-root .btn.ghost-cd.small{box-shadow: 0 0 0 1px #353535, 0 4px 8px -5px rgba(255,255,255,0.12); color: #d1d7db;}
 .btn.subtle{padding-top:6px;padding-bottom:6px;font-weight:600}
-.btn.small i{margin-right:8px}
+.btn.small-cd i{margin-right:8px}
 .notif-icon.img,.bot-icon.img{width:20px;height:20px}
 .notif-icon.img{opacity:0.9}
 .bot-icon.img{opacity:0.95}
@@ -185,10 +165,9 @@
 .icons i, .icons img{cursor:pointer}
 
 /* hover states */
-.btn.small:hover{transform:translateY(-2px);}
-.btn.warn:hover{filter:brightness(.95);transform:translateY(-2px)}
-.btn.ghost.small:hover{background:rgba(11,107,154,0.06);border-color:rgba(11,107,154,0.12);transform:translateY(-2px)}
-.dark-root .btn.ghost.small:hover{background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.08)}
+.btn.small-cd:hover{transform:translateY(-2px);}
+.btn.ghost-cd.small:hover{background:rgba(11,107,154,0.06);border-color:rgba(11,107,154,0.12);transform:translateY(-2px)}
+.dark-root .btn.ghost-cd.small:hover{background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.08)}
 .notif-icon:hover{color:#0b6b9a;transform:translateY(-2px)}
 .bot-icon:hover{color:#0b6b9a;transform:translateY(-2px)}
 .avatar-img{width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid #fff}
@@ -245,7 +224,7 @@
 .sidebar-header .verified{margin-top:4px}
 .sidebar-header .chips{display:flex;flex-direction:column;gap:10px;margin:12px 0}
 .sidebar-header .fleet-stats{display:flex;gap:14px;padding-top:8px}
-.sidebar-chips .chip{padding:8px 12px;font-size:13px;display:block}
+.sidebar-chips .chip-cd{padding:8px 12px;font-size:13px;display:block}
 
 /* mobile-only ids row inside the drawer */
 .mobile-ids{display:flex;flex-direction:column;align-items:center;gap:10px;color:#6b7c82;margin:10px 0}
@@ -262,7 +241,7 @@
   .mobile-ids{align-items:center;text-align:center;margin-top:6px}
   .mobile-ids .mobile-id-line{justify-content:center}
   /* make chips full-width in the drawer for touch targets */
-  .sidebar-chips .chip{width:100%;box-sizing:border-box}
+  .sidebar-chips .chip-cd{width:100%;box-sizing:border-box}
   /* make fleet stats more compact and evenly spaced */
   .sidebar-header .fleet-stats{justify-content:space-between;width:100%;gap:8px}
   .sidebar-header .fleet-stats .fleet-item{flex:1;text-align:center;padding:8px 6px}
@@ -369,7 +348,6 @@
 
 .fp-header-controls{display:flex;gap:8px}
 .btn{background:#0b6b9a;color:#fff;border:0;padding:8px 12px;border-radius:6px;cursor:pointer}
-.btn.ghost{background:transparent;color:#0b6b9a;border:1px solid rgba(11,107,154,0.12)}
 
 .fp-grid{
   display:grid;
@@ -403,16 +381,22 @@
 .header-img{width:28px;height:28px;object-fit:contain}
 
 /* Active Loads / Drivers Compliance specific styles to match reference */
+.stats-card {box-shadow: 0 0 0 1px #E5E5E5, 0 4px 8px -5px rgba(0,0,0,0.15)!important;}
+.dark-root .stats-card {box-shadow: 0 0 0 1px #353535, 0 4px 8px -5px rgba(255,255,255,0.12)!important;}
 .stats-card .stats{gap:6px}
 .stats-card .stats div{padding:8px 0;border-bottom:1px solid #f1f6f8}
+.dark-root .stats-card .stats div{border-bottom:1px solid rgba(255,255,255,0.12)}
 .stats-card .stats div:last-child{border-bottom:0}
 .stats-card .stats div span{font-size:16px}
 
+.compliance-card {box-shadow: 0 0 0 1px #E5E5E5, 0 4px 8px -5px rgba(0,0,0,0.15)!important;}
+.dark-root .compliance-card {box-shadow: 0 0 0 1px #353535, 0 4px 8px -5px rgba(255,255,255,0.12)!important;}
 .compliance-card .card-header{display:flex;align-items:center;justify-content:space-between}
 .compliance-card h3{margin:0;font-size:18px;font-weight:650;color:#0b3240}
 .dark-root .compliance-card h3{color:#d1d7db}
 .compliance-card .stats{gap:6px}
 .compliance-card .stats div{padding:8px 0;border-bottom:1px solid #f1f6f8}
+.dark-root .compliance-card .stats div{border-bottom:1px solid rgba(255,255,255,0.12)}
 .compliance-card .stats div:last-child{border-bottom:0}
 .compliance-card .stats div span{font-size:16px}
 
@@ -425,9 +409,11 @@
 .stats span{font-weight:700;color:#0b6b9a}
 
 /* Earnings card should mirror the Active Loads layout */
+.earnings-card {box-shadow:0 0 0 1px #E5E5E5,0 4px 8px -5px rgba(0,0,0,0.15)!important}
+.dark-root .earnings-card {box-shadow: 0 0 0 1px #353535, 0 4px 8px -5px rgba(255,255,255,0.12)!important;}
 .earnings-stats{display:flex;flex-direction:column;gap:8px}
 .earnings-stats div{display:flex;justify-content:space-between;color:#55686d;padding:8px 0;border-bottom:1px solid #f1f6f8}
-.dark-root .earnings-stats div{color:#ffffff}
+.dark-root .earnings-stats div{color:#ffffff; border-bottom:1px solid rgba(255,255,255,0.12)}
 .earnings-stats div:last-child{border-bottom:0}
 .earnings-stats .green{color:#059669;font-weight:700}
 .earnings-stats .blue{color:#0b82d0;font-weight:700}
@@ -438,10 +424,19 @@
 
 /* Blue gradient card for AI suggestions */
 .suggestions-card{
-  background:linear-gradient(90deg,#0ea4e7 0%, #0a98c6 100%)!important;
+  background: linear-gradient(#7FA4F6 0%, #3B57A7 100%)!important;
   color:#fff;
   box-shadow:none;
   border-radius:10px;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12)!important;
+}
+
+.dark-root  .suggestions-card{
+  background: linear-gradient(#3B57A7 0%, #1E2A4D 100%)!important;
+  color:#fff;
+  box-shadow:none;
+  border-radius:10px;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12)!important;
 }
 .suggestions-card .card-header h3{color: #fff !important;font-size:18px;font-weight:650}
 .suggestions-card .card-header .card-icon{color:#fff}
@@ -449,34 +444,26 @@
 .suggestions-card li{background:rgba(255,255,255,0.12);padding:12px;border-radius:8px;margin-bottom:10px;color:#fff}
 .suggestions-card li:last-child{margin-bottom:0}
 
+.expiring-card{box-shadow:0 0 0 1px #E5E5E5,0 4px 8px -5px rgba(0,0,0,0.15)!important}
+.dark-root .expiring-card{box-shadow: 0 0 0 1px #353535, 0 4px 8px -5px rgba(255,255,255,0.12)!important}
 .expiring-list{display:flex;flex-direction:column;gap:10px}
 .expiring-card .card-header h3{margin:0;font-size:18px;color:#0b3240;font-weight:650}
 .exp-item{display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:8px;background:#fff}
 .exp-meta{display:flex;flex-direction:column}
-.exp-title{font-weight:700;color:#0b3240}
 .exp-sub{font-size:13px;color:#0b3240}
 .exp-right{display:flex;flex-direction:column;align-items:flex-end;gap:8px}
 
 /* pill style rows to match the provided mock */
 .exp-item.pill{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-radius:10px;background:#fff}
 .exp-item.pill .exp-title{font-weight:600;color:#0b3240}
+.dark-root .exp-item.pill .exp-title{color:#d1d7db}
 .exp-item.pill .exp-days{font-weight:700}
-.exp-item.pill.yellow{background:#fff7ed}
+.exp-item.pill.yellow{background:transparent; box-shadow: 0 0 0 1px #E5E5E5,0 4px 8px -5px rgba(0,0,0,0.15);}
+.dark-root .exp-item.pill.yellow{background:transparent; box-shadow: 0 0 0 1px #353535, 0 4px 8px -5px rgba(255,255,255,0.12)!important;}
 .exp-item.pill.yellow .exp-days.yellow{color:#b45309}
-.exp-item.pill.pink{background:#fff1f2}
+.exp-item.pill.pink{background:transparent; box-shadow: 0 0 0 1px #E5E5E5,0 4px 8px -5px rgba(0,0,0,0.15);}
+.dark-root .exp-item.pill.pink{background:transparent; box-shadow: 0 0 0 1px #353535, 0 4px 8px -5px rgba(255,255,255,0.12)!important;}
 .exp-item.pill.pink .exp-days.pink{color:#ef4444}
-
-/* Dark mode: make pill backgrounds darker so text is readable on dark backgrounds */
-.dark-root .exp-item.pill.yellow{background:#ffbe6e;border:1px solid rgba(255,255,255,0.06)!important}
-.dark-root .exp-item.pill.yellow .exp-title,
-.dark-root .exp-item.pill.yellow .exp-sub,
-.dark-root .exp-item.pill.yellow .exp-days{color:#ffffff}
-.dark-root .exp-item.pill.yellow .exp-days.yellow{color:#b45309}
-.dark-root .exp-item.pill.pink{background:#ff838b;border:1px solid rgba(255,255,255,0.06)!important}
-.dark-root .exp-item.pill.pink .exp-title,
-.dark-root .exp-item.pill.pink .exp-sub,
-.dark-root .exp-item.pill.pink .exp-days{color:#ffffff}
-.dark-root .exp-item.pill.pink .exp-days.pink{color:#ef4444}
 
 /* style the badge pill to look like the reference but keep its color */
 .exp-right .badge{font-weight:700;border-radius:999px;padding:6px 10px;font-size:13px}
@@ -489,10 +476,9 @@
 .small-card h4{margin:0 0 10px 0;color:#23363c}
 .expiring-list{display:flex;flex-direction:column;gap:8px}
 .exp-item{display:flex;justify-content:space-between;align-items:center;padding:8px;border-radius:6px;background:#fff}
-.badge{padding:6px 8px;border-radius:8px;font-weight:600;font-size:13px}
-.badge.warning{background:#fff4e6;color:#b45309}
-.badge.danger{background:#fff0f0;color:#c53030}
 
+.integrations-card {box-shadow:0 0 0 1px #E5E5E5,0 4px 8px -5px rgba(0,0,0,0.15)!important;}
+.dark-root .integrations-card {box-shadow: 0 0 0 1px #353535, 0 4px 8px -5px rgba(255,255,255,0.12)!important;}
 .integrations-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}
 .integrations-list li{display:flex;justify-content:space-between;align-items:center;color:#334b52;padding:10px 0;border-top:1px solid #eef3f6}
 .integrations-list li:first-of-type{border-top:0;padding-top:0}
@@ -506,17 +492,28 @@
 .view-all{color:#0b6b9a;font-size:14px;cursor:pointer}
 
 /* Filled blue button for the Marketplace header (overrides ghost for this card only) */
-.marketplace-snapshot .card-row .btn.ghost.small{
-  background: #0ea4e7;
-  color: #ffffff;
-  border: none;
-  padding: 8px 14px;
-  border-radius: 12px;
+.marketplace-snapshot {
+  box-shadow:0 0 0 1px #E5E5E5,0 4px 8px -5px rgba(0,0,0,0.15)!important;
 }
-.marketplace-snapshot .card-row .btn.ghost.small:hover{
+
+.dark-root .marketplace-snapshot {
+  box-shadow: 0 0 0 1px #353535, 0 4px 8px -5px rgba(255,255,255,0.12)!important;
+}
+
+.marketplace-snapshot .card-row .btn.ghost-cd.small{
+  background:linear-gradient(#7FA4F6 0%, #3B57A7 100%);
+  color: #ffffff;
+  padding: 8px 14px;
+  border-radius: 100px;
+  border: none;
+}
+.marketplace-snapshot .card-row .btn.ghost-cd.small:hover{
   transform: translateY(-2px);
   filter: brightness(.95);
 }
+
+.recent-messages {box-shadow: 0 0 0 1px #E5E5E5, 0 4px 8px -5px rgba(0,0,0,0.15)!important;}
+.dark-root .recent-messages {box-shadow: 0 0 0 1px #353535, 0 4px 8px -5px rgba(255,255,255,0.12)!important;}
 
 /* Recent Messages: heading should match Active Loads (size + weight) and View All should be bold */
 .recent-messages .card-row h3{
@@ -530,6 +527,9 @@
 }
 
 /* Notifications should use same header styles as Recent Messages */
+.notifications-card {box-shadow: 0 0 0 1px #E5E5E5, 0 4px 8px -5px rgba(0,0,0,0.15)!important;}
+.dark-root .notifications-card {box-shadow: 0 0 0 1px #353535, 0 4px 8px -5px rgba(255,255,255,0.12)!important;}
+
 .notifications-card .card-row h3{
   margin:0;
   font-size:18px;
@@ -541,6 +541,7 @@
 }
 
 .msg-item{display:flex;gap:12px;padding:12px 0;border-top:1px solid #f1f6f8}
+.dark-root  .msg-item{border-top:1px solid rgba(255,255,255,0.12)}
 .msg-item{display:flex;gap:12px;padding:12px 0;border-top:1px solid #f1f6f8;align-items:flex-start}
 .msg-item:first-of-type{border-top:0}
 .msg-avatar{width:40px;height:40px;border-radius:50%;object-fit:cover}
@@ -576,10 +577,13 @@
   align-items:flex-start;
   padding:14px 16px;
   margin-bottom:12px;
-  background:#f8f9fa;
   border-radius:10px;
-  box-shadow: none;
-  border:1px solid #f1f6f8;
+  box-shadow: inset 0 0 0 1px #E5E5E5,0 4px 8px -5px rgba(0,0,0,0.15);
+}
+
+.dark-root .loads .load-item{
+  background: transparent;
+  box-shadow: 0 0 0 1px #353535, 0 4px 8px -5px rgba(255,255,255,0.12)!important;
 }
 .loads .load-item:first-of-type{margin-top:6px}
 .load-route{
@@ -599,74 +603,47 @@
 .driver-count{font-size:44px;font-weight:800;color:#059669;margin:8px 0}
 .drivers .driver-sub{font-size:13px;color:#6b7280;margin-bottom:8px}
 .dark-root .drivers .driver-sub{color:#ffffff}
-.btn.small{padding:8px 12px;font-size:13px;border-radius:8px}
-.green-btn{background:#059669;color:white;border:none}
 
 /* Stronger rule for the green View Candidates button inside the drivers column */
 .market-col.drivers .btn.small.green-btn{
-  background:#059669;
+  background:linear-gradient(#33f4b7 0%, #047451 100%)!important;
   color:#ffffff;
   border:none;
   display:inline-block;
   padding:8px 14px;
-  border-radius:10px;
+  border-radius:100px;
   box-shadow:0 6px 14px rgba(5,102,105,0.08);
+}
+
+.market-col.drivers .btn.small.green-btn:hover{
+  transform:translateY(-2px);
+  filter:brightness(.95);
 }
 
 .offers .offer-item{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-radius:10px;}
 .offers .offer-item + .offer-item{margin-top:12px}
-.offers .offer-item:first-of-type{background:#fef5e6;border:1px solid #fde6c4}
+.offers .offer-item {background: transparent; box-shadow: 0 0 0 1px #E5E5E5,0 4px 8px -5px rgba(0,0,0,0.15);}
+.dark-root .offers .offer-item {background: transparent; box-shadow: 0 0 0 1px #353535, 0 4px 8px -5px rgba(255,255,255,0.12);}
 
-/* Dark-mode: only change the offer item backgrounds and borders (do not change text colors) */
-.dark-root .offers .offer-item:first-of-type{background:#3b3229;border:1px solid rgba(255,255,255,0.04)}
-.dark-root .offers .offer-item:nth-of-type(2){background:#2b3a40;border:1px solid rgba(255,255,255,0.04)}
-.dark-root .offers .offer-left { color: #ffffff !important; }
-
-/* Force any remaining blue/brand text to white in dark mode (targeted) */
-.dark-root .marketplace-snapshot h3,
-.dark-root .loads .load-item .load-route,
-.dark-root .card-header h3,
-.dark-root .card-header h4,
-.dark-root .recent-messages .card-row h3,
-.dark-root .notifications-card .card-row h3,
-.dark-root .expiring-card .card-header h3,
-.dark-root .compliance-card h3,
-.dark-root .fp-header-titles h2,
-.dark-root .fp-header h2,
-.dark-root .market-col .col-title,
-.dark-root .exp-title,
-.dark-root .exp-sub,
 .dark-root .load-route {
-  color: #ffffff !important;
+  color: #ffffff;
 }
-.offers .offer-item:nth-of-type(2){background:#e6f6fd;border:1px solid #d6eff9}
 .offers .offer-left{flex:1;margin-right:12px;color:#0b3240;font-weight:700}
+.dark-root .offers .offer-left{color:#fff}
 .offers .offer-left .muted{margin-top:6px;color:#6b7280;font-weight:500}
 .offers .offer-right{min-width:90px;text-align:right;padding-left:12px}
-.badge{display:inline-block;padding:8px 10px;border-radius:8px;color:white;font-weight:700}
-.badge.small{font-size:13px;padding:6px 8px}
-.badge.orange{background:#f59e0b}
-.badge.blue{background:#0ea4e7}
-
-/* Darker badge variants for dark mode readability */
-.dark-root .badge.orange{background:#b86a09}
-.dark-root .badge.blue{background:#0b7fa8}
-
-/* Make the Suggest Edit icon inherit the surrounding text color so it matches */
-.btn.ghost.small.subtle i{color:inherit !important}
+.badge{display:inline-block;padding:8px 10px;border-radius:100px;color:white;font-weight:700}
+.badge.small{font-size:13px;padding:6px 8px; background: transparent; box-shadow: 0 0 0 1px #E5E5E5,0 4px 8px -5px rgba(0,0,0,0.15);}
+.dark-root .badge.small{background: transparent; box-shadow: 0 0 0 1px #353535, 0 4px 8px -5px rgba(255,255,255,0.12)!important;}
 
 @media (max-width: 900px){
   .market-grid{grid-template-columns:1fr;}
   .drivers{order:2}
 }
 
-.notifications-card li{padding:6px 0}
-.notifications-card li.alert{color:#d66}
-.notifications-card li.info{color:#f59e0b}
-.notifications-card li.success{color:#059669}
-
 .notifications-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:12px}
 .notification-item{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-top:1px solid #f1f6f8}
+.dark-root .notification-item{border-top:1px solid rgba(255,255,255,0.12)}
 .notification-item:first-of-type{border-top:0}
 .note-left{width:26px;display:flex;align-items:flex-start;justify-content:flex-start}
 .note-left .dot{margin-top:15px}
@@ -724,8 +701,8 @@
   .brand-row .ids{display:none}
   .brand-block{display:flex;flex-direction:row;align-items:center;gap:12px;flex:1}
   .logo{font-size:22px}
-  .btn.small{padding:6px 10px;font-size:13px}
-  .chip{padding:6px 10px;font-size:12px}
+  .btn.small-cd{padding:6px 10px;font-size:13px}
+  .chip-cd{padding:6px 10px;font-size:12px}
   .avatar-img{width:32px;height:32px}
   .icons{gap:8px}
   .icons .lang{display:none}
@@ -811,8 +788,8 @@
   .fp-subtitle{font-size:14px}
 
   /* compact topbar items */
-  .btn.small{padding:6px 10px;font-size:13px}
-  .chip{padding:6px 10px;font-size:12px}
+  .btn.small-cd{padding:6px 10px;font-size:13px}
+  .chip-cd{padding:6px 10px;font-size:12px}
   .avatar-img{width:32px;height:32px}
 
   /* ensure icons in topbar are compact */

@@ -171,23 +171,10 @@
   box-shadow: 0 1px 2px rgba(16,30,54,0.04);
 }
 
-.cd-analytics-stats-grid .cd-analytics-stat-card:nth-child(1) .cd-analytics-stat-icon {
-  color: #2563eb;
-}
-.cd-analytics-stats-grid .cd-analytics-stat-card:nth-child(2) .cd-analytics-stat-icon {
-  color: #10b981;
-}
-.cd-analytics-stats-grid .cd-analytics-stat-card:nth-child(3) .cd-analytics-stat-icon {
-  color: #a259e6;
-}
-.cd-analytics-stats-grid .cd-analytics-stat-card:nth-child(4) .cd-analytics-stat-icon {
-  color: #f59e0b;
-}
-.cd-analytics-stats-grid .cd-analytics-stat-card:nth-child(5) .cd-analytics-stat-icon {
-  color: #06b6d4;
-}
-.cd-analytics-stats-grid .cd-analytics-stat-card:nth-child(6) .cd-analytics-stat-icon {
-  color: #ef9444;
+.dark-root .cd-analytics-stat-icon {
+  background: #2c2c2c;
+  color: #f1f5f9;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.2);
 }
 
 .cd-analytics-stat-info {
@@ -247,11 +234,7 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s;
-}
-
-.export-chart-btn:hover {
-  background: #f0f9ff;
-  color: #0284c7;
+  color: #3B57A7;
 }
 
 .chart-placeholder {
@@ -355,12 +338,7 @@
 }
 
 .dark-root .export-chart-btn {
-  color: #60a5fa;
-}
-
-.dark-root .export-chart-btn:hover {
-  background: #1e3a5f;
-  color: #93c5fd;
+  color: #7FA4F6;
 }
 
 .dark-root .chart-placeholder {

@@ -95,7 +95,7 @@ export default function MyLoads() {
             <button className="btn ghost small">List</button>
             <button className="btn ghost small">Map</button> */}
             <input className="ml-search" placeholder="Search loads..." />
-            <button className="btn primary small">+ Add Load</button>
+            <button className="btn small-cd">+ Add Load</button>
           </div>
         </div>
       </div>

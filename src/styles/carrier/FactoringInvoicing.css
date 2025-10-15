@@ -83,8 +83,7 @@
 .metric-card {
   background: #fff;
   border-radius: 12px;
-  border: 1px solid #e5e7eb;
-  box-shadow: 0 1px 4px rgba(16,32,39,0.04);
+  box-shadow:0 0 0 1px #E5E5E5,0 4px 8px -5px rgba(0,0,0,0.15);
   padding: 20px;
   display: flex;
   align-items: center;
@@ -99,29 +98,10 @@
   width: 48px;
   height: 48px;
   border-radius: 12px;
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   flex-shrink: 0;
 }
 
-.metric-icon.blue {
-  background: #e6f0fd;
-  color: #2563eb;
-}
-
-.metric-icon.yellow {
-  background: #fef3c7;
-  color: #f59e0b;
-}
-
-.metric-icon.green {
-  background: #e7f9ef;
-  color: #22c55e;
-}
-
-.metric-icon.purple {
-  background: #f3e8ff;
-  color: #a21caf;
-}
 
 .metric-content {
   display: flex;
@@ -131,7 +111,7 @@
 }
 
 .metric-number {
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   font-weight: 800;
   color: #0b1720;
   line-height: 1;
@@ -171,13 +151,17 @@
 .factoring-search {
   width: 100%;
   padding: 10px 12px 10px 36px;
-  border: 1px solid #e1e8ed;
-  border-radius: 8px;
+  box-shadow:0 0 0 1px #E5E5E5,0 4px 8px -5px rgba(0,0,0,0.15);
+  border-radius: 100px;
   font-size: 14px;
   color: #334155;
   background: #fff;
   transition: border-color 0.2s;
   box-sizing: border-box;
+}
+
+.factoring-search:focus {
+  box-shadow:0 0 0 0.5px #3B57A7,0 4px 8px -5px rgba(0,0,0,0.15)!important;
 }
 
 .factoring-search::placeholder {
@@ -194,10 +178,10 @@
   overflow-x: auto;
 }
 
-.filter-select {
+.filter-selected {
   padding: 10px 12px;
   border: 1px solid #e1e8ed;
-  border-radius: 8px;
+  border-radius: 100px !important;
   font-size: 14px;
   color: #334155;
   background: #fff;
@@ -206,6 +190,10 @@
   width: auto;
   cursor: pointer;
   transition: border-color 0.2s;
+}
+
+.filter-selected:focus{
+  box-shadow:0 0 0 0.5px #3B57A7,0 4px 8px -5px rgba(0,0,0,0.15)!important;
 }
 
 .btn-filter, .btn-refresh {
@@ -228,7 +216,7 @@
 /* Invoices Table */
 .invoices-table-container {
   background: #fff;
-  border: 1px solid #e5e7eb;
+  box-shadow:0 0 0 1px #E5E5E5,0 4px 8px -5px rgba(0,0,0,0.15)!important;
   border-radius: 12px;
   overflow: hidden;
   margin-bottom: 20px;
@@ -298,7 +286,7 @@
   color: #64748b;
 }
 
-.status-badge {
+.cd-in-status-badge {
   padding: 4px 12px;
   border-radius: 16px;
   font-size: 12px;
@@ -307,19 +295,28 @@
   white-space: nowrap;
 }
 
-.status-badge.green {
-  background: #dcfce7;
-  color: #166534;
+.cd-in-status-badge.green {
+background:linear-gradient(#dff7ea, #b4e1d0); color:#0b7f60
 }
 
-.status-badge.yellow {
-  background: #fef3c7;
-  color: #92400e;
+.dark-root .cd-in-status-badge.green {
+background:linear-gradient(rgba(15, 125, 94, 0.795), rgba(13, 110, 82, 0.312)); color:#9fe2c7
 }
 
-.status-badge.red {
-  background: #fee2e2;
-  color: #991b1b;
+.cd-in-status-badge.yellow {
+  background:linear-gradient(#fff4d9, #fce99e); color:#b68100
+}
+
+.dark-root .cd-in-status-badge.yellow {
+background:linear-gradient(rgba(185, 130, 0, 0.762), rgba(185, 129, 0, 0.425)); color:#f6e05e
+}
+
+.cd-in-status-badge.red {
+   background:linear-gradient(#ffe6e6, #ffc9c9); color:#ef4444
+}
+
+.dark-root .cd-in-status-badge.red {
+background:linear-gradient(rgba(239, 68, 68, 0.674),rgba(239, 68, 68, 0.312)); color:#ffb1b1 
 }
 
 .factoring-badge {
@@ -331,12 +328,14 @@
 }
 
 .factoring-badge.yes {
-  background: #dbeafe;
-  color: #1d4ed8;
+  color: #3B57A7;
+}
+
+.dark-root .factoring-badge.yes {
+  color: #7FA4F6; 
 }
 
 .factoring-badge.no {
-  background: #f1f5f9;
   color: #64748b;
 }
 
@@ -412,7 +411,7 @@
 
 .btn-page {
   padding: 8px 12px;
-  border: 1px solid #e5e7eb;
+  box-shadow:0 0 0 1px #E5E5E5,0 4px 8px -5px rgba(0,0,0,0.15);
   border-radius: 6px;
   background: #fff;
   color: #64748b;
@@ -423,12 +422,11 @@
 
 .btn-page:hover:not(:disabled) {
   background: #f8fafc;
-  border-color: #cbd5e1;
+  box-shadow:0 0 0 1px #E5E5E5,0 4px 8px -5px rgba(0,0,0,0.15);color: #64748b;
 }
 
 .btn-page.active {
-  background: #0ea5e9;
-  border-color: #0ea5e9;
+  background: linear-gradient(#7FA4F6 0%, #3B57A7 100%);
   color: #fff;
 }
 
@@ -440,7 +438,7 @@
 /* Cash Forecast */
 .cash-forecast {
   background: #fff;
-  border: 1px solid #e5e7eb;
+  box-shadow:0 0 0 1px #E5E5E5,0 4px 8px -5px rgba(0,0,0,0.15)!important;
   border-radius: 12px;
   padding: 24px;
   box-shadow: 0 1px 4px rgba(16,32,39,0.04);
@@ -477,14 +475,6 @@
 
 .forecast-amount.green {
   color: #22c55e;
-}
-
-.forecast-amount.blue {
-  color: #2563eb;
-}
-
-.forecast-amount.red {
-  color: #ef4444;
 }
 
 /* Dark Mode Styles */
@@ -524,7 +514,7 @@
 
 .dark-root .metric-card {
   background: #2c2c2c;
-  border-color: rgba(255,255,255,0.04);
+  box-shadow: 0 0 0 1px #353535, 0 4px 8px -5px rgba(255,255,255,0.12);
 }
 
 .dark-root .metric-number {
@@ -537,7 +527,7 @@
 
 .dark-root .factoring-search {
   background: rgba(255,255,255,0.02);
-  border-color: rgba(255,255,255,0.04);
+  box-shadow: 0 0 0 1px #353535, 0 4px 8px -5px rgba(255,255,255,0.12);
   color: #d1d7db;
 }
 
@@ -545,7 +535,7 @@
   color: #9ea9ad;
 }
 
-.dark-root .filter-select {
+.dark-root .filter-selected {
   background: rgba(255,255,255,0.02);
   border-color: rgba(255,255,255,0.04);
   color: #d1d7db;
@@ -566,7 +556,7 @@
 
 .dark-root .invoices-table-container {
   background: #2c2c2c;
-  border-color: rgba(255,255,255,0.04);
+  box-shadow: 0 0 0 1px #353535, 0 4px 8px -5px rgba(255,255,255,0.12)!important;
 }
 
 .dark-root .invoices-table thead {
@@ -619,13 +609,7 @@
 
 .dark-root .btn-page:hover:not(:disabled) {
   background: rgba(255,255,255,0.05);
-  border-color: rgba(255,255,255,0.1);
-}
-
-.dark-root .btn-page.active {
-  background: #0ea5e9;
-  border-color: #0ea5e9;
-  color: #fff;
+  box-shadow: 0 0 0 1px #353535, 0 4px 8px -5px rgba(255,255,255,0.12);
 }
 
 .dark-root .table-info {
@@ -634,7 +618,7 @@
 
 .dark-root .cash-forecast {
   background: #2c2c2c;
-  border-color: rgba(255,255,255,0.04);
+  box-shadow: 0 0 0 1px #353535, 0 4px 8px -5px rgba(255,255,255,0.12)!important;
 }
 
 .dark-root .cash-forecast h3 {
@@ -686,14 +670,15 @@
     font-size: 1.25rem;
   }
   .metric-number {
-    font-size: 1.2rem;
+    font-size: 1rem;
   }
   .factoring-controls {
-    flex-direction: row;
+    display: flex;
+    flex-direction: column!important;
     gap: 12px;
   }
   .search-container {
-    max-width: none;
+    max-width: 100%;
   }
   .factoring-filters-container {
     justify-content: flex-start;
@@ -763,7 +748,7 @@
     align-items: flex-start;
     flex-wrap: wrap;
   }
-  .filter-select {
+  .filter-selected {
     min-width: auto;
   }
   .cash-forecast {

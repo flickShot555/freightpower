@@ -94,11 +94,11 @@ const DriversAndDispatches = () => {
           <p className="drivers-subtitle">Manage your drivers and dispatch operations</p>
         </div>
         <div className="drivers-actions">
-          <button className="btn-add-driver">
+          <button className="btn small-cd">
             <i className="fas fa-plus"></i>
             Add Driver
           </button>
-          <button className="btn-export">
+          <button className="btn small ghost-cd">
             <i className="fas fa-download"></i>
             Export
           </button>
@@ -124,7 +124,6 @@ const DriversAndDispatches = () => {
             className={`driver-tab ${activeTab === 'app' ? 'active' : ''}`}
             onClick={() => setActiveTab('app')}
           >
-            Driver App
           </button>
         </div>
       </div>
@@ -146,7 +145,7 @@ const DriversAndDispatches = () => {
             </div>
             <div className="filters-container">
               <select
-                className="filter-select"
+                className="driver-dd-filter-select"
                 value={cdlFilter}
                 onChange={(e) => setCdlFilter(e.target.value)}
               >
@@ -156,7 +155,7 @@ const DriversAndDispatches = () => {
                 <option>CDL Class C</option>
               </select>
               <select
-                className="filter-select"
+                className="driver-dd-filter-select"
                 value={availabilityFilter}
                 onChange={(e) => setAvailabilityFilter(e.target.value)}
               >
@@ -166,7 +165,7 @@ const DriversAndDispatches = () => {
                 <option>Off Duty</option>
               </select>
               <select
-                className="filter-select"
+                className="driver-dd-filter-select"
                 value={locationFilter}
                 onChange={(e) => setLocationFilter(e.target.value)}
               >
@@ -220,17 +219,17 @@ const DriversAndDispatches = () => {
                 <div className="driver-actions">
                   <div className="icon-row">
                     {driver.assignLoad && (
-                    <button className="btn-assign-load">
+                    <button className="btn small-cd" style={{width: "100%"}}>
                       Assign Load
                     </button>
                   )}
                     {driver.onRoute && (
-                      <button className="btn-on-route" title="On Route">
+                      <button className="btn small ghost-cd btn-on-route" title="On Route">
                         On Route
                       </button>
                     )}
                     {driver.offDuty && (
-                      <button className="btn-update-dock" title="Update Dock">
+                      <button className="btn small ghost-cd btn-update-dock" title="Update Dock">
                         Off Duty
                       </button>
                     )}
@@ -344,7 +343,7 @@ const DriversAndDispatches = () => {
             <div className="live-tracking-map">
               <div className="live-tracking-header" style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'12px'}}>
                 <h3 style={{margin:0}}><h3>Live Tracking Map</h3></h3>
-                <button className="btn-fullscreen"><i className="fas fa-expand"></i> Fullscreen</button>
+                <button className="btn small ghost-cd"><i className="fas fa-expand"></i> Fullscreen</button>
               </div>
               <div className="map-legend">
                   <span><span className="legend-dot available"></span>Available</span>
@@ -369,8 +368,8 @@ const DriversAndDispatches = () => {
                 <div className="load-assignment-header-row">
                   <h3 className="load-assignment-title">Load Assignment & Control</h3>
                   <div className="load-assignment-actions">
-                    <button className="btn-quick-assign"><i className="fas fa-plus"></i> Quick Assign</button>
-                    <button className="btn-reassign-load"><i className="fas fa-random"></i> Reassign Load</button>
+                    <button className="btn small-cd"><i className="fas fa-plus"></i> Quick Assign</button>
+                    <button className="btn small ghost-cd"><i className="fas fa-random"></i> Reassign Load</button>
                   </div>
                 </div>
                 <div className="load-assignment-content">
@@ -409,32 +408,32 @@ const DriversAndDispatches = () => {
                     <div className="exception-handling-title">Exception Handling</div>
                     <div className="exception-card red">
                       <div className="exception-card-header">
-                        <span className="exception-icon"><i className="fas fa-triangle-exclamation" style={{color:'#ef4444'}}></i></span> <span style={{color:'#ef4444',fontWeight:700}}>HOS Violation Alert</span> <span className="exception-time">2 min ago</span>
+                        <span className="exception-icon"><i className="fas fa-triangle-exclamation" ></i></span> <span>HOS Violation Alert</span> <span className="exception-time">2 min ago</span>
                       </div>
                       <div className="exception-desc">Robert Johnson approaching 14-hour limit on Load #LD-5021</div>
                       <div className="exception-actions">
-                        <button className="btn-force-rest">Force Rest</button>
-                        <button className="btn-reassign">Reassign Load</button>
+                        <button className="btn small-cd">Force Rest</button>
+                        <button className="btn small ghost-cd">Reassign Load</button>
                       </div>
                     </div>
                     <div className="exception-card yellow">
                       <div className="exception-card-header">
-                        <span className="exception-icon"><i className="fas fa-triangle-exclamation" style={{color:'#f59e0b'}}></i></span> <span style={{color:'#f59e0b',fontWeight:700}}>Detention Report</span> <span className="exception-time">15 min ago</span>
+                        <span className="exception-icon"><i className="fas fa-triangle-exclamation" ></i></span> <span >Detention Report</span> <span className="exception-time">15 min ago</span>
                       </div>
                       <div className="exception-desc">James Wilson delayed 3+ hours at delivery - Load #LD-4892</div>
                       <div className="exception-actions">
-                        <button className="btn-log">Log Detention</button>
-                        <button className="btn-contact">Contact Customer</button>
+                        <button className="btn small-cd">Log Detention</button>
+                        <button className="btn small ghost-cd">Contact Customer</button>
                       </div>
                     </div>
                     <div className="exception-card blue">
                       <div className="exception-card-header">
-                        <span className="exception-icon"><i className="fas fa-screwdriver-wrench" style={{color:'#2563eb'}}></i></span> <span style={{color:'#2563eb',fontWeight:700}}>Maintenance Alert</span> <span className="exception-time">1 hour ago</span>
+                        <span className="exception-icon"><i className="fas fa-screwdriver-wrench"></i></span> <span>Maintenance Alert</span> <span className="exception-time">1 hour ago</span>
                       </div>
                       <div className="exception-desc">Truck TX-2847 due for inspection in 500 miles</div>
                       <div className="exception-actions">
-                        <button className="btn-maintenance">Schedule Service</button>
-                        <button className="btn-view-details">View Details</button>
+                        <button className="btn small-cd">Schedule Service</button>
+                        <button className="btn small ghost-cd">View Details</button>
                       </div>
                     </div>
                   </div>
@@ -446,65 +445,65 @@ const DriversAndDispatches = () => {
           {/* Recent Dispatch Activity */}
           {/* Stat Cards Row */}
           <div className="dispatch-metrics">
-            <div className="stat-card">
+            <div className="dispatch-stat-card">
               <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',width:'100%'}}>
                 <div>
-                  <div className="stat-num">24</div>
-                  <div className="stat-label">Active Drivers</div>
+                  <div className="dispatch-stat-num">24</div>
+                  <div className="dispatch-stat-label">Active Drivers</div>
                 </div>
-                <div className="stat-icon green">
+                <div className="dispatch-stat-icon green">
                   <i className="fas fa-users"></i>
                 </div>
               </div>
-              <div className="stat-sub green"><i className="fas fa-arrow-up" style={{marginRight:'4px'}}></i>+2 from yesterday</div>
+              <div className="dispatch-stat-sub green"><i className="fas fa-arrow-up" style={{marginRight:'4px'}}></i>+2 from yesterday</div>
             </div>
-            <div className="stat-card">
+            <div className="dispatch-stat-card">
               <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',width:'100%'}}>
                 <div>
-                  <div className="stat-num">8</div>
-                  <div className="stat-label">Available</div>
+                  <div className="dispatch-stat-num">8</div>
+                  <div className="dispatch-stat-label">Available</div>
                 </div>
-                <div className="stat-icon blue">
+                <div className="dispatch-stat-icon blue">
                   <i className="fas fa-user"></i>
                 </div>
               </div>
-              <div className="stat-sub blue">Ready for assignment</div>
+              <div className="dispatch-stat-sub blue">Ready for assignment</div>
             </div>
-            <div className="stat-card">
+            <div className="dispatch-stat-card">
               <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',width:'100%'}}>
                 <div>
-                  <div className="stat-num">15</div>
-                  <div className="stat-label">Active Loads</div>
+                  <div className="dispatch-stat-num">15</div>
+                  <div className="dispatch-stat-label">Active Loads</div>
                 </div>
-                <div className="stat-icon purple">
+                <div className="dispatch-stat-icon purple">
                   <i className="fas fa-box"></i>
                 </div>
               </div>
-              <div className="stat-sub purple">3 pending assignment</div>
+              <div className="dispatch-stat-sub purple">3 pending assignment</div>
             </div>
-            <div className="stat-card">
+            <div className="dispatch-stat-card">
               <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',width:'100%'}}>
                 <div>
-                  <div className="stat-num">96%</div>
-                  <div className="stat-label">On-Time Rate</div>
+                  <div className="dispatch-stat-num">96%</div>
+                  <div className="dispatch-stat-label">On-Time Rate</div>
                 </div>
-                <div className="stat-icon green">
+                <div className="dispatch-stat-icon green">
                   <i className="fas fa-clock"></i>
                 </div>
               </div>
-              <div className="stat-sub green"><i className="fas fa-arrow-up" style={{marginRight:'4px'}}></i>+2.5% this week</div>
+              <div className="dispatch-stat-sub green"><i className="fas fa-arrow-up" style={{marginRight:'4px'}}></i>+2.5% this week</div>
             </div>
-            <div className="stat-card">
+            <div className="dispatch-stat-card">
               <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',width:'100%'}}>
                 <div>
-                  <div className="stat-num">3</div>
-                  <div className="stat-label">Active Alerts</div>
+                  <div className="dispatch-stat-num">3</div>
+                  <div className="dispatch-stat-label">Active Alerts</div>
                 </div>
-                <div className="stat-icon red">
+                <div className="dispatch-stat-icon red">
                   <i className="fas fa-triangle-exclamation"></i>
                 </div>
               </div>
-              <div className="stat-sub red">1 critical, 2 warnings</div>
+              <div className="dispatch-stat-sub red">1 critical, 2 warnings</div>
             </div>
           </div>
           <div className="dispatch-section recent-activity">
@@ -513,18 +512,18 @@ const DriversAndDispatches = () => {
               <button className="btn-view-all">View All Activity</button>
             </h3>
             <div className="activity-list">
-              <div className="activity-item">
+              <div className="dispatch-activity-item">
                 <span className="activity-icon check">
                   <i className="fas fa-check-circle"></i>
                 </span>
                 <div className="activity-content">
                     <div>
-                      <span style={{fontWeight:600}}>Mike Rodriguez</span> assigned to Load <a href="#" style={{color:'#2563eb',textDecoration:'underline'}}>#LD-7834</a>
+                      <span style={{fontWeight:600}}>Mike Rodriguez</span> assigned to Load <a href="#" style={{textDecoration:'underline'}}>#LD-7834</a>
                     </div>
                     <div className="activity-meta">2 minutes ago by John Mitchell</div>
                 </div>
               </div>
-              <div className="activity-item">
+              <div className="dispatch-activity-item">
                 <span className="activity-icon warning">
                   <i className="fas fa-exclamation-circle"></i>
                 </span>
@@ -535,18 +534,18 @@ const DriversAndDispatches = () => {
                     <div className="activity-meta">15 minutes ago</div>
                 </div>
               </div>
-              <div className="activity-item">
+              <div className="dispatch-activity-item">
                 <span className="activity-icon exchange">
                   <i className="fas fa-exchange-alt"></i>
                 </span>
                 <div className="activity-content">
                     <div>
-                      Load <a href="#" style={{color:'#2563eb',textDecoration:'underline'}}>#LD-4892</a> reassigned from <span style={{fontWeight:600}}>David Thompson</span> to <span style={{fontWeight:600}}>Sarah Chen</span>
+                      Load <a href="#" style={{textDecoration:'underline'}}>#LD-4892</a> reassigned from <span style={{fontWeight:600}}>David Thompson</span> to <span style={{fontWeight:600}}>Sarah Chen</span>
                     </div>
                     <div className="activity-meta">1 hour ago by John Mitchell</div>
                 </div>
               </div>
-              <div className="activity-item">
+              <div className="dispatch-activity-item">
                 <span className="activity-icon alert">
                   <i className="fas fa-exclamation-triangle"></i>
                 </span>
@@ -557,29 +556,18 @@ const DriversAndDispatches = () => {
                     <div className="activity-meta">2 hours ago</div>
                 </div>
               </div>
-              <div className="activity-item">
+              <div className="dispatch-activity-item">
                 <span className="activity-icon location">
                   <i className="fas fa-map-marker-alt"></i>
                 </span>
                 <div className="activity-content">
                     <div>
-                      <span style={{fontWeight:600}}>Sarah Chen</span> completed delivery for Load <a href="#" style={{color:'#2563eb',textDecoration:'underline'}}>#LD-7801</a>
+                      <span style={{fontWeight:600}}>Sarah Chen</span> completed delivery for Load <a href="#" style={{textDecoration:'underline'}}>#LD-7801</a>
                     </div>
                     <div className="activity-meta">3 hours ago</div>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* Driver App Tab Content */}
-      {activeTab === 'app' && (
-        <div className="driver-app-section">
-          <div className="app-placeholder">
-            <i className="fas fa-mobile-alt"></i>
-            <h3>Driver Mobile App</h3>
-            <p>Driver app functionality coming soon...</p>
           </div>
         </div>
       )}

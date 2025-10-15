@@ -1,18 +1,6 @@
-/* Distinct dark backgrounds for notification types in dark mode */
-.dark-root .alert-notification-card[data-type="Compliance"] {
-  background: #2a2326 !important;
-}
-.dark-root .alert-notification-card[data-type="Loads"] {
-  background: #202a36 !important;
-}
-.dark-root .alert-notification-card[data-type="Finance"] {
-  background: #1d2a22 !important;
-}
-.dark-root .alert-notification-card[data-type="Driver/Dispatch"] {
-  background: #29291d !important;
-}
-.dark-root .alert-notification-card[data-type="System"] {
-  background: #241f2a !important;
+.dark-root .alert-notification-card{
+  background: #2c2c2c !important;;
+  border-color:#353535;
 }
 .dark-root .alert-header .alert-header-content h1 {
     color: #fff;
@@ -42,11 +30,11 @@
   }
 
   .dark-root .alert-tab-btn.active, .dark-root .alert-tab-btn:hover {
-    color: #60a5fa;
+    color: #7FA4F6;
   }
 
   .dark-root .alert-tab-btn.active {
-    border-bottom-color: #60a5fa;
+    border-bottom-color: #7FA4F6;
   }
 
   .dark-root .alert-search-box input, .dark-root .alert-filter-select {
@@ -59,16 +47,11 @@
   }
 
   .dark-root .alert-search-box input:focus {
-    border-color: #60a5fa;
+    border-color: #7FA4F6;
   }
 
   .dark-root .alert-search-box i {
     color: #64748b;
-  }
-
-  .dark-root .alert-notification-card {
-    background: #1e293b;
-    border-color: #334155;
   }
 
   .dark-root .alert-notification-card:hover {
@@ -93,15 +76,10 @@
     color: #0f172a;
   }
 
-  .dark-root .alert-load-more-btn, .dark-root .alert-settings-tab {
+   .dark-root .alert-settings-tab {
     background: #1e293b;
     border-color: #334155;
     color: #e2e8f0;
-  }
-
-  .dark-root .alert-load-more-btn:hover {
-    background: #334155;
-    border-color: #475569;
   }
 
   .dark-root .alert-no-notifications {
@@ -187,7 +165,7 @@
 }
 
 .alert-tab-btn.active {
-  color: #0ea5e9;
+  color: #3B57A7;
 }
 
 .alert-tab-btn.active::after {
@@ -196,13 +174,13 @@
   left: 0;
   right: 0;
   height: 2px;
-  background: #0ea5e9;
+  background: #3B57A7;
   border-radius: 2px;
   bottom: -6px;
 }
 
 .alert-tab-btn:hover {
-  color: #0ea5e9;
+  color: #3B57A7;
 }
 
 /* Responsive: match Marketplace responsive tab sizing */
@@ -255,7 +233,7 @@
   width: 100%;
   padding: 12px 14px 12px 44px;
   border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  border-radius: 100px;
   font-size: 14px;
   color: #1e293b;
   background: #fff;
@@ -276,7 +254,7 @@
 .alert-filter-select {
   padding: 10px 14px;
   border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  border-radius: 100px;
   font-size: 14px;
   color: #1e293b;
   background: #fff;
@@ -285,21 +263,8 @@
   min-width: 140px;
 }
 
-.alert-mark-all-read-btn {
-  padding: 10px 16px;
-  background: #2563eb;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s;
-  white-space: nowrap;
-}
-
-.alert-mark-all-read-btn:hover {
-  background: #1d4ed8;
+.alert-filter-select:focus {
+  border-color: #3B57A7;
 }
 
 /* Notifications Container */
@@ -312,7 +277,6 @@
 .alert-notification-card {
   background: #fff;
   border: 1px solid #e2e8f0;
-  border-left: 4px solid #e2e8f0;
   border-radius: 12px;
   padding: 20px 24px;
   transition: all 0.15s;
@@ -323,11 +287,6 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   transform: translateY(-1px);
 }
-
-.alert-notification-card.unread {
-  border-left-width: 4px;
-}
-
 .alert-notification-header {
   display: flex;
   align-items: center;
@@ -362,29 +321,36 @@
   letter-spacing: 0.3px;
 }
 
-.alert-priority-critical {
-  background: #fecaca;
-  color: #dc2626;
+.alert-priority-badge {
+background:linear-gradient(#ffe6e6, #ffc9c9); color:#ef4444
 }
 
-.alert-priority-warning {
-  background: #fed7aa;
-  color: #ea580c;
+.dark-root .alert-priority-badge {
+background:linear-gradient(rgba(239, 68, 68, 0.674),rgba(239, 68, 68, 0.312)); color:#ffb1b1
 }
+
+.alert-priority-warning, .alert-priority-update {
+background:linear-gradient(#fff4d9, #fce99e); color:#b68100
+}
+
+.dark-root .alert-priority-warning, .dark-root .alert-priority-update {
+  background:linear-gradient(rgba(185, 130, 0, 0.762), rgba(185, 129, 0, 0.425)); color:#f6e05e}
 
 .alert-priority-success {
-  background: #bbf7d0;
-  color: #16a34a;
+background:linear-gradient(#dff7ea, #b4e1d0); color:#0b7f60
 }
+
+.dark-root .alert-priority-success {
+  background:linear-gradient(rgba(15, 125, 94, 0.795), rgba(13, 110, 82, 0.312)); color:#9fe2c7}
 
 .alert-priority-info {
-  background: #bfdbfe;
-  color: #2563eb;
+  background: #f3f3f3;
+  color: #000;
 }
 
-.alert-priority-update {
-  background: #d8b4fe;
-  color: #7c3aed;
+.dark-root .alert-priority-info {
+  background: #3d3e40;
+  color: #cbd5e1;
 }
 
 .alert-notification-time {
@@ -465,23 +431,6 @@
   margin-top: 32px;
 }
 
-.alert-load-more-btn {
-  padding: 12px 24px;
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  color: #475569;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.alert-load-more-btn:hover {
-  background: #f1f5f9;
-  border-color: #cbd5e1;
-}
-
 /* Settings Content */
 .alert-settings-content {
   display: flex;
@@ -526,11 +475,6 @@
   transition: all 0.15s;
 }
 
-.alert-category-item:hover {
-  border-color: #e2e8f0;
-  background: #f8fafc;
-}
-
 .alert-category-info {
   display: flex;
   align-items: center;
@@ -545,27 +489,6 @@
   align-items: center;
   justify-content: center;
   font-size: 16px;
-  color: #fff;
-}
-
-.alert-category-icon.loads {
-  background: #3b82f6;
-}
-
-.alert-category-icon.compliance {
-  background: #10b981;
-}
-
-.alert-category-icon.finance {
-  background: #f59e0b;
-}
-
-.alert-category-icon.dispatch {
-  background: #8b5cf6;
-}
-
-.alert-category-icon.system {
-  background: #ef4444;
 }
 
 .alert-category-details h4 {
@@ -620,7 +543,7 @@
 }
 
 input:checked + .alert-slider {
-  background-color: #2563eb;
+  background: linear-gradient(#7FA4F6 0%, #3B57A7 100%);;
 }
 
 input:checked + .alert-slider:before {
@@ -639,7 +562,7 @@ input:checked + .alert-slider:before {
 
 .alert-delivery-header {
   display: contents;
-}
+} 
 
 .alert-delivery-header > div {
   background: #f8fafc;
@@ -919,11 +842,6 @@ input:checked + .alert-slider:before {
   background: #2c2c2c;
 }
 
-.dark-root .alert-category-item:hover {
-  border-color: #3d3e40;
-  background: #334155;
-}
-
 .dark-root .alert-category-details h4 {
   color: #f1f5f9;
 }
@@ -996,7 +914,7 @@ input:checked + .alert-slider:before {
 }
 
 .dark-root .alert-app-settings-note {
-  background: #334155;
+  background: #353535;
 }
 
 .dark-root .alert-note-content i {
@@ -1106,11 +1024,6 @@ input:checked + .alert-slider:before {
   .alert-filter-select {
     min-width: 100px;
     font-size: 13px;
-  }
-
-  .alert-mark-all-read-btn {
-    width: 100%;
-    margin-top: 8px;
   }
 
   .alert-notification-meta {

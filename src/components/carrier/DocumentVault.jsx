@@ -21,7 +21,7 @@ const docs = [
 ];
 
 function StatusBadge({ status }) {
-  const cls = status === 'Valid' ? 'badge green' : status === 'Expired' ? 'badge red' : 'badge yellow';
+  const cls = status === 'Valid' ? 'cd-badge green' : status === 'Expired' ? 'cd-badge red' : 'cd-badge yellow';
   return <span className={cls}>{status}</span>;
 }
 
@@ -101,8 +101,8 @@ export default function DocumentVault() {
         <div className="dv-toprow">
           <div className="dv-breadcrumb">Document Vault <span className="muted">/ All Documents</span></div>
           <div className="dv-actions">
-            <button className="btn blue small">Upload Documents</button>
-            <button className="btn ghost small">Bulk Download</button>
+            <button className="btn small-cd">Upload Documents</button>
+            <button className="btn small ghost-cd">Bulk Download</button>
           </div>
         </div>        
 
@@ -118,7 +118,7 @@ export default function DocumentVault() {
           <table className="dv-table">
             <thead>
               <tr>
-                <th className="c-check"><input type="checkbox" /></th>
+
                 <th>File name</th>
                 <th>Type</th>
                 <th>Expiry date</th>
@@ -130,7 +130,6 @@ export default function DocumentVault() {
             <tbody>
               {docs.map((d) => (
                 <tr key={d.name}>
-                  <td className="c-check"><input type="checkbox" /></td>
                   <td className="file-name">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z" fill="#E74C3C"/></svg>
                     <span>{d.name}</span>

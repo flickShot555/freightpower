@@ -113,11 +113,11 @@ export default function Calendar() {
           <h1>Calendar</h1>
         </div>
         <div className="calendar-actions">
-          <button className="sync-btn">
+          <button className="btn small ghost-cd">
             <i className="fa-solid fa-arrows-rotate"></i>
             Sync External
           </button>
-          <button className="add-event-btn">
+          <button className="btn small-cd">
             <i className="fa-solid fa-plus"></i>
             Add Event
           </button>
@@ -137,7 +137,7 @@ export default function Calendar() {
             <i className="fa-solid fa-chevron-right"></i>
           </button>
         </div>
-        <button className="today-btn" onClick={goToToday}>Today</button>
+        <button className="btn small ghost-cd" onClick={goToToday}>Today</button>
       </div>
 
       {/* Legend */}
@@ -183,7 +183,6 @@ export default function Calendar() {
                         <div 
                           key={event.id} 
                           className={`event event-${event.type}`}
-                          style={{ backgroundColor: event.color }}
                         >
                           <div className="event-title">{event.title}</div>
                           <div className="event-subtitle">{event.subtitle}</div>
@@ -200,45 +199,45 @@ export default function Calendar() {
 
       {/* Bottom Statistics */}
       <div className="calendar-stats">
-        <div className="stat-card">
-          <div className="stat-icon loads">
+        <div className="cal-stat-card">
+          <div className="cal-stat-icon loads">
             <i className="fa-solid fa-truck"></i>
           </div>
-          <div className="stat-info">
-            <div className="stat-label">This Month</div>
-            <div className="stat-number">{activeLoads}</div>
-            <div className="stat-sublabel">Active Loads</div>
+          <div className="cal-stat-info">
+            <div className="cal-stat-label">This Month</div>
+            <div className="cal-stat-number">{activeLoads}</div>
+            <div className="cal-stat-sublabel">Active Loads</div>
           </div>
         </div>
-        
-        <div className="stat-card">
-          <div className="stat-icon compliance">
+
+        <div className="cal-stat-card">
+          <div className="cal-stat-icon compliance">
             <i className="fa-solid fa-triangle-exclamation"></i>
           </div>
-          <div className="stat-info">
-            <div className="stat-label">Upcoming</div>
-            <div className="stat-number">{complianceItems}</div>
-            <div className="stat-sublabel">Compliance Due</div>
+          <div className="cal-stat-info">
+            <div className="cal-stat-label">Upcoming</div>
+            <div className="cal-stat-number">{complianceItems}</div>
+            <div className="cal-stat-sublabel">Compliance Due</div>
           </div>
         </div>
-        
-        <div className="stat-card">
-          <div className="stat-icon revenue">
+
+        <div className="cal-stat-card">
+          <div className="cal-stat-icon revenue">
             <i className="fa-solid fa-dollar-sign"></i>
           </div>
-          <div className="stat-info">
-            <div className="stat-label">This Week</div>
-            <div className="stat-number">{thisWeekRevenue}</div>
-            <div className="stat-sublabel">Revenue</div>
+          <div className="cal-stat-info">
+            <div className="cal-stat-label">This Week</div>
+            <div className="cal-stat-number">{thisWeekRevenue}</div>
+            <div className="cal-stat-sublabel">Revenue</div>
           </div>
         </div>
-        
-        <div className="stat-card">
-          <div className="stat-icon sync">
+
+        <div className="cal-stat-card">
+          <div className="cal-stat-icon sync">
             <i className="fa-solid fa-check"></i>
           </div>
-          <div className="stat-info">
-            <div className="stat-label">Sync Status</div>
+          <div className="cal-stat-info">
+            <div className="cal-stat-label">Sync Status</div>
             <div className="sync-status">Google Connected</div>
           </div>
         </div>

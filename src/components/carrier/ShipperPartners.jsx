@@ -1,5 +1,16 @@
 import React, { useState } from 'react'
 import '../../styles/carrier/ShipperPartners.css'
+// Use public placeholder user avatars instead of onboarding images
+const avatarUrls = [
+  'https://i.pravatar.cc/80?img=12',
+  'https://i.pravatar.cc/80?img=32',
+  'https://i.pravatar.cc/80?img=45',
+  'https://i.pravatar.cc/80?img=56',
+  'https://i.pravatar.cc/80?img=14',
+  'https://i.pravatar.cc/80?img=21',
+  'https://i.pravatar.cc/80?img=36',
+  'https://i.pravatar.cc/80?img=8'
+]
 
 export default function ShipperPartners(){
   const [query, setQuery] = useState('')
@@ -27,7 +38,7 @@ export default function ShipperPartners(){
 
   // Mock documents for Document History tab
   const documents = [
-    { id: 401, title: 'Proof of Delivery - Load #FP2024-0892', type: 'pod', status: 'Signed', uploaded: 'Today, 2:34 PM', by: 'Sarah Johnson (Swift Logistics)', size: '2.4 MB', icon: 'fa-file-check' },
+    { id: 401, title: 'Proof of Delivery - Load #FP2024-0892', type: 'pod', status: 'Signed', uploaded: 'Today, 2:34 PM', by: 'Sarah Johnson (Swift Logistics)', size: '2.4 MB', icon: 'fa-file' },
     { id: 402, title: 'Rate Confirmation - Load #FP2024-0892', type: 'rate', status: 'Pending Signature', uploaded: 'Yesterday, 4:12 PM', by: 'Mike Chan (FreightPower AI)', size: '1.8 MB', icon: 'fa-file-invoice-dollar' },
     { id: 403, title: 'Bill of Lading - Load #FP2024-0892', type: 'bol', status: 'Signed', uploaded: '2 days ago, 10:45 AM', by: 'David Wilson (Swift Logistics)', size: '3.1 MB', icon: 'fa-file-text' },
     { id: 404, title: 'Insurance Certificate', type: 'insurance', status: 'Expires in 15 days', uploaded: '1 week ago', by: 'John Wilson (FreightPower AI)', size: '1.2 MB', icon: 'fa-shield-alt' },
@@ -73,7 +84,9 @@ export default function ShipperPartners(){
     filtered.map(p => (
       <div className="list-row" key={p.id}>
         <div className="col partner">
-          <div className="avatar" />
+          <div className="avatar">
+            <img src={avatarUrls[p.id % avatarUrls.length]} alt={`${p.name} avatar`} />
+          </div>
           <div>
             <div className="name">{p.name} <span className="mc">{p.mc}</span></div>
           </div>
@@ -132,7 +145,7 @@ export default function ShipperPartners(){
           <p className="fp-subtitle">Manage partnerships, scorecards, and document exchanges</p>
         </div>
         <div>
-          <button className="btn add">+ Add Partner</button>
+          <button className="btn small-cd">+ Add Partner</button>
         </div>
       </header>
 
@@ -244,7 +257,9 @@ export default function ShipperPartners(){
                 <div className="fav-card card" key={p.id}>
                   <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start'}}>
                     <div className="fav-card-left">
-                      <div className="avatar square"><i className="fa-solid fa-truck-file" style={{color:'#fff'}}/></div>
+                      <div className="avatar square">
+                        <img src={avatarUrls[p.id % avatarUrls.length]} alt={`${p.name} avatar`} />
+                      </div>
                       <div>
                         <div className="fav-title">{p.name}</div>
                         <div className="fav-sub muted">{p.mc}</div>
@@ -272,8 +287,8 @@ export default function ShipperPartners(){
                   </div>
 
                   <div className="fav-actions">
-                    <button className="btn small primary full">Message</button>
-                    <button className="btn ghost small full">Invite</button>
+                    <button className="btn small-cd" style={{width: '100%'}}>Message</button>
+                  <button className="btn small ghost-cd" style={{width: '100%'}}>Invite</button>
                   </div>
                 </div>
               ))}
@@ -313,8 +328,8 @@ export default function ShipperPartners(){
               <option>South</option>
             </select>
             <div className="inv-actions">
-              <button className="icon-btn" aria-label="filters"><i className="fa-solid fa-sliders" /></button>
-              <button className="icon-btn" aria-label="sort"><i className="fa-solid fa-arrow-up-wide-short" /></button>
+              <button className="icon-btnn" aria-label="filters"><i className="fa-solid fa-sliders" /></button>
+              <button className="icon-btnn" aria-label="sort"><i className="fa-solid fa-arrow-up-wide-short" /></button>
             </div>
           </div>
 
@@ -322,8 +337,8 @@ export default function ShipperPartners(){
             <div className="invite-card card" key={inv.id} data-type={inviteTab === 'incoming' ? 'incoming' : 'request'}>
               <div className="invite-row" style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',gap:12}}>
                 <div style={{display:'flex',alignItems:'center',gap:12}}>
-                  <div className="avatar square" style={{width:48,height:48,borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center'}}>
-                    <i className="fa-solid fa-briefcase" style={{color:'#fff'}} />
+                  <div className="avatar square" style={{width:48,height:48,borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center',overflow:'hidden'}}>
+                    <img src={avatarUrls[inv.id % avatarUrls.length]} alt={`${inv.name} avatar`} style={{width:'100%',height:'100%',objectFit:'cover'}} />
                   </div>
                   <div>
                     <div style={{display:'flex',alignItems:'center',gap:10}}>
@@ -345,15 +360,15 @@ export default function ShipperPartners(){
                   <div className="invite-action-desktop" style={{gap:8}}>
                     {inviteTab === 'incoming' ? (
                       <>
-                        <button className="btn">View Profile</button>
-                        <button className="btn ghost" style={{borderColor:'#fdecea',color:'#ef4444'}}>Decline</button>
-                        <button className="btn small green-btn">Accept</button>
+                        <button className="btn small ghost-cd">View Profile</button>
+                        <button className="btn small ghost-cd"style={{color: '#c51313ff'}}>Decline</button>
+                        <button className="btn small-cd">Accept</button>
                       </>
                     ) : (
                       <>
-                        <button className="btn">View Profile</button>
-                        <button className="btn ghost" style={{borderColor:'#fdecea',color:'#ef4444'}}>Withdraw</button>
-                        <button className="btn small primary">Message</button>
+                        <button className="btn small ghost-cd">View Profile</button>
+                        <button className="btn small ghost-cd" style={{color: '#c51313ff'}}>Withdraw</button>
+                        <button className="btn small-cd" >Message</button>
                       </>
                     )}
                   </div>
@@ -370,15 +385,15 @@ export default function ShipperPartners(){
                   <div className="invite-action-mobile">
                     {inviteTab === 'incoming' ? (
                       <>
-                        <button className="btn mobile-btn">View Profile</button>
-                        <button className="btn ghost mobile-btn" style={{borderColor:'#fdecea',color:'#ef4444'}}>Decline</button>
-                        <button className="btn small green-btn mobile-btn">Accept</button>
+                        <button className="btn small ghost-cd">View Profile</button>
+                        <button className="btn small ghost-cd" style={{borderColor:'#fdecea',color:'#ef4444'}}>Decline</button>
+                        <button className="btn small ghost-cd">Accept</button>
                       </>
                     ) : (
                       <>
-                        <button className="btn mobile-btn">View Profile</button>
-                        <button className="btn ghost mobile-btn" style={{borderColor:'#fdecea',color:'#ef4444'}}>Withdraw</button>
-                        <button className="btn small primary mobile-btn">Message</button>
+                        <button className="btn small ghost-cd">View Profile</button>
+                        <button className="btn small ghost-cd" style={{borderColor:'#fdecea',color:'#ef4444'}}>Withdraw</button>
+                        <button className="btn small ghost-cd">Message</button>
                       </>
                     )}
                   </div>
@@ -390,15 +405,15 @@ export default function ShipperPartners(){
               <div className="invite-actions-bottom" style={{marginTop:12}}>
                 {inviteTab === 'incoming' ? (
                   <>
-                    <button className="btn primary" style={{flex:1,marginRight:8}}>View Profile</button>
-                    <button className="btn ghost" style={{flex:1,marginRight:8,borderColor:'#fdecea',color:'#ef4444'}}>Decline</button>
-                    <button className="btn small green-btn" style={{flex:1}}>Accept</button>
+                    <button className="btn small ghost-cd" style={{flex:1,marginRight:8}}>View Profile</button>
+                    <button className="btn small ghost-cd" style={{flex:1,marginRight:8,color: '#c51313ff'}}>Decline</button>
+                    <button className="btn small-cd" style={{flex:1}}>Accept</button>
                   </>
                 ) : (
                   <>
-                    <button className="btn primary" style={{flex:1,marginRight:8}}>View Profile</button>
-                    <button className="btn ghost" style={{flex:1,marginRight:8,borderColor:'#fdecea',color:'#ef4444'}}>Withdraw</button>
-                    <button className="btn small primary" style={{flex:1}}>Message</button>
+                    <button className="btn small ghost-cd" style={{flex:1,marginRight:8}}>View Profile</button>
+                    <button className="btn small ghost-cd" style={{flex:1,marginRight:8,color: '#c51313ff'}}>Withdraw</button>
+                    <button className="btn small-cd" style={{flex:1}}>Message</button>
                   </>
                 )}
               </div>
@@ -407,22 +422,22 @@ export default function ShipperPartners(){
 
           {/* Invites stats summary cards (end of invites screen) */}
           <div className="invites-stats">
-            <div className="stat-card card">
+            <div className="cd-stat-card card">
               <div className="stat-left"><div className="icon-box pending"><i className="fa-solid fa-inbox" /></div></div>
               <div className="stat-right"><div className="stat-num">5</div><div className="stat-label">Pending Invites</div></div>
             </div>
 
-            <div className="stat-card card">
+            <div className="cd-stat-card card">
               <div className="stat-left"><div className="icon-box accepted"><i className="fa-solid fa-check-circle" /></div></div>
               <div className="stat-right"><div className="stat-num">12</div><div className="stat-label">Accepted This Month</div></div>
             </div>
 
-            <div className="stat-card card">
+            <div className="cd-stat-card card">
               <div className="stat-left"><div className="icon-box sent"><i className="fa-solid fa-paper-plane" /></div></div>
               <div className="stat-right"><div className="stat-num">3</div><div className="stat-label">Requests Sent</div></div>
             </div>
 
-            <div className="stat-card card">
+            <div className="cd-stat-card card">
               <div className="stat-left"><div className="icon-box active"><i className="fa-solid fa-handshake" /></div></div>
               <div className="stat-right"><div className="stat-num">45</div><div className="stat-label">Active Partners</div></div>
             </div>
@@ -454,35 +469,35 @@ export default function ShipperPartners(){
           {/* Document list */}
           <div className="doc-list">
             {documents.map(doc => (
-              <div className="doc-item" key={doc.id}>
-                <div className="doc-left">
-                  <div className={`doc-icon doc-icon-${doc.type}`}>
+              <div className="cd-doc-item" key={doc.id}>
+                <div className="cd-doc-left">
+                  <div className={`cd-doc-icon cd-doc-icon-${doc.type}`}>
                     <i className={`fa-solid ${doc.icon}`} />
                   </div>
-                  <div className="doc-info">
-                    <div className="doc-title">{doc.title}</div>
-                    <div className="doc-meta-row">
-                      <span className="doc-uploaded">Uploaded: {doc.uploaded}</span>
-                      <span className="doc-by">By: {doc.by}</span>
-                      <span className="doc-size">Size: {doc.size}</span>
+                  <div className="cd-doc-info">
+                    <div className="cd-doc-title">{doc.title}</div>
+                    <div className="cd-doc-meta-row">
+                      <span className="cd-doc-uploaded">Uploaded: {doc.uploaded}</span>
+                      <span className="cd-doc-by">By: {doc.by}</span>
+                      <span className="cd-doc-size">Size: {doc.size}</span>
                     </div>
                   </div>
                 </div>
-                <div className="doc-right">
-                  <div className={`doc-status doc-status-${doc.status.toLowerCase().replace(/\s+/g, '-')}`}>
+                <div className="cd-doc-right">
+                  <div className={`cd-doc-status cd-doc-status-${doc.status.toLowerCase().replace(/\s+/g, '-')}`}>
                     {doc.status}
                   </div>
-                  <div className="doc-actions">
-                    <button className="doc-action-btn" title="View"><i className="fa-solid fa-eye" /></button>
-                    <button className="doc-action-btn" title="Download"><i className="fa-solid fa-download" /></button>
-                    <button className="doc-action-btn" title="Share"><i className="fa-solid fa-share" /></button>
+                  <div className="cd-doc-actions">
+                    <button className="cd-doc-action-btn" title="View"><i className="fa-solid fa-eye" /></button>
+                    <button className="cd-doc-action-btn" title="Download"><i className="fa-solid fa-download" /></button>
+                    <button className="cd-doc-action-btn" title="Share"><i className="fa-solid fa-share" /></button>
                   </div>
                 </div>
               </div>
             ))}
             
             <div className="load-more">
-              <button className="btn-load-more">+ Load More Documents</button>
+              <button className="btn small ghost-cd">+ Load More Documents</button>
             </div>
           </div>
         </div>

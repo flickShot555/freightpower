@@ -249,33 +249,33 @@ export default function ConsentESignature() {
         <div className="header-actions">
           {activeTab === 'active-signatures' ? (
             <>
-              <button className="btn-action new-document">
+              <button className="btn small ghost-cd">
                 <i className="fa-solid fa-plus"></i>
                 New Document
               </button>
-              <button className="btn-action export-list">
+              <button className="btn small ghost-cd">
                 <i className="fa-solid fa-file-export"></i>
                 Export List
               </button>
             </>
           ) : activeTab === 'completed-archive' ? (
             <>
-              <button className="btn-action export">
+              <button className="btn small ghost-cd">
                 <i className="fa-solid fa-download"></i>
                 Export
               </button>
-              <button className="btn-action move-to-vault">
+              <button className="btn small ghost-cd">
                 <i className="fa-solid fa-archive"></i>
                 Move to Vault
               </button>
             </>
           ) : (
             <>
-              <button className="btn-action create-agreement">
+              <button className="btn small ghost-cd">
                 <i className="fa-solid fa-plus"></i>
                 Create Agreement
               </button>
-              <button className="btn-action upload-template">
+              <button className="btn small ghost-cd">
                 <i className="fa-solid fa-upload"></i>
                 Upload Template
               </button>
@@ -310,27 +310,27 @@ export default function ConsentESignature() {
       {activeTab === 'template-library' && (
         <div className="template-library">
           {/* Search and Filter Bar */}
-          <div className="search-filter-bar">
-            <div className="search-box">
-              <i className="fa-solid fa-search"></i>
+          <div className="integrations-controls">
+            <div className="search-container">
+              <i className="fas fa-search search-icon"></i>
               <input
                 type="text"
                 placeholder="Search templates..."
+                className="integrations-search"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <div className="category-select-wrapper">
-              <select
+            <div className="cs-filters-container">
+              <select 
+                className="int-filter-select"
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="category-select"
               >
                 {categories.map(category => (
                   <option key={category} value={category}>{category}</option>
                 ))}
               </select>
-              <i className="fa-solid fa-chevron-down category-select-icon"></i>
             </div>
           </div>
 
@@ -339,7 +339,7 @@ export default function ConsentESignature() {
             {filteredTemplates.map((template) => (
               <div key={template.id} className="template-card">
                 <div className="template-header">
-                  <div className="template-category-badge" style={{ backgroundColor: template.categoryColor }}>
+                  <div className="template-category-badge">
                     <i className={template.icon}></i>
                   </div>
                   <div className="template-category-label">{template.category}</div>
@@ -352,7 +352,7 @@ export default function ConsentESignature() {
                   </div>
                 </div>
                 <div className="template-actions">
-                  <button className="use-template-btn">Use Template</button>
+                  <button className="btn small-cd">Use Template</button>
                 </div>
               </div>
             ))}
@@ -361,7 +361,7 @@ export default function ConsentESignature() {
         <h3>Recent Signature Activity</h3>
         <div className="activity-list">
           {signatureActivity.map((activity) => (
-            <div key={activity.id} className="activity-item">
+            <div key={activity.id} className="cs-activity-item">
               <div className="activity-icon">
                 <i className={`fa-solid ${
                   activity.status === 'Completed' ? 'fa-check-circle' :
@@ -388,74 +388,77 @@ export default function ConsentESignature() {
         <div className="active-signatures">
           {/* Statistics Cards */}
           <div className="signature-stats">
-            <div className="stat-card pending">
-              <div className="stat-content">
-                <div className="stat-label">Pending</div>
-                <div className="stat-value">{signatureStats.pending}</div>
-              </div>
-              <div className="stat-icon">
+            <div className="sig-stat-card pending">
+              <div className="sig-stat-icon">
                 <i className="fa-solid fa-clock"></i>
               </div>
-            </div>
-            <div className="stat-card partially-signed">
-              <div className="stat-content">
-                <div className="stat-label">Partially Signed</div>
-                <div className="stat-value">{signatureStats.partiallySigned}</div>
+              <div className="sig-stat-content">
+                <div className="sig-stat-label">Pending</div>
+                <div className="sig-stat-value">{signatureStats.pending}</div>
               </div>
-              <div className="stat-icon">
+            </div>
+            <div className="sig-stat-card partially-signed">
+              <div className="sig-stat-icon">
                 <i className="fa-solid fa-pen-alt"></i>
               </div>
-            </div>
-            <div className="stat-card completed">
-              <div className="stat-content">
-                <div className="stat-label">Completed Today</div>
-                <div className="stat-value">{signatureStats.completedToday}</div>
+              <div className="sig-stat-content">
+                <div className="sig-stat-label">Partially Signed</div>
+                <div className="sig-stat-value">{signatureStats.partiallySigned}</div>
               </div>
-              <div className="stat-icon">
+            </div>
+            <div className="sig-stat-card completed">
+              <div className="sig-stat-icon">
                 <i className="fa-solid fa-check-circle"></i>
               </div>
-            </div>
-            <div className="stat-card overdue">
-              <div className="stat-content">
-                <div className="stat-label">Overdue</div>
-                <div className="stat-value">{signatureStats.overdue}</div>
+              <div className="sig-stat-content">
+                <div className="sig-stat-label">Completed Today</div>
+                <div className="sig-stat-value">{signatureStats.completedToday}</div>
               </div>
-              <div className="stat-icon">
+              
+            </div>
+            <div className="sig-stat-card overdue">
+              <div className="sig-stat-icon">
                 <i className="fa-solid fa-exclamation-triangle"></i>
               </div>
+              <div className="sig-stat-content">
+                <div className="sig-stat-label">Overdue</div>
+                <div className="sig-stat-value">{signatureStats.overdue}</div>
+              </div>
+              
             </div>
           </div>
 
-          {/* Document Filters */}
-          <div className="document-filters">
-            <div className="filter-row">
-              <div className="search-box">
-                <i className="fa-solid fa-search"></i>
-                <input
-                  type="text"
-                  placeholder="Search documents..."
-                  value={documentSearch}
-                  onChange={(e) => setDocumentSearch(e.target.value)}
-                />
-              </div>
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="filter-select"
+          <div className="integrations-controls">
+            <div className="search-container">
+              <i className="fas fa-search search-icon"></i>
+              <input
+                type="text"
+                placeholder="Search Documents..."
+                className="integrations-search"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            <div className="cs-filters-container">
+              <select 
+                className="int-filter-select"
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
               >
-                <option value="All Status">All Status</option>
+               <option value="All Status">All Status</option>
                 <option value="Pending">Pending</option>
                 <option value="Partially Signed">Partially Signed</option>
                 <option value="Signed">Signed</option>
                 <option value="Declined">Declined</option>
                 <option value="Overdue">Overdue</option>
               </select>
-              <select
-                value={documentTypeFilter}
-                onChange={(e) => setDocumentTypeFilter(e.target.value)}
-                className="filter-select"
+
+              <select 
+                className="int-filter-select"
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
               >
-                <option value="All Document Types">All Document Types</option>
+               <option value="All Document Types">All Document Types</option>
                 <option value="PDF">PDF</option>
                 <option value="DOC">DOC</option>
                 <option value="DOCX">DOCX</option>
@@ -465,7 +468,7 @@ export default function ConsentESignature() {
 
           {/* Active Documents Table */}
           <div className="documents-table-container">
-            <div className="table-header">
+            <div className="cs-table-header">
               <h3>Active Documents</h3>
               <div className="table-actions">
                 <label className="select-all">
@@ -504,7 +507,7 @@ export default function ConsentESignature() {
                       </td>
                       <td data-label="Document">
                         <div className="document-name-cell">
-                          <div className={`document-icon ${document.iconColor}`}>
+                          <div className={`document-icon`}>
                             <i className={`fa-solid ${document.icon}`}></i>
                           </div>
                           <div className="document-info">
@@ -557,36 +560,18 @@ export default function ConsentESignature() {
             </div>
 
             {/* Pagination */}
+            <div className="drivers-pagination">
+            <span>Showing 1-5 of 1,247 drivers</span>
             <div className="pagination">
-              <div className="pagination-info">
-                Showing 1 to {Math.min(itemsPerPage, activeDocuments.length)} of {activeDocuments.length} documents
-              </div>
-              <div className="pagination-controls">
-                <button
-                  className="pagination-btn"
-                  disabled={currentPage === 1}
-                  onClick={() => setCurrentPage(currentPage - 1)}
-                >
-                  Prev
-                </button>
-                {Array.from({ length: totalPages }, (_, index) => (
-                  <button
-                    key={index + 1}
-                    className={`pagination-number ${currentPage === index + 1 ? 'active' : ''}`}
-                    onClick={() => setCurrentPage(index + 1)}
-                  >
-                    {index + 1}
-                  </button>
-                ))}
-                <button
-                  className="pagination-btn"
-                  disabled={currentPage === totalPages}
-                  onClick={() => setCurrentPage(currentPage + 1)}
-                >
-                  Next
-                </button>
-              </div>
+              <button aria-label="Previous page">&lt;</button>
+              <button className="active" aria-current="page">1</button>
+              <button>2</button>
+              <button>3</button>
+              <span>...</span>
+              <button>25</button>
+              <button aria-label="Next page">&gt;</button>
             </div>
+          </div>
           </div>
         </div>
       )}
@@ -595,35 +580,37 @@ export default function ConsentESignature() {
       {activeTab === 'completed-archive' && (
         <div className="completed-archive">
           {/* Document Filters */}
-          <div className="document-filters">
-            <div className="filter-row">
-              <div className="search-box">
-                <i className="fa-solid fa-search"></i>
-                <input
-                  type="text"
-                  placeholder="Search documents..."
-                  value={documentSearch}
-                  onChange={(e) => setDocumentSearch(e.target.value)}
-                />
-              </div>
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="filter-select"
+          <div className="integrations-controls">
+            <div className="search-container">
+              <i className="fas fa-search search-icon"></i>
+              <input
+                type="text"
+                placeholder="Search Documents..."
+                className="integrations-search"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            <div className="cs-filters-container">
+              <select 
+                className="int-filter-select"
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
               >
-                <option value="All Status">All Status</option>
+               <option value="All Status">All Status</option>
                 <option value="Pending">Pending</option>
                 <option value="Partially Signed">Partially Signed</option>
                 <option value="Signed">Signed</option>
                 <option value="Declined">Declined</option>
                 <option value="Overdue">Overdue</option>
               </select>
-              <select
-                value={documentTypeFilter}
-                onChange={(e) => setDocumentTypeFilter(e.target.value)}
-                className="filter-select"
+
+              <select 
+                className="int-filter-select"
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
               >
-                <option value="All Document Types">All Document Types</option>
+               <option value="All Document Types">All Document Types</option>
                 <option value="PDF">PDF</option>
                 <option value="DOC">DOC</option>
                 <option value="DOCX">DOCX</option>
@@ -681,7 +668,7 @@ export default function ConsentESignature() {
                       <span className="status-badge green">Signed & Archived</span>
                     </td>
                     <td data-label="Action">
-                      <button className="action-btn view">View</button>
+                      <button className="actionn-btnn view">View</button>
                     </td>
                   </tr>
                   <tr>
@@ -717,7 +704,7 @@ export default function ConsentESignature() {
                       <span className="status-badge green">Signed & Archived</span>
                     </td>
                     <td data-label="Action">
-                      <button className="action-btn view">View</button>
+                      <button className="actionn-btnn view">View</button>
                     </td>
                   </tr>
                   <tr>
@@ -754,7 +741,7 @@ export default function ConsentESignature() {
                       <span className="status-badge green">Signed & Archived</span>
                     </td>
                     <td data-label="Action">
-                      <button className="action-btn view">View</button>
+                      <button className="actionn-btnn view">View</button>
                     </td>
                   </tr>
                   <tr>
@@ -790,7 +777,7 @@ export default function ConsentESignature() {
                       <span className="status-badge green">Signed & Archived</span>
                     </td>
                     <td data-label="Action">
-                      <button className="action-btn view">View</button>
+                      <button className="actionn-btnn view">View</button>
                     </td>
                   </tr>
                   <tr>
@@ -827,7 +814,7 @@ export default function ConsentESignature() {
                       <span className="status-badge green">Signed & Archived</span>
                     </td>
                     <td data-label="Action">
-                      <button className="action-btn view">View</button>
+                      <button className="actionn-btnn view">View</button>
                     </td>
                   </tr>
                 </tbody>
@@ -835,24 +822,18 @@ export default function ConsentESignature() {
             </div>
 
             {/* Pagination */}
+            <div className="drivers-pagination">
+            <span>Showing 1-5 of 1,247 drivers</span>
             <div className="pagination">
-              <div className="pagination-info">
-                Showing 1 to 10 of 247 results
-              </div>
-              <div className="pagination-controls">
-                <button className="pagination-btn" disabled>
-                  Pre
-                </button>
-                <button className="pagination-number active">1</button>
-                <button className="pagination-number">2</button>
-                <button className="pagination-number">3</button>
-                <span className="pagination-ellipsis">...</span>
-                <button className="pagination-number">25</button>
-                <button className="pagination-btn">
-                  Next
-                </button>
-              </div>
+              <button aria-label="Previous page">&lt;</button>
+              <button className="active" aria-current="page">1</button>
+              <button>2</button>
+              <button>3</button>
+              <span>...</span>
+              <button>25</button>
+              <button aria-label="Next page">&gt;</button>
             </div>
+          </div>
           </div>
 
           {/* Retention & Compliance Notice */}
@@ -867,11 +848,11 @@ export default function ConsentESignature() {
               </div>
             </div>
             <div className="notice-actions">
-              <button className="btn-compliance-export">
+              <button className="btn small-cd">
                 <i className="fa-solid fa-download"></i>
                 Compliance Export
               </button>
-              <button className="btn-retention-settings">
+              <button className="btn small ghost-cd">
                 <i className="fa-solid fa-cog"></i>
                 Retention Settings
               </button>

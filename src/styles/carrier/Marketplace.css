@@ -223,14 +223,6 @@ input[type="checkbox"], input[type="radio"] {
   cursor: pointer;
 }
 
-.marketplace-tab.active {
-  color: #0ea5e9;
-}
-
-.marketplace-tab:hover {
-  color: #0ea5e9;
-}
-
 /* underline for active tab matching ShipperPartners */
 .marketplace-tab.active::after {
   content: '';
@@ -238,10 +230,14 @@ input[type="checkbox"], input[type="radio"] {
   left: 0;
   right: 0;
   height: 2px;
-  background: #0ea5e9;
+  background: #3B57A7!important;
   border-radius: 2px;
   bottom: -6px;
 }
+
+.dark-root .marketplace-tab::after{
+  background: #7FA4F6!important;
+} 
 
 .view-toggle {
   display: flex;
@@ -294,8 +290,8 @@ input[type="checkbox"], input[type="radio"] {
 .marketplace-search {
   flex: 1;
   padding: clamp(8px,1.2vw,12px) clamp(10px,1.6vw,14px) clamp(8px,1.2vw,12px) 40px;
-  border: 1px solid #e6eef2;
-  border-radius: 10px;
+  box-shadow:0 0 0 1px #E5E5E5,0 4px 8px -5px rgba(0,0,0,0.15)!important;
+  border-radius: 100px;
   font-size: clamp(0.81rem,1.6vw,0.94rem);
   box-shadow: none;
   width: 100%;
@@ -313,25 +309,6 @@ input[type="checkbox"], input[type="radio"] {
   z-index: 1;
 }
 
-.search-btn {
-  background: #0ea5e9;
-  color: white;
-  border: none;
-  padding: clamp(8px,1.2vw,12px) clamp(16px,2vw,20px);
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: clamp(0.81rem,1.2vw,0.94rem);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  transition: background 0.2s;
-}
-
-.search-btn:hover {
-  background: #0284c7;
-}
-
 .filters-section {
   display: flex;
   gap: 12px;
@@ -342,8 +319,8 @@ input[type="checkbox"], input[type="radio"] {
 .marketplace-filter-select,
 .marketplace-filter-input {
   padding: 8px 12px;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
+  box-shadow:0 0 0 1px #E5E5E5,0 4px 8px -5px rgba(0,0,0,0.15);
+  border-radius: 100px;
   font-size: 14px;
   background: #fff;
   color: #374151;
@@ -354,10 +331,9 @@ input[type="checkbox"], input[type="radio"] {
 }
 
 .marketplace-filter-select:focus,
+.marketplace-search:focus,
 .marketplace-filter-input:focus {
-  outline: none;
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  box-shadow:0 0 0 0.5px #3B57A7,0 4px 8px -5px rgba(0,0,0,0.15)!important;
 }
 
 .marketplace-location-input {
@@ -386,8 +362,8 @@ input[type="checkbox"], input[type="radio"] {
 
 .marketplace-endorsement-chip {
   padding: 6px 14px;
-  border: 1px solid #d1d5db;
-  border-radius: 20px;
+  box-shadow:0 0 0 1px #E5E5E5,0 4px 8px -5px rgba(0,0,0,0.15);
+  border-radius: 100px;
   background: #fff;
   color: #6b7280;
   font-size: 13px;
@@ -402,9 +378,9 @@ input[type="checkbox"], input[type="radio"] {
 }
 
 .marketplace-endorsement-chip.marketplace-selected {
-  background: #2563eb;
+  background: #3B57A7;
   color: #fff;
-  border-color: #2563eb;
+  border-color: #3B57A7;
 }
 
 .marketplace-drivers-results-bar {
@@ -442,8 +418,8 @@ input[type="checkbox"], input[type="radio"] {
 
 .marketplace-sort-select {
   padding: 6px 10px;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
+  box-shadow:0 0 0 1px #E5E5E5,0 4px 8px -5px rgba(0,0,0,0.15);
+  border-radius: 100px;
   font-size: 14px;
   background: #fff;
   color: #374151;
@@ -540,25 +516,25 @@ input[type="checkbox"], input[type="radio"] {
 .marketplace{font-family:inherit;font-size:1rem;line-height:1.6;color:inherit}
 
 /* Dark mode overrides similar to ShipperPartners */
-.dark-root .marketplace-search,.dark-root .marketplace-filter-select,.dark-root .marketplace-filter-input{background:rgba(255,255,255,0.02);border-color:rgba(255,255,255,0.04);color:#d1d7db}
+.dark-root .marketplace-search,.dark-root .marketplace-filter-select,.dark-root .marketplace-filter-input{background:rgba(255,255,255,0.02);box-shadow: 0 0 0 1px #353535, 0 4px 8px -5px rgba(255,255,255,0.12);color:#d1d7db}
 .dark-root .marketplace-drivers-filters{background:#2c2c2c;border-color:rgba(255,255,255,0.04)}
 .dark-root .marketplace-filter-label{color:#d1d5db}
 .dark-root .marketplace-endorsements-row{border-color:rgba(255,255,255,0.04)}
-.dark-root .marketplace-endorsement-chip{background:#374151;border-color:rgba(255,255,255,0.1);color:#d1d5db}
+.dark-root .marketplace-endorsement-chip{background:#2c2c2c;box-shadow: 0 0 0 1px #353535, 0 4px 8px -5px rgba(255,255,255,0.12);;color:#d1d5db}
 .dark-root .marketplace-endorsement-chip:hover{background:#4b5563}
-.dark-root .marketplace-endorsement-chip.marketplace-selected{background:#2563eb;border-color:#2563eb}
+.dark-root .marketplace-endorsement-chip.marketplace-selected{background:#7FA4F6;border-color:#7FA4F6}
 .dark-root .marketplace-drivers-results-bar{border-color:rgba(255,255,255,0.04)}
 .dark-root .marketplace-results-count{color:#9ca3af}
-.dark-root .marketplace-sort-group label{color:#9ca3af}
-.dark-root .marketplace-sort-select{background:#374151;border-color:rgba(255,255,255,0.1);color:#d1d5db}
+.dark-root .marketplace-sort-group label{color:#9ca3af;}
+.dark-root .marketplace-sort-select{background:#374151;box-shadow: 0 0 0 1px #353535, 0 4px 8px -5px rgba(255,255,255,0.12);;color:#d1d5db}
 .dark-root .marketplace-view-toggle{border-color:rgba(255,255,255,0.1);background:#374151}
 .dark-root .marketplace-view-btn{color:#9ca3af}
 .dark-root .marketplace-view-btn:hover{background:#4b5563;color:#d1d5db}
 .dark-root .marketplace-view-btn.active{background:#2563eb}
-.dark-root .marketplace-search::placeholder{color:#9ea9ad}
+.dark-root .marketplace-search::placeholder{color:#9ea9ad,}
 .dark-root .view-btn{background:transparent;border-color:rgba(255,255,255,0.04);color:#d1d7db}
 .dark-root .marketplace-tab{color:#d1d7db}
-.dark-root .marketplace-tab.active{color:#0ea5e9}
+.dark-root .marketplace-tab.active{color:#7FA4F6}
 .dark-root .marketplace-header-content h1{color:#d1d7db}
 .dark-root .load-card{background:#2c2c2c;border-color:rgba(255,255,255,0.04)}
 .dark-root .origin,.dark-root .destination{color:#d1d7db}
@@ -573,8 +549,8 @@ input[type="checkbox"], input[type="radio"] {
 /* dark baseline for the tab row: subtle but lighter than the background so the blue underline remains visible */
 .dark-root .marketplace-tabs{border-bottom-color:rgba(255,255,255,0.04)}
 .dark-root .marketplace-tab{color:#9ca3af}
-.dark-root .marketplace-tab.active{color:#0ea5e9}
-.dark-root .marketplace-tab:hover{color:#0ea5e9}
+.dark-root .marketplace-tab.active{color:#7FA4F6! important}
+.dark-root .marketplace-tab:hover{color: #7fa4f6 !important;}
 
 /* Dark mode for driver cards */
 .dark-root .drivers-count{color:#d1d7db}
@@ -585,11 +561,11 @@ input[type="checkbox"], input[type="radio"] {
 .dark-root .marketplace-detail-value{color:#d1d7db}
 .dark-root .marketplace-detail-sub{color:#9aa6b1}
 .dark-root .marketplace-endorsement-tag{background:rgba(255,255,255,0.05);color:#d1d7db}
-.dark-root .marketplace-equipment-tag.valid{background:rgba(16,185,129,0.1);color:#10b981}
-.dark-root .marketplace-equipment-tag.warning{background:rgba(245,158,11,0.1);color:#f59e0b}
-.dark-root .marketplace-equipment-tag.invalid{background:rgba(239,68,68,0.1);color:#ef4444}
-.dark-root .marketplace-menu-btn{background:#374151;border-color:rgba(255,255,255,0.1);color:#9ca3af}
-.dark-root .marketplace-menu-btn:hover{background:#4b5563;color:#d1d5db}
+.dark-root .marketplace-equipment-tag.valid{background:linear-gradient(rgba(15, 125, 94, 0.795), rgba(13, 110, 82, 0.312)); color:#9fe2c7}
+.dark-root .marketplace-equipment-tag.warning{background:linear-gradient(rgba(185, 130, 0, 0.762), rgba(185, 129, 0, 0.425)); color:#f6e05e }
+.dark-root .marketplace-equipment-tag.invalid{background:linear-gradient(rgba(239, 68, 68, 0.674),rgba(239, 68, 68, 0.312)); color:#ffb1b1 }
+.dark-root .marketplace-menu-btn{background:#2c2c2c;box-shadow: 0 0 0 1px #353535, 0 4px 8px -5px rgba(255,255,255,0.12);}
+.dark-root .marketplace-menu-btn:hover{background:#4b5563;color:#d1d5db;box-shadow: 0 0 0 1px #353535, 0 4px 8px -5px rgba(255,255,255,0.12); border: none;}
 
 .load-card-header {
   display: flex;
@@ -631,25 +607,34 @@ input[type="checkbox"], input[type="radio"] {
 
 .status-badge {
   padding: 4px 12px;
-  border-radius: 16px;
+  border-radius: 100px!important;
   font-size: 12px;
   font-weight: 600;
   white-space: nowrap;
 }
 
 .status-active {
-  background: #ecfeff;
-  color: #0891b2;
+  background:linear-gradient(#dff7ea, #b4e1d0); color:#0b7f60;
+}
+
+.dark-root .status-active {
+  background:linear-gradient(rgba(15, 125, 94, 0.795), rgba(13, 110, 82, 0.312)); color:#9fe2c7
 }
 
 .status-pending {
-  background: #fef3c7;
-  color: #92400e;
+  background:linear-gradient(#fff4d9, #fce99e); color:#b68100;
+}
+
+.dark-root .status-pending {
+  background:linear-gradient(rgba(185, 130, 0, 0.762), rgba(185, 129, 0, 0.425)); color:#f6e05e
 }
 
 .status-urgent {
-  background: #fee2e2;
-  color: #dc2626;
+  background:linear-gradient(#ffe6e6, #ffc9c9); color:#ef4444;
+}
+
+.dark-root .status-urgent {
+  background:linear-gradient(rgba(239, 68, 68, 0.674),rgba(239, 68, 68, 0.312)); color:#ffb1b1
 }
 
 .load-details {
@@ -689,54 +674,10 @@ input[type="checkbox"], input[type="radio"] {
   gap: 6px;
 }
 
-.carrier-icon {
-  color: #0ea5e9;
-}
-
 .load-actions {
   display: flex;
   gap: 6px;
   margin-bottom: 8px;
-}
-
-.btn-book-now {
-  background: #0ea5e9;
-  color: white;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: clamp(0.78rem,1vw,0.86rem);
-  cursor: pointer;
-  flex: 1;
-  transition: all 0.2s;
-  height: 44px;
-}
-
-.btn-book-now:hover {
-  background: #0284c7;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(14, 165, 233, 0.3);
-}
-
-.btn-accept {
-  background: #10b981;
-  color: white;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: clamp(0.78rem,1vw,0.86rem);
-  cursor: pointer;
-  flex: 1;
-  transition: all 0.2s;
-  height: 44px;
-}
-
-.btn-accept:hover {
-  background: #059669;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
 }
 
 .btn-more {
@@ -844,7 +785,7 @@ input[type="checkbox"], input[type="radio"] {
   border-radius: 50%;
   overflow: hidden;
   flex-shrink: 0;
-  background: #f1f5f9;
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -933,7 +874,17 @@ input[type="checkbox"], input[type="radio"] {
   gap: 4px;
 }
 
+.marketplace-status-unavailable {
+  color: #ef4444 !important;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
 .marketplace-status-available .fa-circle {
+  font-size: 6px;
+}
+.marketplace-status-unavailable .fa-circle {
   font-size: 6px;
 }
 
@@ -987,18 +938,15 @@ input[type="checkbox"], input[type="radio"] {
 }
 
 .marketplace-equipment-tag.valid {
-  background: #d1fae5;
-  color: #065f46;
+  background:linear-gradient(#dff7ea, #b4e1d0); color:#0b7f60
 }
 
 .marketplace-equipment-tag.warning {
-  background: #fef3c7;
-  color: #92400e;
+  background:linear-gradient(#fff4d9, #fce99e); color:#b68100
 }
 
 .marketplace-equipment-tag.invalid {
-  background: #fee2e2;
-  color: #991b1b;
+  background:linear-gradient(#ffe6e6, #ffc9c9); color:#ef4444
 }
 
 .marketplace-driver-actions {
@@ -1013,7 +961,7 @@ input[type="checkbox"], input[type="radio"] {
   align-items: center;
   gap: 6px;
   padding: 8px 16px;
-  border-radius: 6px;
+  border-radius: 100px;
   border: none;
   font-size: 14px;
   font-weight: 600;
@@ -1022,18 +970,23 @@ input[type="checkbox"], input[type="radio"] {
 }
 
 .marketplace-btn-hire.available {
-  background: #2563eb;
+  background: linear-gradient(#7FA4F6 0%, #3B57A7 100%);
   color: white;
 }
 
 .marketplace-btn-hire.available:hover {
-  background: #1d4ed8;
+   transform:translateY(-2px);
 }
 
 .marketplace-btn-hire.unavailable {
   background: #f3f4f6;
   color: #9ca3af;
   cursor: not-allowed;
+}
+
+.dark-root  .marketplace-btn-hire.unavailable {
+  background: rgba(255,255,255,0.05);
+  color: #6b7280;
 }
 
 .marketplace-driver-menu {
@@ -1045,9 +998,8 @@ input[type="checkbox"], input[type="radio"] {
   width: 32px;
   height: 32px;
   border-radius: 6px;
-  border: 1px solid #e5e7eb;
+  box-shadow:0 0 0 1px #E5E5E5,0 4px 8px -5px rgba(0,0,0,0.15);
   background: white;
-  color: #6b7280;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -1295,7 +1247,7 @@ input[type="checkbox"], input[type="radio"] {
   overflow: hidden;
   margin-right: 24px;
   flex-shrink: 0;
-  background: #f1f5f9;
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1698,7 +1650,7 @@ input[type="checkbox"], input[type="radio"] {
 }
 
 .dark-root .marketplace_tab.active::after {
-  background: #60a5d8;
+  background: #7FA4F6!important; 
 }
 
 .dark-root .view-btn {
@@ -1722,7 +1674,7 @@ input[type="checkbox"], input[type="radio"] {
 .dark-root .filter-select,
 .dark-root .filter-input {
   background: rgba(255, 255, 255, 0.03);
-  border-color: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 0 0 1px #353535, 0 4px 8px -5px rgba(255,255,255,0.12)!important;
   color: #d1d7db;
 }
 
@@ -1749,13 +1701,13 @@ input[type="checkbox"], input[type="radio"] {
    (handles overrides from media queries or later rules). */
 .marketplace-nav .marketplace-tabs .marketplace-tab.active,
 .marketplace-nav .marketplace-tabs .marketplace-tab.active i {
-  color: #0ea5e9;
+  color: #3B57A7
 }
 
 /* Ensure hover also shows primary blue for clarity */
 .marketplace-nav .marketplace-tabs .marketplace-tab:hover,
 .marketplace-nav .marketplace-tabs .marketplace-tab:hover i {
-  color: #0ea5e9;
+  color: #3B57A7;
 }
 
 .dark-root .btn-more {
@@ -1798,7 +1750,7 @@ select, select option {
 }
 .pagination button {
   background: #ffffff;
-  border: 1px solid #d1d5db;
+  box-shadow:0 0 0 1px #E5E5E5,0 4px 8px -5px rgba(0,0,0,0.15);
   color: #374151;
   font-size: 1rem;
   font-weight: 500;
@@ -1811,6 +1763,10 @@ select, select option {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.dark-root .pagination button {
+  box-shadow: 0 0 0 1px #353535, 0 4px 8px -5px rgba(255,255,255,0.12);
 }
 
 .drivers-pagination {
@@ -1854,21 +1810,17 @@ select, select option {
 }
 
 .pagination button.active, .pagination button[aria-current="page"] {
-  background: #0ea5e9;;
+  background: linear-gradient(#7FA4F6 0%, #3B57A7 100%);
   color: #ffffff;
   border-color: #0ea5e9;
 }
 
 .pagination button:hover:not(.active):not([aria-current="page"]) {
   background: #e5e7eb;
-  color: #0ea5e9;
-  border-color: #0ea5e9;
 }
 
 .dark-root .pagination button:hover:not(.active):not([aria-current="page"]) {
-  background: #0ea5e9;
-  color: white;
-  border-color: #0ea5e9;
+  background: #38393a;
 }
 .pagination span {
   color: #6b7280;
@@ -1883,44 +1835,8 @@ select, select option {
   gap: 12px;
   margin-bottom: 16px;
 }
-.btn-export, .btn-post-request {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  font-size: 1rem;
-  font-weight: 500;
-  border-radius: 8px;
-  padding: 8px 16px;
-  cursor: pointer;
-  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
-}
-.btn-export {
-  background: #ffffff;
-  border: 1px solid #d1d5db;
-  color: #374151;
-}
-.btn-export:hover {
-  background: #f3f4f6;
-  border-color: #9ca3af;
-}
-.btn-post-request {
-  background: #0ea5e9;
-  border: 1px solid #0ea5e9;
-  color: #ffffff;
-}
-.btn-post-request:hover {
-  background: #1995cf;
-  border-color: #1995cf;
-}
 
 /* Responsive Buttons */
-@media (max-width: 768px) {
-  .btn-export, .btn-post-request {
-    font-size: 0.9rem;
-    padding: 6px 12px;
-  }
-}
 
 @media (max-width: 480px) {
   .btn-export, .btn-post-request {

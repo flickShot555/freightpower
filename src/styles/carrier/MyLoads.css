@@ -20,41 +20,31 @@
     position: relative; /* allow absolutely-positioned button */
   }
 
-  /* keep title block first */
-  .ml-header .fp-header-titles { order: 1; }
-
   /* position the primary add button in the top-right so it visually sits on the same row as the title */
   .ml-header .ml-actions { order: 2; }
   .ml-header .ml-actions .ml-toolbar { display:flex; justify-content:flex-end; align-items:center; }
-  .ml-header .ml-actions .btn.primary.small {
-    position: absolute;
-    right: 12px;
-    top: 6px;
-    z-index: 2;
-  }
 
   /* place the search input under the heading and make it full width */
   .ml-header .ml-actions .ml-search {
     width: 100%;
     margin-top: 4px;
     box-sizing: border-box;
-    order: 3;
     /* make room for the absolute button on the right so placeholder/text isn't covered */
     padding-right: 110px;
   }
 
   /* allow toolbar content to wrap if needed */
-  .ml-header .ml-actions .ml-toolbar { gap:8px; flex-wrap:wrap; }
+  .ml-header .ml-actions .ml-toolbar { gap:8px; }
 }
 
 /* header uses shared .fp-header-titles / .fp-subtitle styles from CarrierDashboard.css */
 
 .ml-actions .ml-toolbar { display: flex; gap: 8px; align-items: center; }
-.ml-search { padding: 10px 14px; border-radius: 8px; border: 1px solid #e5e7eb; width:220px; background:#fff; color:#111827 }
+.ml-search { padding: 10px 14px; border-radius: 100px;  width:220px; background:#fff; color:#111827; box-shadow:0 0 0 1px #E5E5E5,0 4px 8px -5px rgba(0,0,0,0.15) }
+.ml-search:focus {  box-shadow:0 0 0 0.5px #3B57A7,0 4px 8px -5px rgba(0,0,0,0.15)!important; }
 
 /* Dark mode: make the search use the sidebar background and light-grey text */
-.dark-root .ml-search { background:#2c2c2c; color:#d1d5db; border-color: rgba(255,255,255,0.06) }
-.dark-root .ml-search::placeholder { color:#9ca3af }
+.dark-root .ml-search { background:#2c2c2c; color:#d1d5db; box-shadow: 0 0 0 1px #353535, 0 4px 8px -5px rgba(255,255,255,0.12);}
 
 .ml-board {
   display: grid;
@@ -67,7 +57,7 @@
 .ml-column { background: transparent; display:flex; flex-direction:column; min-height:0 }
 .ml-column .ml-column-inner {
   background: #fff;
-  border: 1px solid #eef2f6;
+  box-shadow:0 0 0 1px #E5E5E5,0 4px 8px -5px rgba(0,0,0,0.15);
   border-radius: 12px;
   padding: 16px;
   /* let the inner pane fill the grid cell so all outer cards match height */
@@ -81,12 +71,12 @@
 /* Dark mode: make the column pane and cards match the sidebar dark color */
 .dark-root .ml-column .ml-column-inner {
   background: #2c2c2c;
-  border-color: rgba(255,255,255,0.04);
+  box-shadow: 0 0 0 1px #353535, 0 4px 8px -5px rgba(255,255,255,0.12);
   color: #d1d5db;
 }
 .dark-root .ml-card {
   background: #2c2c2c;
-  border-color: rgba(255,255,255,0.04);
+  box-shadow: 0 0 0 1px #353535, 0 4px 8px -5px rgba(255,255,255,0.12);
   color: #d1d5db;
 }
 .dark-root .ml-column-header h4,
@@ -97,7 +87,7 @@
 }
 .dark-root .ml-id { color: #ffffff }
 .dark-root .ml-column-header h4 { color: #ffffff !important }
-.dark-root .ml-count { background: #3a3a3a; color: #d1d5db }
+.dark-root .ml-count { background: #3a3a3a; color: #d1d5db;  }
 .dark-root .ml-tag { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.03); color: #d1d5db }
 .dark-root .muted { color: #9ca3af }
 
@@ -123,10 +113,10 @@
 
 .ml-column-list { display:flex; flex-direction:column; gap:12px; flex:1 }
 .ml-card {
-  background:#f8fafc;
+  background:transparent;
   border-radius:10px;
   padding:16px;
-  border:1px solid rgba(11,27,34,0.04);
+  box-shadow:0 0 0 1px #E5E5E5,0 4px 8px -5px rgba(0,0,0,0.15);
   box-sizing:border-box;
   /* use min-height so cards stay consistent but can grow if needed */
   min-height:120px;
@@ -152,123 +142,7 @@
 .ml-dot { width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:8px;vertical-align:middle }
 .ml-dot.green{background:#10b981}
 .ml-dot.red{background:#ef4444}
-.tender-column .ml-card { background: #f7f9fb; }
-.tender-column .ml-column-header h4 { color: #0b1720 }
-.tender-column .ml-count { color: #0b1720; background:#f7f9fb }
-.tender-card .ml-dot.green{background:#10b981}
-.tender-card .ml-dot.red{background:#ef4444}
-.tender-card .ml-price{color:#10b981}
-.tender-card .ml-tag{background:#eef2f6;border:1px solid #eef2f6; color: #0b1720; font-weight:500}
-.ml-pickup { color:#6b7280; font-size:12px; }
 
-/* Tendered dark-mode variant */
-.dark-root .tender-column .ml-card {
-  background: #444444; /* slightly darker than sidebar for subtle separation */
-  border-color: #535353;
-}
-.dark-root .tender-card .ml-tag {
-  background: rgba(255,255,255,0.03);
-  border-color: rgba(255,255,255,0.03);
-  color: #ffffff;
-}
-.dark-root .tender-column .ml-count { background:#444444; color:#ffffff }
-
-/* Accepted column styles (pale blue card, blue border, blue badge/tag) */
-.accepted-column .ml-card { background: #eef6ff; border: 1px solid #dbeffd; }
-.accepted-column .ml-column-header h4 { color: #0b1720 }
-.accepted-column .ml-count { background:#eef6ff; color:#0b6b9a }
-.accepted-card .ml-tag { background:#dbeffd; border:1px solid #dbeffd; color:#0b6b9a; font-weight:600 }
-
-/* In Transit column styles (pale-mint card, mint border, mint badge/tag) */
-.in-transit-column .ml-card { background: #e9fff6; border: 1px solid #d7fbec; }
-.in-transit-column .ml-column-header h4 { color: #0b1720 }
-.in-transit-column .ml-count { background:#e9fff6; color:#0b7f60 }
-.in-transit-card .ml-tag { background:#d7fbec; border:1px solid #d7fbec; color:#0b7f60; font-weight:600 }
-
-/* Delivered column styles (pale-yellow card, soft yellow border, yellow badge/tag) */
-.delivered-column .ml-card { background: #e9ffe9; border: 1px solid #cffcd0; }
-.delivered-column .ml-column-header h4 { color: #0b1720 }
-.delivered-column .ml-count { background:#e9ffe9; color:#0b7f60 }
-.delivered-card .ml-tag { background:#cffcd0; border:1px solid #d7fbec; color:#0b7f60; font-weight:600 }
-
-/* POD (pale yellow) */
-.pod-column .ml-card { background:#fff9e6; border:1px solid #fde7a8 }
-.pod-column .ml-column-header h4 { color:#0b1720 }
-.pod-column .ml-count { background:#fff9e6; color:#b68100 }
-.pod-card .ml-tag { background:#fde7a8; border:1px solid #fde7a8; color:#b68100 }
-
-/* Invoiced (pale purple) */
-.invoiced-column .ml-card { background:#faf2ff; border:1px solid #f2dfff }
-.invoiced-column .ml-column-header h4 { color:#0b1720 }
-.invoiced-column .ml-count { background:#faf2ff; color:#8a5bd6 }
-.invoiced-card .ml-tag { background:#f2dfff; border:1px solid #f2dfff; color:#8a5bd6 }
-
-/* Settled (light mint) - similar to In Transit */
-.settled-column .ml-card { background:#e9fff6; border:1px solid #d7fbec }
-.settled-column .ml-column-header h4 { color:#0b1720 }
-.settled-column .ml-count { background:#e9fff6; color:#0b7f60 }
-.settled-card .ml-tag { background:#d7fbec; border:1px solid #d7fbec; color:#0b7f60 }
-
-/* Dark-mode: darker shades for the colorful columns so they retain hue in dark mode */
-.dark-root .accepted-column .ml-card {
-  background: #0b3a52; /* darker blue */
-  border-color: rgba(11,127,154,0.18);
-}
-.dark-root .accepted-column .ml-tag {
-  background: rgba(11,127,154,0.12);
-  border-color: rgba(11,127,154,0.12);
-  color: #cfeefb;
-}
-.dark-root .accepted-column .ml-count { background:#0b3a52; color:#cfeefb }
-
-.dark-root .in-transit-column .ml-card,
-.dark-root .settled-column .ml-card {
-  background: #083e33; /* darker mint */
-  border-color: rgba(11,127,96,0.18);
-}
-.dark-root .in-transit-column .ml-tag,
-.dark-root .settled-card .ml-tag {
-  background: rgba(11,127,96,0.12);
-  border-color: rgba(11,127,96,0.12);
-  color:#bfe9d9;
-}
-.dark-root .in-transit-column .ml-count,
-.dark-root .settled-column .ml-count { background:#083e33; color:#bfe9d9 }
-
-.dark-root .delivered-column .ml-card {
-  background: #0f4f2d; /* darker green/yellow */
-  border-color: rgba(11,127,96,0.14);
-}
-.dark-root .delivered-card .ml-tag {
-  background: rgba(11,127,96,0.10);
-  border-color: rgba(11,127,96,0.10);
-  color:#bfe9d9;
-}
-.dark-root .delivered-column .ml-count { background:#0f4f2d; color:#bfe9d9 }
-
-.dark-root .pod-column .ml-card {
-  background: #4b3410; /* darker amber */
-  border-color: rgba(190,135,0,0.14);
-}
-.dark-root .pod-card .ml-tag {
-  background: rgba(190,135,0,0.10);
-  border-color: rgba(190,135,0,0.10);
-  color:#ffdf9e;
-}
-.dark-root .pod-column .ml-count { background:#4b3410; color:#ffdf9e }
-
-.dark-root .invoiced-column .ml-card {
-  background: #382246; /* darker purple */
-  border-color: rgba(138,91,214,0.12);
-}
-.dark-root .invoiced-card .ml-tag {
-  background: rgba(138,91,214,0.10);
-  border-color: rgba(138,91,214,0.10);
-  color:#e7d9ff;
-}
-.dark-root .invoiced-column .ml-count { background:#382246; color:#e7d9ff }
-
-/* responsive */
 /* Tablet: two columns */
 @media (max-width: 1024px) {
   .ml-board { grid-template-columns: repeat(2, 1fr); }

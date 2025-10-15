@@ -112,11 +112,11 @@ const AlertsNotifications = () => {
           <p className="alert-header-subtitle">Manage your notifications and alert preferences</p>
         </div>
         <div className="alert-header-actions">
-          <button className="alert-export-btn">
+          <button className="btn small ghost-cd">
             <i className="fas fa-download"></i>
             Export
           </button>
-          <button className="alert-settings-btn">
+          <button className="btn small ghost-cd">
             <i className="fas fa-cog"></i>
             Settings
           </button>
@@ -176,7 +176,7 @@ const AlertsNotifications = () => {
                 ))}
               </select>
               
-              <button className="alert-mark-all-read-btn">
+              <button className="btn small-cd">
                 Mark All as Read
               </button>
             </div>
@@ -189,10 +189,6 @@ const AlertsNotifications = () => {
                 key={notification.id}
                 className={`alert-notification-card ${!notification.isRead ? 'unread' : ''}`}
                 data-type={notification.type}
-                style={{ 
-                  backgroundColor: notification.bgColor,
-                  borderLeftColor: notification.borderColor 
-                }}
               >
                 <div className="alert-notification-header">
                   <div className="alert-notification-meta">
@@ -233,7 +229,7 @@ const AlertsNotifications = () => {
 
           {/* Load More */}
           <div className="alert-load-more-section">
-            <button className="alert-load-more-btn">Load More Notifications</button>
+            <button className="btn small ghost-cd">Load More Notifications</button>
           </div>
         </>
       )}
@@ -548,7 +544,7 @@ const AlertsNotifications = () => {
                 <span className="alert-toggle-label">Test Notification</span>
               </div>
 
-              <button className="alert-test-button">Send Test</button>
+              <button className="btn small-cd">Send Test</button>
             </div>
 
             <div className="alert-app-settings-note">
@@ -564,7 +560,7 @@ const AlertsNotifications = () => {
 
           {/* Save Settings Button */}
           <div className="alert-settings-actions">
-            <button className="alert-save-settings-btn">
+            <button className="btn small-cd">
               <i className="fa-solid fa-check"></i>
               Save Settings
             </button>

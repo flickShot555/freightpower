@@ -206,7 +206,7 @@ export default function CarrierDashboard() {
           <div className="card marketplace-snapshot span-3">
             <div className="card-row">
               <h3>Marketplace Snapshot</h3>
-              <button className="btn ghost small">View All Marketplace</button>
+              <button className="btn ghost-cd small">View All Marketplace</button>
             </div>
             <div className="market-grid">
               <div className="market-col loads">
@@ -374,9 +374,9 @@ export default function CarrierDashboard() {
 
           <div className="topbar-right actions-right">
             <div className="actions">
-              <button className="btn small"><i className="fa-solid fa-link"/> Connect</button>
-              <button className="btn warn small"><i className="fa-solid fa-triangle-exclamation"/> Report Fraud</button>
-              <button className="btn ghost small subtle"><i className="fa-solid fa-pen"/> Suggest Edit</button>
+              <button className="btn small-cd"><i className="fa-solid fa-link"/> Connect</button>
+              <button className="btn ghost-cd small"><i className="fa-solid fa-triangle-exclamation"/> Report Fraud</button>
+              <button className="btn ghost-cd small"><i className="fa-solid fa-pen"/> Suggest Edit</button>
             </div>
             {/* mobile-only icons in the first row: visible on small screens */}
             <div className="icons-mobile">
@@ -393,10 +393,10 @@ export default function CarrierDashboard() {
         <div className="topbar-row topbar-row-2">
           <div className="topbar-left second-left">
             <div className="chips">
-              <span className="chip success">DOT Active</span>
-              <span className="chip info">Operating</span>
-              <span className="chip yellow">Safety: Satisfactory</span>
-              <span className="chip blue">ELD: Samsara</span>
+              <span className="chip-cd success">DOT Active</span>
+              <span className="chip-cd info">Operating</span>
+              <span className="chip-cd yellow">Safety: Satisfactory</span>
+              <span className="chip-cd blue">ELD: Samsara</span>
             </div>
             <div className="fleet-stats">
               <span className="fleet-item"><i className="fa-solid fa-truck"/> <strong>12</strong> Power Units</span>
@@ -424,7 +424,6 @@ export default function CarrierDashboard() {
         <div className="sidebar-header">
           <div className="brand-row">
             <div className="logo">FreightPower Logistics</div>
-            <span className="verified">Verified</span>
           </div>
           {/* DOT / MC line for mobile drawer */}
           <div className="ids mobile-ids">
@@ -432,10 +431,10 @@ export default function CarrierDashboard() {
             <div className="mobile-id-line"><span className="id-pair"><span className="id-label">MC:</span> <span className="id-value">MC-987654</span></span></div>
           </div>
           <div className="chips sidebar-chips">
-            <span className="chip success">DOT Active</span>
-            <span className="chip info">Operating</span>
-            <span className="chip yellow">Safety: Satisfactory</span>
-            <span className="chip blue">ELD: Samsara</span>
+            <span className="chip-cd success">DOT Active</span>
+            <span className="chip-cd info">Operating</span>
+            <span className="chip-cd yellow">Safety: Satisfactory</span>
+            <span className="chip-cd blue">ELD: Samsara</span>
           </div>
           <div className="fleet-stats sidebar-fleet">
             <span className="fleet-item"><i className="fa-solid fa-truck"/> <strong>12</strong> Power Units</span>
@@ -478,9 +477,9 @@ export default function CarrierDashboard() {
         </div>
         {/* action buttons in the mobile drawer */}
         <div className="sidebar-actions">
-          <button className="btn small"><i className="fa-solid fa-link"/> Connect</button>
-          <button className="btn warn small"><i className="fa-solid fa-triangle-exclamation"/> Report Fraud</button>
-          <button className="btn ghost small subtle"><i className="fa-solid fa-pen"/> Suggest Edit</button>
+          <button className="btn small-cd"><i className="fa-solid fa-link"/> Connect</button>
+          <button className="btn ghost-cd small"><i className="fa-solid fa-triangle-exclamation"/> Report Fraud</button>
+          <button className="btn ghost-cd small subtle"><i className="fa-solid fa-pen"/> Suggest Edit</button>
         </div>
         <button className="sidebar-close" aria-label="Close sidebar" onClick={() => setIsSidebarOpen(false)}>
           <i className="fa-solid fa-xmark" />

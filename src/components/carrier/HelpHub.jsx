@@ -258,8 +258,7 @@ const HelpHub = () => {
           <div className="tab-panel">
             <div className="tickets-section">
               <div className="tickets-filters">
-                <div className="search-box">
-                  <i className="fa-solid fa-search"></i>
+                <div className="hh-search-box">
                   <input
                     type="text"
                     placeholder="Search tickets..."
@@ -270,7 +269,7 @@ const HelpHub = () => {
                 <select 
                   value={selectedStatus} 
                   onChange={(e) => setSelectedStatus(e.target.value)}
-                  className="filter-select"
+                  className="hh-filter-select"
                 >
                   <option>All Status</option>
                   <option>Open</option>
@@ -281,7 +280,7 @@ const HelpHub = () => {
                 <select 
                   value={selectedCategory} 
                   onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="filter-select"
+                  className="hh-filter-select"
                 >
                   <option>All Categories</option>
                   <option>Finance</option>
@@ -292,7 +291,7 @@ const HelpHub = () => {
                 <select 
                   value={selectedPriority} 
                   onChange={(e) => setSelectedPriority(e.target.value)}
-                  className="filter-select"
+                  className="hh-filter-select"
                 >
                   <option>All Priority</option>
                   <option>Critical</option>
@@ -328,7 +327,7 @@ const HelpHub = () => {
                           </span>
                         </td>
                         <td>
-                          <span className={`status-badge ${ticket.status.toLowerCase().replace(' ', '-')}`}>
+                          <span className={`int-status-badge ${ticket.status.toLowerCase().replace(' ', '-')}`}>
                             {ticket.status}
                           </span>
                         </td>
@@ -346,10 +345,10 @@ const HelpHub = () => {
                 </table>
               </div>
 
-              <div className="tickets-pagination">
+              <div className="pagination">
                 <div className="pagination-info">Showing 1 to 3 of 12 tickets</div>
                 <div className="pagination-controls">
-                  <button className="pagination-btn">Previous</button>
+                  <button className="pagination-btn">Pre</button>
                   <button className="pagination-btn active">1</button>
                   <button className="pagination-btn">2</button>
                   <button className="pagination-btn">Next</button>
@@ -364,8 +363,7 @@ const HelpHub = () => {
           <div className="tab-panel">
             <div className="resources-section">
               <div className="resources-search">
-                <div className="search-box">
-                  <i className="fa-solid fa-search"></i>
+                <div className="hh-search-box">
                   <input
                     type="text"
                     placeholder="Search FAQs, Guides, or Videos"
@@ -403,7 +401,6 @@ const HelpHub = () => {
               <div className="faq-section">
                 <div className="section-header">
                   <h3>
-                    <i className="fa-regular fa-circle-question"></i>
                     Frequently Asked Questions
                   </h3>
                   <button className="expand-btn">
@@ -425,7 +422,6 @@ const HelpHub = () => {
               <div className="guides-section">
                 <div className="section-header">
                   <h3>
-                    <i className="fa-solid fa-list"></i>
                     Step-by-Step Guides
                   </h3>
                   <button className="expand-btn">
@@ -439,7 +435,7 @@ const HelpHub = () => {
                         <h4>{guide.title}</h4>
                         <p>{guide.description}</p>
                       </div>
-                      <button className="guide-action">{guide.action}</button>
+                      <button className="btn small-cd">{guide.action}</button>
                     </div>
                   ))}
                 </div>
@@ -448,7 +444,6 @@ const HelpHub = () => {
               <div className="videos-section">
                 <div className="section-header">
                   <h3>
-                    <i className="fa-solid fa-play"></i>
                     Video Tutorials
                   </h3>
                   <button className="expand-btn">
@@ -481,15 +476,12 @@ const HelpHub = () => {
             <div className="schedule-support-section">
               <div className="schedule-header">
                 <div className="schedule-actions">
-                  <button className="export-btn">
+                  <button className="btn small ghost-cd">
                     <i className="fa-solid fa-download"></i>
                     Export
                   </button>
-                  <button className="upcoming-btn">View Upcoming</button>
-                  <button className="book-session-btn">
-                    <i className="fa-solid fa-calendar-plus"></i>
-                    Book New Session
-                  </button>
+                  <button className="btn small ghost-cd">View Upcoming</button>
+                  <button className="btn small-cd">Book New Session</button>
                 </div>
               </div>
 
@@ -542,7 +534,7 @@ const HelpHub = () => {
                           <div className="session-type">{session.type}</div>
                           <div className="session-date">{session.date}</div>
                           <div className="session-agent">Agent: {session.agent}</div>
-                          <div className={`session-status ${session.status.toLowerCase()}`}>
+                          <div className={`int-status-badge ${session.status.toLowerCase()}`}>
                             {session.status}
                           </div>
                         </div>
@@ -560,19 +552,20 @@ const HelpHub = () => {
 
                   <div className="quick-actions">
                     <h4>Quick Actions</h4>
-                    <button className="quick-action-btn">
+                    <button className="btn small ghost-cd" style={{width: '100%', marginBottom: '12px'}}>View All Sessions</button>
+                    <button className="btn small ghost-cd" style={{width: '100%', marginBottom: '12px'}}>
                       <i className="fa-solid fa-phone"></i>
                       Schedule Call
                     </button>
-                    <button className="quick-action-btn">
+                    <button className="btn small ghost-cd" style={{width: '100%', marginBottom: '12px'}}>
                       <i className="fa-solid fa-video"></i>
                       Video Session
                     </button>
-                    <button className="quick-action-btn">
+                    <button className="btn small ghost-cd " style={{width: '100%', marginBottom: '12px'}}>
                       <i className="fa-solid fa-chalkboard-teacher"></i>
                       Training Session
                     </button>
-                    <button className="quick-action-btn">
+                    <button className="btn small ghost-cd" style={{width: '100%'}}>
                       <i className="fa-solid fa-desktop"></i>
                       Screen Share
                     </button>

@@ -380,7 +380,7 @@ export default function Settings() {
                     <div className="logo-preview">
                       <i className="fa-solid fa-building logo-placeholder"></i>
                     </div>
-                    <button className="upload-btn" onClick={handleUploadLogo}>
+                    <button className="btn small ghost-cd" onClick={handleUploadLogo}>
                       Upload Logo
                     </button>
                     <p className="upload-help">PNG, JPG up to 5MB</p>
@@ -422,7 +422,7 @@ export default function Settings() {
 
             {/* Save Button */}
             <div className="settings-actions">
-              <button className="save-btn" onClick={handleSaveChanges}>
+              <button className="btn small-cd" onClick={handleSaveChanges}>
                 Save Changes
               </button>
             </div>
@@ -434,11 +434,11 @@ export default function Settings() {
           <div className="tab-panel">
             <div className="roles-header">
               <div className="roles-actions">
-                <button className="export-btn">
+                <button className="btn small ghost-cd">
                   <i className="fa-solid fa-download"></i>
                   Export Roles
                 </button>
-                <button className="create-role-btn">
+                <button className="btn small-cd">
                   <i className="fa-solid fa-plus"></i>
                   Create Role
                 </button>
@@ -452,7 +452,6 @@ export default function Settings() {
                 {roles.map((role, index) => (
                   <div key={index} className="role-item">
                     <div className="role-info">
-                      <div className={`role-color ${role.color}`}></div>
                       <div className="role-details">
                         <div className="role-name">{role.name}</div>
                         <div className="role-users">{role.users} users</div>
@@ -483,22 +482,22 @@ export default function Settings() {
               </div>
 
               {/* Operations Permissions Table */}
-              <div className="operations-table">
-                <div className="table-header">
-                  <div className="module-header">MODULE</div>
-                  <div className="permission-header">
+              <div className="st-operations-table">
+                <div className="st-table-header">
+                  <div className="st-module-header">MODULE</div>
+                  <div className="st-permission-header">
                     <span>VIEW</span>
                   </div>
-                  <div className="permission-header">
+                  <div className="st-permission-header">
                     <span>CREATE</span>
                   </div>
-                  <div className="permission-header">
+                  <div className="st-permission-header">
                     <span>EDIT</span>
                   </div>
-                  <div className="permission-header">
+                  <div className="st-permission-header">
                     <span>DELETE</span>
                   </div>
-                  <div className="permission-header">
+                  <div className="st-permission-header">
                     <span>EXPORT</span>
                   </div>
                 </div>
@@ -510,13 +509,13 @@ export default function Settings() {
                   categories.forEach(category => {
                     // Add category header
                     rows.push(
-                      <div key={`${category}-header`} className="category-row">
-                        <div className="category-cell">{category}</div>
-                        <div className="category-spacer"></div>
-                        <div className="category-spacer"></div>
-                        <div className="category-spacer"></div>
-                        <div className="category-spacer"></div>
-                        <div className="category-spacer"></div>
+                      <div key={`${category}-header`} className="st-category-row">
+                        <div className="st-category-cell">{category}</div>
+                        <div className="st-category-spacer"></div>
+                        <div className="st-category-spacer"></div>
+                        <div className="st-category-spacer"></div>
+                        <div className="st-category-spacer"></div>
+                        <div className="st-category-spacer"></div>
                       </div>
                     );
                     
@@ -525,48 +524,48 @@ export default function Settings() {
                       .filter(op => op.category === category)
                       .forEach((operation, index) => {
                         rows.push(
-                          <div key={`${category}-${index}`} className="table-row">
-                            <div className="module-cell">
-                              <span className="module-indent">{operation.module}</span>
+                          <div key={`${category}-${index}`} className="st-table-row">
+                            <div className="st-module-cell">
+                              <span className="st-module-indent">{operation.module}</span>
                             </div>
-                            <div className="permission-cell">
+                            <div className="st-permission-cell">
                               <input
                                 type="checkbox"
                                 checked={operation.view}
                                 readOnly
-                                className="permission-checkbox"
+                                className="st-permission-checkbox"
                               />
                             </div>
-                            <div className="permission-cell">
+                            <div className="st-permission-cell">
                               <input
                                 type="checkbox"
                                 checked={operation.create}
                                 readOnly
-                                className="permission-checkbox"
+                                className="st-permission-checkbox"
                               />
                             </div>
-                            <div className="permission-cell">
+                            <div className="st-permission-cell">
                               <input
                                 type="checkbox"
                                 checked={operation.edit}
                                 readOnly
-                                className="permission-checkbox"
+                                className="st-permission-checkbox"
                               />
                             </div>
-                            <div className="permission-cell">
+                            <div className="st-permission-cell">
                               <input
                                 type="checkbox"
                                 checked={operation.delete}
                                 readOnly
-                                className="permission-checkbox"
+                                className="st-permission-checkbox"
                               />
                             </div>
-                            <div className="permission-cell">
+                            <div className="st-permission-cell">
                               <input
                                 type="checkbox"
                                 checked={operation.export}
                                 readOnly
-                                className="permission-checkbox"
+                                className="st-permission-checkbox"
                               />
                             </div>
                           </div>
@@ -608,7 +607,7 @@ export default function Settings() {
             <div className="user-list-section">
               <div className="section-header">
                 <h3>Users</h3>
-                <button className="add-user-btn">
+                <button className="btn small-cd">
                   <i className="fa-solid fa-plus"></i>
                   New Contact
                 </button>
@@ -617,7 +616,6 @@ export default function Settings() {
               {/* Filters */}
               <div className="user-filters">
                 <div className="search-box">
-                  <i className="fa-solid fa-search"></i>
                   <input
                     type="text"
                     placeholder="Search users..."
@@ -636,10 +634,6 @@ export default function Settings() {
                   <option value="Recently Active">Recently Active</option>
                   <option value="Long Time">Long Time</option>
                 </select>
-                <button className="clear-filters-btn">
-                  <i className="fa-solid fa-filter"></i>
-                  Clear Filters
-                </button>
               </div>
 
               {/* User Table */}
@@ -672,7 +666,7 @@ export default function Settings() {
                           </span>
                         </td>
                         <td>
-                          <span className={`status-badge ${user.status.toLowerCase()}`}>
+                          <span className={`int-status-badge ${user.status.toLowerCase()}`}>
                             {user.status}
                           </span>
                         </td>
@@ -865,7 +859,7 @@ export default function Settings() {
               <div className="activity-list">
                 {recentActivity.map(activity => (
                   <div key={activity.id} className="activity-item">
-                    <div className={`activity-icon ${activity.color}`}>
+                    <div className={`activity-icon`}>
                       <i className={activity.icon}></i>
                     </div>
                     <div className="activity-content">
@@ -1055,7 +1049,7 @@ export default function Settings() {
                   </div>
                   <div className="toggle-switch">
                     <input type="checkbox" id="loginAlerts" defaultChecked />
-                    <label htmlFor="loginAlerts" className="slider"></label>
+                    <label htmlFor="loginAlerts" className="security-toggle"></label>
                   </div>
                 </div>
 
@@ -1098,7 +1092,7 @@ export default function Settings() {
                     placeholder="Enter IP address or range (eg. 192.168.1.0/24)" 
                     className="ip-input"
                   />
-                  <button className="add-ip-btn">Add</button>
+                  <button className="btn small-cd">Add</button>
                 </div>
                 <p className="ip-note">View All Entry</p>
               </div>
@@ -1138,8 +1132,8 @@ export default function Settings() {
             </div>
 
             <div className="security-footer">
-              <button className="cancel-btn">Cancel</button>
-              <button className="save-changes-btn">Save Changes</button>
+              <button className="btn small ghost-cd">Cancel</button>
+              <button className="btn small-cd">Save Changes</button>
             </div>
           </div>
         )}
@@ -1152,7 +1146,7 @@ export default function Settings() {
             <div className="api-section">
               <div className="section-header">
                 <h3>API Keys</h3>
-                <button className="new-api-btn">
+                <button className="btn small-cd">
                   <i className="fa-solid fa-plus"></i>
                   New API
                 </button>
@@ -1180,7 +1174,7 @@ export default function Settings() {
                         <td>{key.created}</td>
                         <td>{key.lastUsed}</td>
                         <td>
-                          <span className={`status-badge ${key.status.toLowerCase()}`}>
+                          <span className={`int-status-badge ${key.status.toLowerCase()}`}>
                             {key.status}
                           </span>
                         </td>
@@ -1203,7 +1197,7 @@ export default function Settings() {
             <div className="webhooks-section">
               <div className="section-header">
                 <h3>Webhooks</h3>
-                <button className="new-webhook-btn">
+                <button className="btn small-cd">
                   <i className="fa-solid fa-plus"></i>
                   New Webhook
                 </button>
@@ -1229,7 +1223,7 @@ export default function Settings() {
                         <td>{webhook.deliveries}</td>
                         <td>{webhook.lastAttempt}</td>
                         <td>
-                          <span className={`status-badge ${webhook.status.toLowerCase()}`}>
+                          <span className={`int-status-badge ${webhook.status.toLowerCase()}`}>
                             {webhook.status}
                           </span>
                         </td>
@@ -1267,7 +1261,7 @@ export default function Settings() {
                       <option>https://staging-api.com/hook</option>
                     </select>
                   </div>
-                  <button className="send-test-btn">
+                  <button className="btn small-cd">
                     <i className="fa-solid fa-paper-plane"></i>
                     Send Test Event
                   </button>
@@ -1320,7 +1314,7 @@ export default function Settings() {
 
             {/* Language & Localization */}
             <div className="preferences-card">
-              <h3><i className="fa-solid fa-globe"></i> Language & Localization</h3>
+              <h3> Language & Localization</h3>
               <p>Configure language and localization settings</p>
               
               <div className="locale-setting">
@@ -1381,7 +1375,7 @@ export default function Settings() {
 
             {/* Notification Defaults */}
             <div className="preferences-card">
-              <h3><i className="fa-solid fa-bell"></i> Notification Defaults</h3>
+              <h3> Notification Defaults</h3>
               <p>Configure default notification preferences</p>
               
               <div className="notification-table">
@@ -1457,7 +1451,7 @@ export default function Settings() {
 
             {/* Invoice & Finance Settings */}
             <div className="preferences-card">
-              <h3><i className="fa-solid fa-file-invoice"></i> Invoice & Finance Settings</h3>
+              <h3>Invoice & Finance Settings</h3>
               <p>Configure default invoice and payment settings</p>
               
               <div className="finance-grid">
@@ -1521,7 +1515,7 @@ export default function Settings() {
 
             {/* Dashboard & UI Preferences */}
             <div className="preferences-card">
-              <h3><i className="fa-solid fa-desktop"></i> Dashboard & UI Preferences</h3>
+              <h3>Dashboard & UI Preferences</h3>
               <p>Customize your dashboard and interface settings</p>
               
               <div className="dashboard-grid">
@@ -1568,7 +1562,7 @@ export default function Settings() {
 
             {/* Document Handling */}
             <div className="preferences-card">
-              <h3><i className="fa-solid fa-folder"></i> Document Handling</h3>
+              <h3>Document Handling</h3>
               <p>Configure document categorization and archival settings</p>
               
               <div className="document-checkboxes">

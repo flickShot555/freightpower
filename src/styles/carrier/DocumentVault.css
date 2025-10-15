@@ -45,7 +45,7 @@
 /* ensure grid doesn't add extra measured width from children */
 .dv-folders-grid, .folder-card { box-sizing: border-box }
 /* Each card tries to be at least 220px wide and grow; this creates a row of cards that wrap */
-.folder-card { display:flex; align-items:center; justify-content:space-between; padding:14px 18px; border-radius:12px; background:var(--fp-sidebar-bg); border:1px solid #eef3f6; box-shadow:0 1px 0 rgba(11,24,32,0.03); flex: 1 1 200px; min-width:180px; max-width:320px; box-sizing:border-box }
+.folder-card { display:flex; align-items:center; justify-content:space-between; padding:14px 18px; border-radius:12px; background:var(--fp-sidebar-bg); box-shadow:0 0 0 1px #E5E5E5,0 4px 8px -5px rgba(0,0,0,0.15); flex: 1 1 200px; min-width:180px; max-width:320px; box-sizing:border-box }
 .folder-card-left { display:flex; align-items:center; gap:12px }
 .folder-card .fa-folder { color:#2B7CC4; font-size:18px }
 .folder-card-title { font-weight:700; color:var(--fp-muted-sub); font-size:15px }
@@ -80,7 +80,7 @@
 }
 
 /* Dark-mode adjustments: ensure folder chips match dark sidebar */
-.dark-root .folder-card{ background:var(--fp-sidebar-bg); border-color: rgba(255,255,255,0.04) }
+.dark-root .folder-card{ background:var(--fp-sidebar-bg); box-shadow: 0 0 0 1px #353535, 0 4px 8px -5px rgba(255,255,255,0.12);}
 .dark-root .folder-card-title{ color:var(--fp-muted-sub) }
 .dark-root .folder-card-count{ color:#9ca3af }
 
@@ -125,12 +125,14 @@
 .btn.ghost { background:transparent; border:1px solid #e5e7eb }
 
 .dv-dropzone { border:2px dashed #dfe6ec; border-radius:8px; padding:28px; margin-bottom:18px; display:flex; align-items:center; justify-content:center; background: transparent }
+.dark-root .dv-dropzone { border-color: rgba(255,255,255,0.06); background: rgba(255,255,255,0.02) }
 .dv-drop-inner { text-align:center }
 .dv-cloud { font-size:28px; color:#9aa6b1 }
 .dv-drop-text { font-weight:700; margin-top:6px }
 .dv-drop-sub { color:#94a3a8; margin-top:6px }
 
-.dv-table-wrap { background:var(--fp-sidebar-bg); border-radius:8px; padding:12px; border:1px solid #eef2f6; min-height:200px; overflow-x:auto }
+.dv-table-wrap { background:var(--fp-sidebar-bg); border-radius:8px; padding:12px; box-shadow:0 0 0 1px #E5E5E5,0 4px 8px -5px rgba(0,0,0,0.15); min-height:200px; overflow-x:auto }
+.dark-root .dv-table-wrap { background:var(--fp-sidebar-bg); box-shadow:0 0 0 1px #353535, 0 4px 8px -5px rgba(255,255,255,0.12); color:var(--fp-muted-sub) }
 .dv-table { width:100%; border-collapse:collapse; min-width:640px }
 .dv-table th, .dv-table td { padding:10px 8px; text-align:left; border-bottom:none }
 .dv-table thead th{font-size:11px;color:var(--fp-muted-sub);letter-spacing:0.8px;font-weight:700}
@@ -145,10 +147,14 @@
 .dv-table td.c-actions{position:relative}
 .file-name { display:flex; align-items:center; gap:8px }
 .file-name span{font-weight:700;font-size:13px;color:var(--fp-muted-sub)}
-.badge { padding:5px 8px; border-radius:999px; font-weight:700; font-size:11px }
-.badge.green { background:#dff7ea; color:#0b7f60 }
-.badge.yellow { background:#fff4d9; color:#b68100 }
-.badge.red { background:#ffe6e6; color:#ef4444 }
+.cd-badge { padding:5px 8px; border-radius:999px; font-weight:700; font-size:11px }
+/* .cd-badge.green { background:#dff7ea; color:#0b7f60 } */
+.cd-badge.green { background:linear-gradient(#dff7ea, #b4e1d0); color:#0b7f60 }
+.dark-root .cd-badge.green { background:linear-gradient(rgba(15, 125, 94, 0.795), rgba(13, 110, 82, 0.312)); color:#9fe2c7 }
+.cd-badge.yellow { background:linear-gradient(#fff4d9, #fce99e); color:#b68100 }
+.dark-root .cd-badge.yellow { background:linear-gradient(rgba(185, 130, 0, 0.762), rgba(185, 129, 0, 0.425)); color:#f6e05e }
+.cd-badge.red { background:linear-gradient(#ffe6e6, #ffc9c9); color:#ef4444 }
+.dark-root .cd-badge.red { background:linear-gradient(rgba(239, 68, 68, 0.674),rgba(239, 68, 68, 0.312)); color:#ffb1b1 }
 .action { background:transparent; border:0; margin-left:6px; cursor:pointer; color: var(--fp-muted-sub)}
 
 /* Remove large focus circle on icon buttons when clicked with mouse, but keep an accessible
