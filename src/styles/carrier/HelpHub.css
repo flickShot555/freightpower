@@ -577,10 +577,7 @@ background:linear-gradient(#fff4d9, #fce99e); color:#b68100
   gap: 12px;
   margin-bottom: 32px;
   align-items: center;
-}
-
-.resources-search .hh-search-box {
-  flex: 1;
+  width: 100%;
 }
 
 .category-filter {
@@ -1564,6 +1561,10 @@ background:linear-gradient(#fff4d9, #fce99e); color:#b68100
 
   .resources-search {
     flex-direction: column;
+  }
+
+  .resources-search .hh-search-box, .resources-search .category-filter {
+    width: 100%;
   }
 
   .tickets-table-container {

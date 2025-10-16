@@ -112,7 +112,7 @@
   .exception-handling-col {
     width: 100%;
     margin-left: 0;
-    margin-right: 0;
+    margin-right: -12px;
   }
 }
 /* --- Dark Mode: Load Assignment & Exception Cards --- */
@@ -246,7 +246,7 @@
   grid-template-columns: 1fr auto;
   row-gap: 4px;
   column-gap: 0;
-  align-items: center;
+  align-items: center;  
   width: 100%;
 }
 .available-load-card-main-grid .available-load-id {
@@ -1693,4 +1693,18 @@ box-shadow: 0 0 0 1px #353535, 0 4px 8px -5px rgba(255,255,255,0.12)!important;
 }
 @media (max-width: 480px) {
   .drivers-header{display: flex; flex-direction: column; gap: 12px; align-items: flex-start;}
+}
+
+@media (max-width: 450px) {
+    .load-assignment-header-row{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start!important;
+    justify-content: flex-start!important;
+  }
+  .load-assignment-actions {
+    flex-direction: column;
+    justify-content: flex-start;
+    margin-top: 10px;
+  }
 }

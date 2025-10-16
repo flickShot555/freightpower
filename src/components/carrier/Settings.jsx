@@ -483,7 +483,9 @@ export default function Settings() {
 
               {/* Operations Permissions Table */}
               <div className="st-operations-table">
-                <div className="st-table-header">
+                <div className="st-operations-table-wrapper">
+                  <div className="st-operations-table-inner">
+                    <div className="st-table-header">
                   <div className="st-module-header">MODULE</div>
                   <div className="st-permission-header">
                     <span>VIEW</span>
@@ -575,6 +577,8 @@ export default function Settings() {
                   
                   return rows;
                 })()}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -705,7 +709,9 @@ export default function Settings() {
               </div>
 
               <div className="permissions-matrix">
-                <div className="matrix-header">
+                <div className="permissions-matrix-wrapper">
+                  <div className="permissions-matrix-inner">
+                    <div className="matrix-header">
                   <div className="module-col">Module / Role</div>
                   <div className="role-col">Owner</div>
                   <div className="role-col">Dispatcher</div>
@@ -744,6 +750,8 @@ export default function Settings() {
                     </div>
                   </div>
                 ))}
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -1379,49 +1387,53 @@ export default function Settings() {
               <p>Configure default notification preferences</p>
               
               <div className="notification-table">
-                <div className="notification-header">
-                  <div className="category-header">Category</div>
-                  <div className="channel-header">In-App</div>
-                  <div className="channel-header">Email</div>
-                  <div className="channel-header">SMS</div>
-                </div>
-                
-                <div className="notification-row">
-                  <div className="category-name">Loads</div>
-                  <div className="channel-checkbox">
-                    <input type="checkbox" defaultChecked />
-                  </div>
-                  <div className="channel-checkbox">
-                    <input type="checkbox" defaultChecked />
-                  </div>
-                  <div className="channel-checkbox">
-                    <input type="checkbox" />
-                  </div>
-                </div>
-                
-                <div className="notification-row">
-                  <div className="category-name">Compliance</div>
-                  <div className="channel-checkbox">
-                    <input type="checkbox" defaultChecked />
-                  </div>
-                  <div className="channel-checkbox">
-                    <input type="checkbox" defaultChecked />
-                  </div>
-                  <div className="channel-checkbox">
-                    <input type="checkbox" defaultChecked />
-                  </div>
-                </div>
-                
-                <div className="notification-row">
-                  <div className="category-name">Finance</div>
-                  <div className="channel-checkbox">
-                    <input type="checkbox" defaultChecked />
-                  </div>
-                  <div className="channel-checkbox">
-                    <input type="checkbox" defaultChecked />
-                  </div>
-                  <div className="channel-checkbox">
-                    <input type="checkbox" />
+                <div className="notification-table-wrapper">
+                  <div className="notification-table-inner">
+                    <div className="notification-header">
+                      <div className="category-header">Category</div>
+                      <div className="channel-header">In-App</div>
+                      <div className="channel-header">Email</div>
+                      <div className="channel-header">SMS</div>
+                    </div>
+
+                    <div className="notification-row">
+                      <div className="category-name">Loads</div>
+                      <div className="channel-checkbox">
+                        <input type="checkbox" defaultChecked />
+                      </div>
+                      <div className="channel-checkbox">
+                        <input type="checkbox" defaultChecked />
+                      </div>
+                      <div className="channel-checkbox">
+                        <input type="checkbox" />
+                      </div>
+                    </div>
+
+                    <div className="notification-row">
+                      <div className="category-name">Compliance</div>
+                      <div className="channel-checkbox">
+                        <input type="checkbox" defaultChecked />
+                      </div>
+                      <div className="channel-checkbox">
+                        <input type="checkbox" defaultChecked />
+                      </div>
+                      <div className="channel-checkbox">
+                        <input type="checkbox" defaultChecked />
+                      </div>
+                    </div>
+
+                    <div className="notification-row">
+                      <div className="category-name">Finance</div>
+                      <div className="channel-checkbox">
+                        <input type="checkbox" defaultChecked />
+                      </div>
+                      <div className="channel-checkbox">
+                        <input type="checkbox" defaultChecked />
+                      </div>
+                      <div className="channel-checkbox">
+                        <input type="checkbox" />
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

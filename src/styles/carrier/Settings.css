@@ -1282,6 +1282,30 @@ box-shadow:0 0 0 0.5px #3B57A7,0 4px 8px -5px rgba(0,0,0,0.15)!important;
   margin-top: 24px;
 }
 
+/* Make the permissions matrix horizontally scrollable on small screens
+   Keep the internal rows at a reasonable min-width so columns don't collapse
+   Use -webkit-overflow-scrolling for smooth touch scroll on mobile devices */
+.permissions-matrix-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.permissions-matrix-inner {
+  min-width: 820px; /* ensures the header + 5 role columns remain visible; adjust if you add more columns */
+}
+
+/* Small tweak: ensure rows don't force the outer layout to overflow */
+.matrix-row, .st-table-row {
+  min-width: 0;
+}
+
+@media (max-width: 900px) {
+  .permissions-matrix-wrapper {
+    border-radius: 8px;
+    padding-bottom: 8px;
+  }
+}
+
 .matrix-header {
   display: grid;
   grid-template-columns: 200px repeat(5, 1fr);
@@ -1481,6 +1505,18 @@ box-shadow:0 0 0 0.5px #3B57A7,0 4px 8px -5px rgba(0,0,0,0.15)!important;
     width: 32px;
     height: 32px;
     font-size: 12px;
+  }
+  .quiet-hours-content {
+    flex-direction: column;
+    gap: 16px;
+    justify-content: flex-start;
+    align-items: flex-start !important;
+  }
+  .time-selectors{
+    gap: 8px;
+    align-items: flex-start ;
+    justify-content: flex-start;
+    margin: 0!important;
   }
 }
 
@@ -2625,6 +2661,20 @@ box-shadow:0 0 0 0.5px #3B57A7,0 4px 8px -5px rgba(0,0,0,0.15)!important;
   border-bottom: 2px solid var(--settings-border);
 }
 
+/* Operations permissions table scroll helpers */
+.st-operations-table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.st-operations-table-inner {
+  min-width: 760px; /* keep module + permission columns readable, adjust if more columns are added */
+}
+
+.st-operations-table {
+  overflow: hidden; /* keep outer area from adding extra scroll */
+}
+
 .st-module-header,
 .st-permission-header {
   padding: 16px 12px;
@@ -3488,6 +3538,10 @@ input:checked + .slider:before {
   align-items: end;
   margin-bottom: 20px;
 }
+/* Allow grid children to shrink (prevents overflow when content would otherwise exceed container) */
+.console-form > * {
+  min-width: 0;
+}
 
 .form-group {
   display: flex;
@@ -3510,6 +3564,11 @@ input:checked + .slider:before {
   font-size: 14px;
   transition: border-color 0.2s ease;
 }
+/* Make selects fill their grid cell and use box-sizing to include padding in width */
+.form-group select {
+  width: 100%;
+  box-sizing: border-box;
+}
 
 .form-group select:focus {
   outline: none;
@@ -3529,7 +3588,7 @@ input:checked + .slider:before {
   align-items: center;
   gap: 8px;
   transition: background-color 0.2s;
-  white-space: nowrap;
+  white-space: normal; /* allow wrapping on narrow screens */
 }
 
 .send-test-btn:hover {
@@ -3558,6 +3617,23 @@ input:checked + .slider:before {
 .response-box code {
   color: var(--settings-success);
   font-size: 13px;
+}
+/* Stack the test console controls on narrow screens so fields and button don't overlap */
+@media (max-width: 520px) {
+  .console-form {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  .send-test-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .console-response {
+    margin-top: 8px;
+  }
 }
 
 .policies-grid {
@@ -3689,6 +3765,7 @@ input:checked + .slider:before {
 
 .notification-header {
   display: grid;
+  /* fixed-width columns to keep header and rows aligned */
   grid-template-columns: 1fr auto auto auto;
   gap: 24px;
   padding: 16px 20px;
@@ -3710,7 +3787,7 @@ input:checked + .slider:before {
 
 .notification-row {
   display: grid;
-  grid-template-columns: 1fr auto auto auto;
+  grid-template-columns: 1fr auto auto auto; /* same fixed widths as header */
   gap: 24px;
   padding: 16px 20px;
   border-bottom: 1px solid var(--settings-border);
@@ -3719,8 +3796,29 @@ input:checked + .slider:before {
   transition: background-color 0.2s ease;
 }
 
+    @media (max-width: 768px) {
+      .notification-header {
+        grid-template-columns: 260px 120px 120px 120px;
+      }
+
+      .notification-row {
+        grid-template-columns: 260px 120px 120px 120px;
+      }
+    }
+
 .notification-row:last-child {
   border-bottom: none;
+}
+
+/* Scrolling wrapper styles */
+.notification-table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.notification-table-inner {
+  min-width: 740px; /* 260 + 3*120 + extra for gaps/padding */
+  box-sizing: border-box;
 }
 
 .category-name {
@@ -3990,6 +4088,7 @@ box-shadow:0 0 0 0.5px #3B57A7,0 4px 8px -5px rgba(0,0,0,0.15)!important;
   }
   
   .st-table-header,
+  .st-category-row,
   .st-table-row {
     grid-template-columns: 150px repeat(5, 1fr);
     font-size: 12px;
@@ -4011,12 +4110,6 @@ box-shadow:0 0 0 0.5px #3B57A7,0 4px 8px -5px rgba(0,0,0,0.15)!important;
   .console-form {
     grid-template-columns: 1fr;
     gap: 12px;
-  }
-  
-  .notification-row {
-    grid-template-columns: 1fr;
-    gap: 12px;
-    text-align: center;
   }
   
   .notification-channels {
@@ -4073,6 +4166,7 @@ box-shadow:0 0 0 0.5px #3B57A7,0 4px 8px -5px rgba(0,0,0,0.15)!important;
   }
   
   .st-table-header,
+  .st-category-row,
   .st-table-row {
     grid-template-columns: 120px repeat(5, 1fr);
     font-size: 11px;
@@ -4107,6 +4201,12 @@ box-shadow:0 0 0 0.5px #3B57A7,0 4px 8px -5px rgba(0,0,0,0.15)!important;
   .create-role-btn {
     font-size: 12px;
     padding: 6px 12px;
+  }
+  .activity-list .activity-item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
   }
 }
 
@@ -4261,34 +4361,31 @@ box-shadow:0 0 0 0.5px #3B57A7,0 4px 8px -5px rgba(0,0,0,0.15)!important;
 }
 
 .document-checkboxes input[type="checkbox"] {
-  display: block !important;
-  width: 18px;
-  height: 18px;
+  /* Custom styled checkbox (keeps markup unchanged). Uses appearance:none so styles apply reliably */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  display: inline-block !important;
   margin: 0;
   background: var(--settings-card-bg);
   border: 2px solid var(--settings-border);
   border-radius: 4px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
+  vertical-align: middle;
 }
 
 .document-checkboxes input[type="checkbox"]:hover {
   border-color: var(--settings-accent);
 }
 
+/* Checked state: blue gradient background + white checkmark SVG */
 .document-checkboxes input[type="checkbox"]:checked {
-  background-color: var(--settings-accent);
-  border-color: var(--settings-accent);
-}
-
-.document-checkboxes input[type="checkbox"]:checked:after {
-  content: "✓";
-  color: white;
-  font-size: 12px;
-  font-weight: bold;
-  display: block;
-  text-align: center;
-  line-height: 14px;
+  border-color: transparent;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='white' d='M20.285 6.709a1 1 0 0 0-1.414-1.418l-9.192 9.2-4.192-4.2A1 1 0 0 0 4.29 11.31l5 5a1 1 0 0 0 1.414 0l10-10z'/></svg>");
+  background-image: linear-gradient(180deg,#7FA4F6 0%,#3B57A7 100%), url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='white' d='M20.285 6.709a1 1 0 0 0-1.414-1.418l-9.192 9.2-4.192-4.2A1 1 0 0 0 4.29 11.31l5 5a1 1 0 0 0 1.414 0l10-10z'/></svg>");
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
 }
 
 /* Dark Mode Overrides for New Sections */

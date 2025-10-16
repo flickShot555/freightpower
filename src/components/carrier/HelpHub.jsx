@@ -167,11 +167,11 @@ const HelpHub = () => {
         </div>
       </header>
 
-      <div className="help-hub-tabs">
+      <div className="tabs" style={{ marginBottom: "20px" }}>
         {tabs.map(tab => (
           <button
             key={tab.key}
-            className={`tab-button ${activeTab === tab.key ? 'active' : ''}`}
+            className={`tab ${activeTab === tab.key ? 'active' : ''}`}
             onClick={() => setActiveTab(tab.key)}
           >
             <i className={tab.icon}></i>

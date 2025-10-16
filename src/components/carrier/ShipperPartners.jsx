@@ -403,6 +403,13 @@ export default function ShipperPartners(){
 
               {/* Bottom action bar shown when sidebar collapses (mobile/tablet compact view) */}
               <div className="invite-actions-bottom" style={{marginTop:12}}>
+                {/* Mobile-only rating shown above buttons at very small widths (<=400px) */}
+                <div className="invite-rating mobile-only" style={{display:'none',alignItems:'center',gap:8,marginBottom:8}}>
+                  {Array.from({length:5}).map((_,i)=> (
+                    <i key={i} className={`fa-star ${i < Math.round(inv.rating) ? 'fa-solid' : 'fa-regular'}`} style={{color:'#fbbf24'}} />
+                  ))}
+                  <div className="muted" style={{marginLeft:8}}>{inv.rating} Rating</div>
+                </div>
                 {inviteTab === 'incoming' ? (
                   <>
                     <button className="btn small ghost-cd" style={{flex:1,marginRight:8}}>View Profile</button>

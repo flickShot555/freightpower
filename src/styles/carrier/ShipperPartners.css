@@ -131,6 +131,19 @@
 	.favorites-grid .grid{grid-template-columns:1fr}
 }
 
+/* Show rating above buttons and stack buttons on very small screens */
+@media (max-width:400px){
+	/* Hide any rating UI on very small screens */
+	.invite-rating.mobile-only{display:flex !important}
+	/* also hide the inline stars container which may be top-right */
+	.invite-right .invite-stars{display:none !important}
+	.invite-actions-bottom{display:flex;flex-direction:column;gap:8px}
+	.invite-actions-bottom .btn{width:100% !important;margin-right:0 !important}
+	/* hide duplicate desktop action group on very small screens */
+	.invite-action-desktop{display:none !important}
+	.invite-action-mobile{display:none !important}
+}
+
 /* Responsive adjustments to match dashboard */
 @media (max-width: 1024px){
 	.carrier-partners h3{font-size:28px}
