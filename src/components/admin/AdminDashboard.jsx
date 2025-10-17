@@ -8,6 +8,7 @@ import Carriers from './Carriers';
 import Shippers from './Shippers';
 import Drivers from './Drivers';
 import ServiceProviders from './ServiceProviders';
+import ComplianceAudit from './ComplianceAudit';
 
 export default function AdminDashboard() {
   const [activeNav, setActiveNav] = useState('dashboard');
@@ -179,6 +180,10 @@ export default function AdminDashboard() {
 
           {activeNav === 'service-providers' && (
             <ServiceProviders />
+          )}
+
+          {activeNav === 'compliance-audit' && (
+            <ComplianceAudit />
           )}
 
           {activeNav === 'dashboard' && (

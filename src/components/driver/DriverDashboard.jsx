@@ -280,7 +280,7 @@ export default function DriverDashboard() {
             <div className="card dd-route-card">
               <div className="dd-route-header">
                 <h4>Phoenix to Los Angeles</h4>
-                <span className="int-status-badge pending">Pending</span>
+                <span className="int-status-badge warning">Pending</span>
               </div>
               <div className="dd-route-info">
                 <div className="dd-route-details">

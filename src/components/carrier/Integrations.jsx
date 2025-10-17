@@ -115,7 +115,7 @@ export default function Integrations() {
       name: 'Motive ELD',
       action: 'sync completed with warnings',
       details: '89 records pulled, 4 validation errors • 15 minutes ago',
-      status: 'warning'
+      status: 'in-progress'
     },
     {
       name: 'RTS Financial',

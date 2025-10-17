@@ -90,7 +90,7 @@ export default function Marketplace({ isPostHire, setIsPostHire }) {
                 </div>
                 <h4>CDL Protection (TVC)</h4>
                 <p>Protect your CDL with expert legal representation and violation defense services.</p>
-                <span className="int-status-badge pending">20% Off This Week</span>
+                <span className="int-status-badge warning">20% Off This Week</span>
                 </div>
                 <button className="btn small-cd" style={{marginTop: '20px', width: '100%'}}>Connect</button>
               </div>
@@ -102,7 +102,7 @@ export default function Marketplace({ isPostHire, setIsPostHire }) {
                 </div>
                 <h4>ELD Solutions</h4>
                 <p>Advanced ELD integrations with real-time compliance monitoring and reporting.</p>
-                <span className="int-status-badge pending">Multiple Options</span>
+                <span className="int-status-badge warning">Multiple Options</span>
                 </div>
                 <button className="btn small-cd" style={{marginTop: '20px', width: '100%'}}>Connect</button>
               </div>
@@ -126,7 +126,7 @@ export default function Marketplace({ isPostHire, setIsPostHire }) {
                 </div>
                 <h4>Roadside Repair</h4>
                 <p>24/7 roadside assistance and repair network for emergency breakdowns.</p>
-                <span className="int-status-badge pending">24/7 Available</span>
+                <span className="int-status-badge warning">24/7 Available</span>
                 </div>
                 <button className="btn small-cd" style={{marginTop: '20px', width: '100%'}}>Connect</button>
               </div>
@@ -138,7 +138,7 @@ export default function Marketplace({ isPostHire, setIsPostHire }) {
                 </div>
                 <h4>Training & Compliance</h4>
                 <p>Continuing education and compliance training to advance your career.</p>
-                <span className="int-status-badge pending">Earn Certifications</span>
+                <span className="int-status-badge warning">Earn Certifications</span>
                 </div>
                 <button className="btn small-cd" style={{marginTop: '20px', width: '100%'}}>Connect</button>
               </div>
@@ -150,7 +150,7 @@ export default function Marketplace({ isPostHire, setIsPostHire }) {
                 </div>
                 <h4>Financial Services</h4>
                 <p>Banking, factoring, and financial planning services for drivers.</p>
-                <span className="int-status-badge pending">Multiple Partners</span>
+                <span className="int-status-badge warning">Multiple Partners</span>
                 </div>
                 <button className="btn small-cd" style={{marginTop: '20px', width: '100%'}}>Connect</button>
               </div>
@@ -350,7 +350,7 @@ export default function Marketplace({ isPostHire, setIsPostHire }) {
                 <span className="mp-provider-offer">Special offer this week</span>
               </div>
               <div className="mp-provider-actions">
-                <span className="int-status-badge pending">20% Off</span>
+                <span className="int-status-badge warning">20% Off</span>
                 <button className="btn small-cd">Learn More</button>
               </div>
             </div>

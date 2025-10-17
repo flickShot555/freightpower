@@ -63,7 +63,7 @@ export default function DocumentVault({ isPostHire, setIsPostHire }) {
       icon: "fa-solid fa-handshake",
       lastUpdated: "-",
       status: "Pending",
-      statusColor: "pending",
+      statusColor: "warning",
       description: "Required before sharing profile with carriers",
       hasAction: true
     }
@@ -82,7 +82,7 @@ export default function DocumentVault({ isPostHire, setIsPostHire }) {
       id: 2,
       title: "Medical Certificate",
       status: "Pending Soon",
-      statusColor: "pending",
+      statusColor: "warning",
       date: "Updated: Nov 15, 2023",
       expires: "Expires: Nov 15, 2025"
     },

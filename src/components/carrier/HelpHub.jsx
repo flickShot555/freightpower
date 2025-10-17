@@ -34,7 +34,7 @@ const HelpHub = () => {
       subject: 'ELD integration setup help',
       category: 'Integrations',
       priority: 'Medium',
-      status: 'Resolved',
+      status: 'Active',
       lastUpdated: 'Jan 12, 2025 4:45 PM'
     }
   ];
