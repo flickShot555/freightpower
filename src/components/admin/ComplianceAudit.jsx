@@ -13,11 +13,20 @@ export default function ComplianceAudit(){
       <header className="fp-header adm-analytics-header">
         <div className="fp-header-titles"><h2>Compliance & Audit</h2></div>
       </header>
-
-      <div className="ca-strip">Platform Compliance 95%. 4 carriers expiring soon, 2 quotes awaiting payment. AI suggests offering 'Insurance Renewal Assistance' to 3 carriers.</div>
+          <div className="ai-summary" style={{marginTop: '-20px', marginBottom: '-20px'}}>
+              <div className="ai-summary-left">
+                <span className="aai-icon"><i className="fa fa-info-circle" aria-hidden="true"></i></span>
+                <div className="aai-text"><strong>AI Summary:</strong>Platform Compliance 95%. 4 carriers expiring soon, 2 quotes awaiting payment. AI suggests offering 'Insurance Renewal Assistance' to 3 carriers.</div>
+              </div>
+              <div className="aai-actions">
+                <button className="btn small ghost-cd"><i className="fa fa-check" aria-hidden="true"></i> Confirm All</button>
+                <button className="btn small ghost-cd"><i className="fa fa-times" aria-hidden="true"></i> Send Back</button>
+                <button className="btn small ghost-cd"><i className="fa fa-file-export" aria-hidden="true"></i> Export Summary</button>
+              </div>
+            </div>
 
       <div className="ca-panel uo-panel">
-        <h3>Compliance Entities</h3>
+        <h3 className='comp-aud'>Compliance Entities</h3>
         <div className="uo-table-wrap">
           <table className="uo-table">
             <thead>
@@ -26,14 +35,14 @@ export default function ComplianceAudit(){
             <tbody>
               {entities.map((e,i)=> (
                 <tr key={i}>
-                  <td className="user-cell">{e.name}<div className="muted">{e.id}</div></td>
+                  <td className="user-cells">{e.name}<div className="muted">{e.id}</div></td>
                   <td>{e.role}</td>
                   <td><div className="score-badge">{e.score}</div></td>
                   <td>{e.docs}</td>
                   <td>{e.expiry}</td>
-                  <td><span className={`int-status-badge`}>{e.status}</span></td>
+                  <td><span className={`int-status-badge ${e.status}`}>{e.status}</span></td>
                   <td>{e.assigned}</td>
-                  <td><div className="actions"><i className="fa-solid fa-eye"/></div></td>
+                  <td><div className="actions"><i className="fa-solid fa-ellipsis-h"/></div></td>
                 </tr>
               ))}
             </tbody>
@@ -41,21 +50,22 @@ export default function ComplianceAudit(){
         </div>
       </div>
 
-      <div className="ca-support uo-panel">
-        <h3>Compliance Support Request Center</h3>
-        <div className="ca-stats">
-          <div className="ca-box">12<br/><span>Active Requests</span></div>
-          <div className="ca-box">67%<br/><span>Quotes Accepted</span></div>
-          <div className="ca-box">$2,340<br/><span>Monthly Revenue</span></div>
-          <div className="ca-box">18h<br/><span>Avg Resolution</span></div>
+      <div className="ca-stats">
+          <div className="ca-box"><div className='num-cd'>12</div><div className='num-desc'>Active Requests</div></div>
+          <div className="ca-box"><div className='num-cd'>67%</div><div className='num-desc'>Quotes Accepted</div></div>
+          <div className="ca-box"><div className='num-cd'>$2,340</div><div className='num-desc'>Monthly Revenue</div></div>
+          <div className="ca-box"><div className='num-cd'>18h</div><div className='num-desc'>Avg Resolution</div></div>
         </div>
+
+      <div className="ca-support uo-panel" style={{marginTop: '0px'}}>
+        <h3 className='comp-aud'>Compliance Support Request Center</h3>
 
         <div className="uo-table-wrap" style={{marginTop:12}}>
           <table className="uo-table">
             <thead><tr><th>Request ID</th><th>From</th><th>Role</th><th>Type</th><th>Priority</th><th>Date</th><th>Status</th><th>Assigned To</th><th>Actions</th></tr></thead>
             <tbody>
-              <tr><td>#1142</td><td>Metro Haul LLC</td><td>Carrier</td><td>2290 Renewal</td><td>High</td><td>Oct 13</td><td><span className="int-status-badge pending">Pending</span></td><td>—</td><td><i className="fa-solid fa-eye"/></td></tr>
-              <tr><td>#1143</td><td>Apex Freight</td><td>Broker</td><td>Audit Prep</td><td>Medium</td><td>Oct 13</td><td><span className="int-status-badge resolved">Paid</span></td><td>Lisa A.</td><td><i className="fa-solid fa-eye"/></td></tr>
+              <tr><td className='num-row'>#1142</td><td>Metro Haul LLC</td><td>Carrier</td><td className='num-type'>2290 Renewal</td><td>High</td><td className='num-date'>Oct 13</td><td><span className="int-status-badge pending">Pending</span></td><td className='num-assigned'>—</td><td><i className="fa-solid fa-solid fa-ellipsis-h"/></td></tr>
+              <tr><td className='num-row'>#1143</td><td>Apex Freight</td><td>Broker</td><td className='num-type'>Audit Prep</td><td>Medium</td><td className='num-date'>Oct 13</td><td><span className="int-status-badge resolved">Paid</span></td><td className='num-assigned'>Lisa A.</td><td><i className="fa-solid fa-solid fa-ellipsis-h"/></td></tr>
             </tbody>
           </table>
         </div>

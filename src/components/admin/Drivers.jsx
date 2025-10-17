@@ -11,10 +11,10 @@ export default function Drivers(){
   ];
 
   const drivers = [
-    {name:'John Doe', type:'Hired', region:'MN', manager:'Ayaan', status:'Verified'},
-    {name:'Ahmed K.', type:'Pre-Hire', region:'WI', manager:'Yusuf', status:'MVR Expiring'},
-    {name:'Sara L.', type:'Hired', region:'MN', manager:'Sara', status:'Background Pending'},
-    {name:'Brian T.', type:'Pre-Hire', region:'IA', manager:'Ayaan', status:'Ready for'}
+    {name:'John Doe', type:'Hired', region:'MN', manager:'Ayaan', status:'Verified', Status: 'active'},
+    {name:'Ahmed K.', type:'Pre-Hire', region:'WI', manager:'Yusuf', status:'MVR Expiring', Status: 'warning'   },
+    {name:'Sara L.', type:'Hired', region:'MN', manager:'Sara', status:'Background Pending', Status: 'pending'},
+    {name:'Brian T.', type:'Pre-Hire', region:'IA', manager:'Ayaan', status:'Ready for Review', Status: 'active'}
   ]
 
   return (
@@ -46,7 +46,7 @@ export default function Drivers(){
                   <td>{d.type}</td>
                   <td>{d.region}</td>
                   <td>{d.manager}</td>
-                  <td><span className="int-status-badge pending">{d.status}</span></td>
+                  <td><span className={`int-status-badge ${d.Status}`}>{d.status}</span></td>
                   <td className="carrier-actions"><a className="card-action">View</a></td>
                 </tr>
               ))}

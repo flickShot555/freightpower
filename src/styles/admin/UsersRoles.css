@@ -36,9 +36,9 @@
 .uo-table-wrap{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
 .uo-table{ min-width:900px; white-space:nowrap }
 .user-cell img{ width:32px;height:32px;border-radius:50%;margin-right:8px;vertical-align:middle }
-.user-cell{ display:flex; align-items:center; }
+.user-cell{ display:flex; align-items:center; font-size: 14px; font-weight: 600;}
 .action-col{ text-align:center }
-
+.uo-table td:nth-child(2), .uo-table td:nth-child(3), .uo-table td:nth-child(5) {font-size: 14px;}
 /* Remove table cell borders around action columns so buttons aren't visually cut by dividers */
 .uo-panel .uo-table tbody td.action-col,
 .uo-panel .uo-table tbody td.carrier-actions,
@@ -56,6 +56,23 @@
 }
 
 .uo-footer{ margin-top:12px }
+
+/* Make carriers table headers match the users table header styles
+	 This keeps header padding, font-size, color and divider consistent across admin tables */
+.uo-panel .uo-table.carriers-table thead th,
+.uo-panel .carriers-table thead th {
+	text-align: left;
+	padding: 12px;
+	color: #64748b;
+	font-size: 13px;
+	border-bottom: 1px solid rgba(15,23,42,0.06);
+	text-transform: none; /* match users table (no forced uppercase) */
+}
+.dark-root .uo-panel .uo-table.carriers-table thead th,
+.dark-root .uo-panel .carriers-table thead th {
+	color: #94a3b8;
+	border-color: rgba(255,255,255,0.06);
+}
 
 /* ------------------------------------------------------------------
 	 Carrier & Shipper table visual fix (scope only to carriers tables)

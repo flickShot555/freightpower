@@ -119,7 +119,7 @@ export default function ShipperMarketplace() {
           <div className="card-header">
             <h4>Public Listings</h4>
             <div className="card-icon blue">
-              <i className="fa-solid fa-list" style={{ color: '#356fec' }}/>
+              <i className="fa-solid fa-list"/>
             </div>
           </div>
           <div className="card-number">12</div>
@@ -130,7 +130,7 @@ export default function ShipperMarketplace() {
           <div className="card-header">
             <h4>Verified Carriers</h4>
             <div className="card-icon green">
-              <i className="fa-solid fa-question" style={{ color: '#45c0ca' }}/>
+              <i className="fa-solid fa-question"/>
             </div>
           </div>
           <div className="card-number">2,847</div>
@@ -141,7 +141,7 @@ export default function ShipperMarketplace() {
           <div className="card-header">
             <h4>Service Providers</h4>
             <div className="card-icon purple">
-              <i className="fa-solid fa-handshake" style={{ color: '#9333ea' }} />
+              <i className="fa-solid fa-handshake"/>
             </div>
           </div>
           <div className="card-number">156</div>
@@ -152,7 +152,7 @@ export default function ShipperMarketplace() {
           <div className="card-header">
             <h4>AI Matches</h4>
             <div className="card-icon orange">
-              <i className="fa-solid fa-lightbulb" style={{ color: '#ea5e15' }} />
+              <i className="fa-solid fa-lightbulb"/>
             </div>
           </div>
           <div className="card-number">8</div>

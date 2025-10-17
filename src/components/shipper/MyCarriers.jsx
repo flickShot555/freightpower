@@ -23,9 +23,9 @@ export default function MyCarriers() {
             <p className="fp-subtitle">Welcome back! Here's what's happening with your fleet today.</p>
           </div>
           <div className="sd-carrier-row-options">
-            <button className="sd-btn-invite" onClick={() => setIsInviteOpen(true)}><i className="fa-solid fa-plus" aria-hidden="true" />Invite Carrier</button>
-            <button className="sd-btn ghost"><i className="fa-solid fa-upload" aria-hidden="true" />Upload Document</button>
-            <button className="sd-btn ghost"><i className="fa-solid fa-download" aria-hidden="true" />Export List</button>
+            <button className="btn small-cd" onClick={() => setIsInviteOpen(true)}><i className="fa-solid fa-plus" aria-hidden="true" />Invite Carrier</button>
+            <button className="btn small ghost-cd"><i className="fa-solid fa-upload" aria-hidden="true" />Upload Document</button>
+            <button className="btn small ghost-cd"><i className="fa-solid fa-download" aria-hidden="true" />Export List</button>
           </div>
           </div>
         </header>
@@ -33,44 +33,44 @@ export default function MyCarriers() {
       <section className="cards-row">
         <div className="sd-stat-card">
           <div className="sd-stat-label">Total Carriers</div>
-          <div className="sd-stat-value-total-carriers">1,247</div>
+          <div className="sd-stat-value">1,247</div>
           <div className="sd-stat-icon"><i className="fa-solid fa-truck" aria-hidden="true"></i></div>
         </div>
         <div className="sd-stat-card">
           <div className="sd-stat-label">Active Carriers</div>
-          <div className="sd-stat-value-active-carriers">1,089</div>
+          <div className="sd-stat-value">1,089</div>
           <div className="sd-stat-icon"><i className="fa-solid fa-check" aria-hidden="true"></i></div>
         </div>
         <div className="sd-stat-card">
           <div className="sd-stat-label">Pending Invites</div>
-          <div className="sd-stat-value-pending-invites">43</div>
+          <div className="sd-stat-value">43</div>
           <div className="sd-stat-icon"><i className="fa-solid fa-hourglass" aria-hidden="true"></i></div>
         </div>
         <div className="sd-stat-card">
           <div className="sd-stat-label">Compliance Risk</div>
-          <div className="sd-stat-value-compliance-risk">27</div>
+          <div className="sd-stat-value">27</div>
           <div className="sd-stat-icon"><i className="fa-solid fa-exclamation" aria-hidden="true"></i></div>
         </div>
         <div className="sd-stat-card">
           <div className="sd-stat-label">Avg Rating</div>
-          <div className="sd-stat-value-avg-rating">4.6★</div>
+          <div className="sd-stat-value">4.6★</div>
           <div className="sd-stat-icon"><i className="fa-solid fa-star" aria-hidden="true"></i></div>
         </div>
         <div className="sd-stat-card">
           <div className="sd-stat-label">Avg On-Time %</div>
-          <div className="sd-stat-value-avg-on-time">92.4%</div>
+          <div className="sd-stat-value">92.4%</div>
           <div className="sd-stat-icon"><i className="fa-solid fa-clock" aria-hidden="true"></i></div>
         </div>
       </section>
 
       <section className="sb-filters-row">
-        <div className="sb-tabs-row" role="tablist" aria-label="Carrier tabs">
+        <div className="tabs" role="tablist" aria-label="Carrier tabs" style={{marginBottom: '20px'}}>
           {tabs.map(t => (
             <button
               key={t.id}
               role="tab"
               aria-selected={activeTab === t.id}
-              className={`sb-tab ${activeTab === t.id ? 'active' : ''}`}
+              className={`tab ${activeTab === t.id ? 'active' : ''}`}
               onClick={() => setActiveTab(t.id)}
             >
               {t.label}
@@ -104,7 +104,7 @@ export default function MyCarriers() {
           <div className="th last">Last Load</div>
           <div className="th docs">Docs Valid</div>
           <div className="th equip">Equipment</div>
-          <div className="th actions">Actions</div>
+          <div className="">Actions</div>
         </div>
 
   <div className="sb-table-row">
@@ -121,9 +121,9 @@ export default function MyCarriers() {
           <div className="td ontime">94.2%</div>
           <div className="td loads">1,247</div>
           <div className="td last">2 days ago</div>
-          <div className="td docs"><span className="badge green">Valid</span></div>
-          <div className="td equip"><span className="badge">Dry Van</span> <span className="badge">Reefer</span></div>
-          <div className="td actions">•••</div>
+          <div className="td docs"><span className="int-status-badge active">Valid</span></div>
+          <div className="td equip"><span className="int-status-badge blue">Dry Van</span> <span className="int-status-badge blue">Reefer</span></div>
+          <div className="td actions"><i className="fa-solid fa-ellipsis-h"></i></div>
         </div>
 
   <div className="sb-table-row">
@@ -140,9 +140,9 @@ export default function MyCarriers() {
           <div className="td ontime">91.8%</div>
           <div className="td loads">892</div>
           <div className="td last">1 week ago</div>
-          <div className="td docs"><span className="badge yellow">Expiring</span></div>
-          <div className="td equip"><span className="badge">Dry Van</span> <span className="badge purple">Flatbed</span></div>
-          <div className="td actions">•••</div>
+          <div className="td docs"><span className="int-status-badge warning">Expiring</span></div>
+          <div className="td equip"><span className="int-status-badge blue">Dry Van</span> <span className="int-status-badge blue">Flatbed</span></div>
+          <div className=""><i className="fa-solid fa-ellipsis-h"></i></div>
         </div>
 
         </div>

@@ -86,14 +86,13 @@
   align-items: center;
   justify-content: center;
   font-size: 16px;
-  color: white;
+  background-color: #f3f3f3;
 }
 
-.card-icon.blue { background-color: #3b83f65c; }
-.card-icon.green { background-color: #45bfca58; }
-.card-icon.purple { background-color: #8a5cf65f; }
-.card-icon.orange { background-color: #f59f0b6c; }
-
+.dark-root .card-icon {
+  background-color: #3a3a3a;
+  color: #9ca3af;
+} 
 .card-number {
   font-size: 28px;
   font-weight: 700;

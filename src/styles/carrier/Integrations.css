@@ -881,23 +881,23 @@ border:1px solid var(--fp-topbar-bg);background:transparent;color:#0f1724;paddin
   text-transform: capitalize;
 }
 
-.int-status-badge.active, .int-category-badge.healthy, .int-status-badge.resolved, .int-status-badge.confirmed, .int-status-badge.scheduled {
+.int-status-badge.active, .int-category-badge.healthy,.int-status-badge.Verified, .int-status-badge.resolved, .int-status-badge.confirmed, .int-status-badge.scheduled {
 background:linear-gradient(#dff7ea, #b4e1d0); color:#0b7f60
 }
 
-.dark-root .int-status-badge.active, .dark-root .int-category-badge.healthy, .dark-root .int-status-badge.resolved, .dark-root .int-status-badge.confirmed, .dark-root .int-status-badge.scheduled {background:linear-gradient(rgba(15, 125, 94, 0.795), rgba(13, 110, 82, 0.312)); color:#9fe2c7;}
+.dark-root .int-status-badge.active, .dark-root .int-category-badge.healthy, .dark-root .int-status-badge.Verified, .dark-root .int-status-badge.resolved, .dark-root .int-status-badge.confirmed, .dark-root .int-status-badge.scheduled {background:linear-gradient(rgba(15, 125, 94, 0.795), rgba(13, 110, 82, 0.312)); color:#9fe2c7;}
 
-.int-status-badge.warning, .int-status-badge.pending, .int-status-badge.in-progress, .int-status-badge.open {
+.int-status-badge.warning, .int-status-badge.pending,.int-status-badge.Expiring, .int-status-badge.in-progress, .int-status-badge.open {
   background:linear-gradient(#fff4d9, #fce99e)!important; color: #b68100 !important;
 }
 
-.dark-root .int-status-badge.warning, .dark-root .int-status-badge.pending, .dark-root .int-status-badge.in-progress, .dark-root .int-status-badge.open {background:linear-gradient(rgba(185, 130, 0, 0.762), rgba(185, 129, 0, 0.425)); color:#f6e05e}
+.dark-root .int-status-badge.warning, .dark-root .int-status-badge.pending, .dark-root .int-status-badge.Expiring, .dark-root .int-status-badge.in-progress, .dark-root .int-status-badge.open {background:linear-gradient(rgba(185, 130, 0, 0.762), rgba(185, 129, 0, 0.425))!important; color: #f6e05e !important;}
 
-.int-status-badge.disconnected, .int-status-badge.inactive, .int-status-badge.revoked {
+.int-status-badge.disconnected, .int-status-badge.inactive, .int-status-badge.revoked, .int-status-badge.Expired {
 background:linear-gradient(#ffe6e6, #ffc9c9); color:#ef4444 
 }
 
-.dark-root .int-status-badge.disconnected, .dark-root .int-status-badge.inactive, .dark-root .int-status-badge.revoked {background:linear-gradient(rgba(239, 68, 68, 0.795), rgba(220, 38, 38, 0.312)); color:#fca5a5; }
+.dark-root .int-status-badge.disconnected, .dark-root .int-status-badge.inactive, .dark-root .int-status-badge.revoked, .dark-root .int-status-badge.Expired {background:linear-gradient(rgba(239, 68, 68, 0.795), rgba(220, 38, 38, 0.312)); color:#fca5a5; }
 
 .dark-root .int-status-badge.blue, .int-status-badge.blue{
   background: linear-gradient(#7FA4F6 0%, #3B57A7 100%); color: #fff;

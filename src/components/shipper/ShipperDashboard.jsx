@@ -69,10 +69,10 @@ export default function ShipperDashboard() {
       <>
         <header className="fp-header">
           <div className="fp-header-controls">
-            <button className="btn small">+ Create Load</button>
-            <button className="btn ghost">Invite Carrier</button>
-            <button className="btn ghost">Upload Document</button>
-            <button className="btn ghost">Track Shipments</button>
+            <button className="btn small-cd">+ Create Load</button>
+            <button className="btn small ghost-cd">Invite Carrier</button>
+            <button className="btn small ghost-cd">Upload Document</button>
+            <button className="btn small ghost-cd">Track Shipments</button>
           </div>
         </header>
 
@@ -80,7 +80,7 @@ export default function ShipperDashboard() {
           <div className="card sd-small-card">
             <div className="sd-small-card-row">
               <h4>Active Loads</h4>
-              <i className="fa-solid fa-truck sd-card-icon" aria-hidden="true" />
+              <i className="fa-solid fa-truck" aria-hidden="true" />
             </div>
             <div className="big">24</div>
             <div className="small-sub-active">+3 today</div>
@@ -88,7 +88,7 @@ export default function ShipperDashboard() {
           <div className="card sd-small-card">
             <div className="sd-small-card-row">
               <h4>On-Time %</h4>
-              <i className="fa-solid fa-clock sd-card-icon" aria-hidden="true" />
+              <i className="fa-solid fa-clock" aria-hidden="true" />
             </div>
             <div className="big green">96.2%</div>
             <div className="small-sub-time">+1.2%</div>
@@ -96,7 +96,7 @@ export default function ShipperDashboard() {
           <div className="card sd-small-card">
             <div className="sd-small-card-row">
               <h4>Carrier Rating</h4>
-              <i className="fa-solid fa-star sd-card-icon" aria-hidden="true" />
+              <i className="fa-solid fa-star" aria-hidden="true" />
             </div>
             <div className="big">4.8</div>
             <div className="small-sub-rating">Excellent</div>
@@ -105,7 +105,7 @@ export default function ShipperDashboard() {
           <div className="card sd-small-card">
             <div className="sd-small-card-row">
               <h4>Total Revenue</h4>
-              <i className="fa-solid fa-dollar-sign sd-card-icon" aria-hidden="true" />
+              <i className="fa-solid fa-dollar-sign" aria-hidden="true" />
             </div>
             <div className="big">$342K</div>
             <div className="small-sub-revenue">+12% MTD</div>
@@ -113,7 +113,7 @@ export default function ShipperDashboard() {
           <div className="card sd-small-card">
             <div className="sd-small-card-row">
               <h4>Compliance</h4>
-              <i className="fa-solid fa-shield-halved sd-card-icon" aria-hidden="true" />
+              <i className="fa-solid fa-shield-halved" aria-hidden="true" />
             </div>
             <div className="big">94%</div>
             <div className="small-sub-compliance">2 expiring</div>
@@ -121,13 +121,13 @@ export default function ShipperDashboard() {
           <div className="card sd-small-card">
             <div className="sd-small-card-row">
               <h4>Pending Tasks</h4>
-              <i className="fa-solid fa-list-check sd-card-icon" aria-hidden="true" />
+              <i className="fa-solid fa-list-check" aria-hidden="true" />
             </div>
             <div className="big">8</div>
             <div className="small-sub-task">3 urgent</div>
           </div>
 
-          <div className="card sd-small-card ai-summary">
+          <div className="card sd-small-card shd-ai-summary">
             <h4>AI Summary</h4>
             <div className="big">132 loads</div>
           </div>
@@ -179,7 +179,7 @@ export default function ShipperDashboard() {
           </div>
 
           <div style={{marginLeft:'auto'}} className="search-wrapper">
-            <div className="search-box">
+            <div className="ssd-search-box">
               <i className="fa-solid fa-magnifying-glass" aria-hidden="true" />
               <input placeholder="Search..." />
             </div>
@@ -204,15 +204,15 @@ export default function ShipperDashboard() {
             <ul className="active-load-list">
               <li>
                 <div className="load-left"><strong>#L2401</strong><div className="muted">Chicago → Atlanta</div></div>
-                <div className="load-right"><div className="status ontime">On Time</div><div className="muted small">ETA: 2h 15m</div></div>
+                <div className="load-right"><div className="int-status-badge active">On Time</div><div className="muted small">ETA: 2h 15m</div></div>
               </li>
               <li>
                 <div className="load-left"><strong>#L2402</strong><div className="muted">Dallas → Phoenix</div></div>
-                <div className="load-right"><div className="status delayed">Delayed</div><div className="muted small">ETA: +45m</div></div>
+                <div className="load-right"><div className="int-status-badge warning">Delayed</div><div className="muted small">ETA: +45m</div></div>
               </li>
               <li>
                 <div className="load-left"><strong>#L2403</strong><div className="muted">Miami → Jacksonville</div></div>
-                <div className="load-right"><div className="status delivered">Delivered</div><div className="muted small">30m ago</div></div>
+                <div className="load-right"><div className="int-status-badge active">Delivered</div><div className="muted small">30m ago</div></div>
               </li>
             </ul>
           </div>
@@ -269,11 +269,11 @@ export default function ShipperDashboard() {
 
           <div className="card compliance-card">
             <h3>Compliance Status</h3>
-            <div className="sd-exp-item pill red">
+            <div className="sd-exp-item pill">
               <div className="exp-title">Insurance Expiring</div>
               <div className="exp-sub muted">Swift Transport - 3 days</div>
             </div>
-            <div className="sd-exp-item pill yellow">
+            <div className="sd-exp-item pill">
               <div className="exp-title">DOT Audit Due</div>
               <div className="exp-sub muted">Reliable Freight - 7 days</div>
             </div>
@@ -328,8 +328,8 @@ export default function ShipperDashboard() {
                     <div className="company-name">Atlas Logistics LLC</div>
                     {/* Shipper-only status chips placed below the company name (column) */}
                     <div className="shipper-status">
-                      <span className="chip success"><i className="fa-solid fa-check"/> Active & Operating</span>
-                      <span className="chip blue"><i className="fa-solid fa-network-wired"/> TMS Connected</span>
+                      <span className="int-status-badge active"><i className="fa-solid fa-check"/> Active & Operating</span>
+                      <span className="int-status-badge blue"><i className="fa-solid fa-network-wired"/> TMS Connected</span>
                     </div>
                   </div>
                 </div>
@@ -338,14 +338,6 @@ export default function ShipperDashboard() {
 
           <div className="topbar-right actions-right">
             <div className="icons">
-              <div className="notif">
-                <i className="fa-regular fa-bell notif-icon" aria-hidden="true" />
-                <span className="notif-badge">3</span>
-              </div>
-              <i className="fa-solid fa-robot bot-icon" aria-hidden="true" />
-              <img src="https://randomuser.me/api/portraits/women/65.jpg" alt="avatar" className="avatar-img"/>
-            </div>
-            <div className="icons-mobile">
               <div className="notif">
                 <i className="fa-regular fa-bell notif-icon" aria-hidden="true" />
                 <span className="notif-badge">3</span>
@@ -365,8 +357,8 @@ export default function ShipperDashboard() {
             </div>
             <div className="chips sidebar-chips">
               <div className="company-name">Atlas Logistics LLC</div>
-              <span className="chip success">Active & Operating</span>
-              <span className="chip info">TMS Connected</span>
+              <span className="int-status-badge active">Active & Operating</span>
+              <span className="int-status-badge blue">TMS Connected</span>
             </div>
           </div>
 

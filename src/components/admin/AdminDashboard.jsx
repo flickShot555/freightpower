@@ -9,6 +9,10 @@ import Shippers from './Shippers';
 import Drivers from './Drivers';
 import ServiceProviders from './ServiceProviders';
 import ComplianceAudit from './ComplianceAudit';
+import DocumentVault from './DocumentVault';
+import AdminMessaging from './Messaging';
+import Tasks from './Tasks';
+import HiringOnboarding from './HiringOnboarding';
 
 export default function AdminDashboard() {
   const [activeNav, setActiveNav] = useState('dashboard');
@@ -182,8 +186,24 @@ export default function AdminDashboard() {
             <ServiceProviders />
           )}
 
+          {activeNav === 'document-vault' && (
+            <DocumentVault />
+          )}
+
           {activeNav === 'compliance-audit' && (
             <ComplianceAudit />
+          )}
+
+          {activeNav === 'messages' && (
+            <AdminMessaging />
+          )}
+
+          {activeNav === 'tasks' && (
+            <Tasks />
+          )}
+
+          {activeNav === 'hiring' && (
+            <HiringOnboarding />
           )}
 
           {activeNav === 'dashboard' && (
