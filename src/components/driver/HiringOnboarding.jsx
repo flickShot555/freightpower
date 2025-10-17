@@ -36,56 +36,56 @@ export default function HiringOnboarding() {
           <div className="ho-card complete">
             <div className="ho-card-header">
               <span className="ho-card-title">Application for Employment</span>
-              <span className="ho-status-badge complete">Complete</span>
+              <span className="int-status-badge active">Complete</span>
             </div>
-            <p>Personal info, driving history, references</p>
-            <button className="btn ho-view-btn">View Application</button>
+            <p className="ho-card-desc">Personal info, driving history, references</p>
+            <button className="btn small ghost-cd">View Application</button>
           </div>
           <div className="ho-card complete">
             <div className="ho-card-header">
               <span className="ho-card-title">Commercial Driver's License</span>
-              <span className="ho-status-badge complete">Complete</span>
-            </div>
-            <p>Expires: March 15, 2026</p>
-            <button className="btn ho-view-btn">View Document</button>
+                <span className="int-status-badge active">Complete</span>
+              </div>
+            <p className="ho-card-desc">Expires: March 15, 2026</p>
+            <button className="btn small ghost-cd">View Document</button>
           </div>
           <div className="ho-card missing">
             <div className="ho-card-header">
               <span className="ho-card-title">DOT Medical Certificate</span>
-              <span className="ho-status-badge missing">Missing</span>
+              <span className="int-status-badge revoked">Missing</span>
             </div>
             <p className="ho-card-desc warning">Required for compliance</p>
-            <button className="btn ho-action-btn">Upload Medical Card</button>
+            <button className="btn btn small-cd">Upload Medical Card</button>
           </div>
           <div className="ho-card missing">
             <div className="ho-card-header">
               <span className="ho-card-title">Drug Test Results</span>
-              <span className="ho-status-badge missing">Missing</span>
+              <span className="int-status-badge revoked">Missing</span>
             </div>
             <p className="ho-card-desc warning">Pre-employment screening required</p>
-            <button className="btn ho-action-btn">Upload Test Results</button>
+            <button className="btn btn small-cd">Upload Test Results</button>
           </div>
           <div className="ho-card missing">
             <div className="ho-card-header">
               <span className="ho-card-title">Background Check</span>
-              <span className="ho-status-badge missing">Missing</span>
+              <span className="int-status-badge revoked">Missing</span>
             </div>
             <p className="ho-card-desc warning">Criminal history verification</p>
-            <button className="btn ho-action-btn">Start Background Check</button>
+            <button className="btn btn small-cd">Start Background Check</button>
           </div>
           <div className="ho-card missing">
             <div className="ho-card-header">
               <span className="ho-card-title">Digital Consent Form</span>
-              <span className="ho-status-badge missing">Missing</span>
+              <span className="int-status-badge revoked">Missing</span>
             </div>
             <p className="ho-card-desc warning">Terms & conditions agreement</p>
-            <button className="btn ho-action-btn">Sign Consent Form</button>
+            <button className="btn btn small-cd">Sign Consent Form</button>
           </div>
         </div>
       </section>
 
       <section className="ho-section">
-        <h3>Optional Training & Knowledge Base <span className="ho-recommended">Recommended</span></h3>
+        <h3>Optional Training & Knowledge Base <span className="int-status-badge active">Recommended</span></h3>
         <div className="ho-training-card">
           <div className="ho-training-header">
             <i className="fa-solid fa-graduation-cap"></i>
@@ -97,31 +97,28 @@ export default function HiringOnboarding() {
           <div className="ho-training-grid">
             <div className="ho-training-item">
               <span className="ho-training-label">FreightPower Basics</span>
-              <button className="btn ho-training-btn">Start Course</button>
+              <button className="btn btn small-cd">Start Course</button>
             </div>
             <div className="ho-training-item">
               <span className="ho-training-label">Hours of Service</span>
-              <button className="btn ho-training-btn">Start Course</button>
+              <button className="btn btn small-cd">Start Course</button>
             </div>
             <div className="ho-training-item">
               <span className="ho-training-label">Safety & Compliance</span>
-              <button className="btn ho-training-btn">Start Course</button>
+              <button className="btn btn small-cd">Start Course</button>
             </div>
           </div>
         </div>
       </section>
 
       <div className="ho-info-card ho-ai-recommend">
-        <div className="ai-badge">
-          <i className="fa-solid fa-robot"></i>
-        </div>
         <div className="ai-content">
           <h4>AI Assistant Recommendations</h4>
           <ul className="ai-list">
             <li><span className="ai-list-icon"><i className="fa-solid fa-lightbulb"></i></span>Upload your DOT Medical Certificate to maintain compliance status</li>
             <li><span className="ai-list-icon"><i className="fa-solid fa-lightbulb"></i></span>Complete background check to unlock Marketplace access faster</li>
           </ul>
-          <button className="ai-btn">Chat with AI Assistant</button>
+          <button className="btn small ghost-cd dd-btn">Chat with AI Assistant</button>
         </div>
       </div>
     </div>

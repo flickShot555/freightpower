@@ -21,7 +21,6 @@ export default function SignDocumentModal({ documentItem, onClose }){
       <div className="fpdd-sig-modal" onClick={e => e.stopPropagation()}>
         <div className="fpdd-sig-header">
           <div className="fpdd-sig-header-left">
-            <div className="fpdd-sig-lock">🔒</div>
             <div className="fpdd-sig-titles">
               <h3>Sign Document</h3>
               <div className="fpdd-sig-doctitle">{documentItem.title || 'Rate Confirmation'}</div>
@@ -57,9 +56,9 @@ export default function SignDocumentModal({ documentItem, onClose }){
             </div>
 
             <div className="fpdd-sig-canvas-actions">
-              <button className="btn small outlines">Clear</button>
-              <button className="btn small outlines">Type Name</button>
-              <button className="btn small outlines">Upload Image</button>
+              <button className="btn small ghost-cd">Clear</button>
+              <button className="btn small ghost-cd">Type Name</button>
+              <button className="btn small ghost-cd">Upload Image</button>
             </div>
 
             <div className="fpdd-info-card">
@@ -87,10 +86,10 @@ export default function SignDocumentModal({ documentItem, onClose }){
         </div>
 
         <div className="fpdd-sig-footer">
-          <button className="btn large primary fpdd-confirm">Confirm &amp; Sign</button>
+          <button className="btn small-cd">Confirm &amp; Sign</button>
           <div className="fpdd-sig-secondary" style={{marginTop:12}}>
-            <button className="btn outline-dm">Download PDF</button>
-            <button className="btn outline-dm">Share / Send</button>
+            <button className="btn small ghost-cd">Download PDF</button>
+            <button className="btn small ghost-cd">Share / Send</button>
           </div>
         </div>
       </div>

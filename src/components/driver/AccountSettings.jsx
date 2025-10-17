@@ -45,7 +45,7 @@ export default function AccountSettings() {
           <div className="profile-field">
             <input type="text" placeholder="Phone Number" />
           </div>
-          <button className="preview-profile-btn">
+          <button className="btn small-cd">
             Preview Marketplace Profile
           </button>
         </div>
@@ -107,7 +107,7 @@ export default function AccountSettings() {
             <li className="action-item">
               <div className="action-left">
                 <div className="action-title">Two-Factor Authentication</div>
-                <div className="status enabled">Enabled</div>
+                <div className="int-status-badge active">Enabled</div>
               </div>
               <span className="chev">›</span>
             </li>
@@ -153,18 +153,18 @@ export default function AccountSettings() {
         <div className="reports-card">
           <h3 className="card-title">Reports</h3>
           <ul className="action-list">
-            <li className="action-item">Compliance Report <span className="download">⤓</span></li>
-            <li className="action-item">Load Report <span className="download">⤓</span></li>
-            <li className="action-item">Activity Log <span className="download">⤓</span></li>
+            <li className="action-item">Compliance Report <span className="download"><i className='fa-solid fa-download'></i></span></li>
+            <li className="action-item">Load Report <span className="download"><i className='fa-solid fa-download'></i></span></li>
+            <li className="action-item">Activity Log <span className="download"><i className='fa-solid fa-download'></i></span></li>
           </ul>
 
           <div className="divider" />
           <div className="export-label">Export Options</div>
           <div className="export-options">
-            <button className="btn pdf">PDF</button>
-            <button className="btn csv">CSV</button>
+            <button className="btn small-cd" style={{width: '100%'}}>PDF</button>
+            <button className="btn small-cd" style={{width: '100%'}}>CSV</button>
           </div>
-          <button className="btn request">Request Full Data Download</button>
+          <button className="btn small ghost-cd">Request Full Data Download</button>
         </div>
 
         <div className="integrations-card">
@@ -175,24 +175,24 @@ export default function AccountSettings() {
                 <div className="integration-title">ELD Device</div>
                 <div className="integration-desc">Garmin eLog 2.0 - Device ID: #GL2024567</div>
               </div>
-              <div className="integration-status connected">Connected</div>
+              <div className="int-status-badge active">Connected</div>
             </li>
             <li className="integration-item">
               <div>
                 <div className="integration-title">Fuel Services</div>
                 <div className="integration-desc">TVC Pro Driver - Fleet Card Integration</div>
               </div>
-              <div className="integration-status connected">Connected</div>
+              <div className="int-status-badge active">Connected</div>
             </li>
             <li className="integration-item">
               <div>
                 <div className="integration-title">Training Provider</div>
                 <div className="integration-desc">Connect training services for compliance tracking</div>
               </div>
-              <div className="integration-status disconnected">Not Connected</div>
+              <div className="int-status-badge disconnected">Not Connected</div>
             </li>
           </ul>
-          <button className="btn manage">Manage Permissions</button>
+          <button className="btn small-cd" style={{marginTop: '20px'}}>Manage Permissions</button>
         </div>
       </div>
       {/* Support & Help Section */}

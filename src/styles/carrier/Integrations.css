@@ -899,6 +899,10 @@ background:linear-gradient(#ffe6e6, #ffc9c9); color:#ef4444
 
 .dark-root .int-status-badge.disconnected, .dark-root .int-status-badge.inactive, .dark-root .int-status-badge.revoked {background:linear-gradient(rgba(239, 68, 68, 0.795), rgba(220, 38, 38, 0.312)); color:#fca5a5; }
 
+.dark-root .int-status-badge.blue, .int-status-badge.blue{
+  background: linear-gradient(#7FA4F6 0%, #3B57A7 100%); color: #fff;
+}
+
 .sync-info, .records-info {
   display: flex;
   flex-direction: column;

@@ -14,16 +14,23 @@
   }
 }
 
+.ghost-cd.dd-btn {
+  background: #e0d6d632!important;
+  color: #fff !important;
+  border: none!important;
+  box-shadow: none!important;
+}
+
 /* Post-hire active load card styles */
 .dd-active-load-card {
-  background: linear-gradient(90deg, #0ea4e7 0%, #0a98c6 100%)!important;
+  background: linear-gradient(#7FA4F6 0%, #3B57A7 100%)!important;
   color: white;
   border-radius: 12px;
   padding: 24px;
 }
 
 .dark-root .dd-active-load-card {
-  background: linear-gradient(90deg, #0ea4e7 0%, #0a98c6 100%)!important;
+  background: linear-gradient(#7FA4F6 0%, #3B57A7 100%)!important;
   color: white;
   border-radius: 12px;
   padding: 24px;
@@ -305,7 +312,7 @@
   color: #cbd5e1 !important;
 }
 .dd-step-complete-icon-fa {
-  color: #10b981;
+  background: linear-gradient(#7FA4F6 0%, #3B57A7 100%);
   border-radius: 50%;
   font-size: 2.2rem;
   width: 48px;
@@ -314,9 +321,12 @@
   align-items: center;
   justify-content: center;
   margin: 0 auto 10px auto;
+  background-clip: text;
+  -webkit-background-clip: text; 
+  color: transparent; /* Make the text itself transparent */
 }
 .dd-step-inprogress-icon-fa {
-  color: #f59e0b;
+  background: linear-gradient(#7FA4F6 0%, #3B57A7 100%);
   border-radius: 50%;
   font-size: 2.2rem;
   width: 48px;
@@ -325,6 +335,9 @@
   align-items: center;
   justify-content: center;
   margin: 0 auto 10px auto;
+  background-clip: text;
+  -webkit-background-clip: text; 
+  color: transparent;
 }
 .dd-step-pending-icon-fa {
   color: #cbd5e1;
@@ -487,7 +500,7 @@ input:not(:checked) + .dd-toggle-slider:before {
   gap: 24px 24px;
 }
 .dd-ai-suggestions-card .card-header h3 {
-  color: #fff;
+  color: #fff!important;
   font-size: 18px;
   font-weight: 650;
 }
@@ -503,7 +516,7 @@ input:not(:checked) + .dd-toggle-slider:before {
 }
 /* Blue gradient card for AI suggestions (matches carrier dashboard) */
 .dd-ai-suggestions-card {
-  background: linear-gradient(90deg, #0ea4e7 0%, #0a98c6 100%) !important;
+  background: linear-gradient(#7FA4F6 0%, #3B57A7 100%) !important;
   color: #fff;
   box-shadow: none;
   border-radius: 10px;
@@ -538,10 +551,6 @@ input:not(:checked) + .dd-toggle-slider:before {
 .green-btn:focus {
   background-color: #059669;
   color: #fff;
-}
-/* Green color for Marketplace Activity icon and badge */
-.dd-marketplace-green {
-  color: #10b981;
 }
 /* Driver Dashboard content styles with dd- prefix - uses carrier dashboard layout structure */
 /* Import carrier dashboard CSS for layout structure */
@@ -989,8 +998,12 @@ input:not(:checked) + .dd-toggle-slider:before {
 }
 
 .dd-progress-percent {
-  color: #f59e0b;
   font-weight: 600;
+  color: black;
+}
+
+.dark-root .dd-progress-percent {
+  color: #fff;
 }
 
 .dd-progress-bar {
@@ -1003,7 +1016,7 @@ input:not(:checked) + .dd-toggle-slider:before {
 
 .dd-progress-bar-inner {
   height: 100%;
-  background: linear-gradient(to right, #f59e0b 0%, #10b981 100%);
+  background: linear-gradient(to right, #7FA4F6 0%, #3B57A7 100%);
   width: 70%;
   border-radius: 4px;
   transition: width 0.3s;
@@ -1057,14 +1070,6 @@ input:not(:checked) + .dd-toggle-slider:before {
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-}
-
-.dd-step-complete .dd-step-status {
-  color: #10b981;
-}
-
-.dd-step-inprogress .dd-step-status {
-  color: #f59e0b;
 }
 
 .dd-step-pending .dd-step-status {
@@ -1314,7 +1319,6 @@ input:not(:checked) + .dd-toggle-slider:before {
 
 /* Marketplace Activity Card */
 .dd-marketplace-new {
-  color: #22c55e;
   font-weight: 500;
   font-size: 0.95em;
 }
@@ -1527,15 +1531,16 @@ input:not(:checked) + .dd-toggle-slider:before {
   flex: 1;
 }
 
+.dd-ai-suggestions-separate-card .dd-section-title {
+  color: #fff!important;
+  margin-bottom: 10px;
+}
+
 .dd-message-title {
   font-weight: 600;
   margin-bottom: 4px;
   color: #1f2937;
   font-size: 14px;
-}
-
-.dark-root .dd-message-title {
-  color: #e0e0e0;
 }
 
 .dd-message-text {
@@ -1545,59 +1550,31 @@ input:not(:checked) + .dd-toggle-slider:before {
 }
 
 /* AI Suggestions - Separate Card */
-.dd-ai-suggestions-separate-card {
+.dark-root .dd-ai-suggestions-separate-card, .dd-ai-suggestions-separate-card {
   padding: 20px;
-  background: #faf5ff;
-  border: 1px solid #e9d5ff;
+  background: linear-gradient(#7FA4F6 0%, #3B57A7 100%)!important;
   border-radius: 12px;
 }
 
-.dark-root .dd-ai-suggestions-separate-card {
-  background: #47345a4d;
-  border-color: #5c2a8e3b;
-}
 
-.dd-ai-icon {
-  width: 28px;
-  height: 28px;
-  background: #8b5cf6;
-  color: white;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.dd-ai-icon i {
-  font-size: 12px;
-}
 
 .dd-suggestion-item {
   margin-bottom: 24px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid #e9d5ff;
-}
-
-.dd-suggestion-item:last-child {
-  border-bottom: none;
-  margin-bottom: 0;
-  padding-bottom: 0;
+  padding: 12px;
+  background-color: #ffffff20;
+  border-radius: 12px;
 }
 
 .dd-suggestion-title {
   font-weight: 600;
   font-size: 16px;
   margin-bottom: 6px;
-  color: #1f2937;
-}
-
-.dark-root .dd-suggestion-title {
-  color: #e0e0e0;
+  color: #fff;
 }
 
 .dd-suggestion-text {
   font-size: 14px;
-  color: #6b7280;
+  color: #f3f3f3!important;
   line-height: 1.5;
   margin-bottom: 12px;
 }
@@ -1605,7 +1582,7 @@ input:not(:checked) + .dd-toggle-slider:before {
 .dd-suggestion-link {
   background: none;
   border: none;
-  color: #6366f1;
+  color: #fff;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;

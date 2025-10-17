@@ -83,7 +83,7 @@ export default function DriverDashboard() {
                 <div className="dd-step-status">Pending</div>
               </div>
             </div>
-            <button className="dd-continue-btn">Continue Onboarding</button>
+            <button className="btn small-cd">Continue Onboarding</button>
           </div>
 
           {/* Marketplace Activity */}
@@ -94,13 +94,13 @@ export default function DriverDashboard() {
             </div>
             <div className="dd-marketplace-content dd-center dd-marketplace-padding">
               <div className="dd-marketplace-eye">
-                <i className="fa-solid fa-eye dd-marketplace-eye-icon dd-marketplace-green"></i>
+                <i className="fa-solid fa-eye dd-marketplace-eye-icon"></i>
               </div>
               <div className="dd-marketplace-viewed">3 Carriers Viewed You</div>
               <div className="dd-marketplace-desc">
                 This week carriers have shown interest in your profile
               </div>
-              <button className="btn small green-btn">View Marketplace</button>
+              <button className="btn small-cd">View Marketplace</button>
             </div>
           </div>
 
@@ -127,7 +127,7 @@ export default function DriverDashboard() {
           <div className="card dd-service-providers-card">
             <div className="card-header">
               <h3>Service Providers</h3>
-              <span className="dd-service-viewall">View All</span>
+              <span className="view-all">View All</span>
             </div>
             <div className="dd-service-grid">
               <div className="dd-service-item dd-center">
@@ -155,19 +155,19 @@ export default function DriverDashboard() {
               <h3>Quick Actions</h3>
             </div>
             <div className="dd-quick-actions">
-              <button className="btn small">
+              <button className="btn small-cd">
                 <i className="fa-solid fa-upload"></i>
                 Upload Document
               </button>
-              <button className="btn small green-btn">
+              <button className="btn small-cd">
                 <i className="fa-solid fa-store"></i>
                 Browse Marketplace
               </button>
-              <button className="btn small dd-orange-btn">
+              <button className="btn small-cd">
                 <i className="fa-solid fa-pen"></i>
                 Complete Consent
               </button>
-              <button className="dd-btn dd-small dd-ghost">
+              <button className="btn small ghost-cd">
                 <i className="fa-solid fa-headset"></i>
                 Get Support
               </button>
@@ -217,15 +217,15 @@ export default function DriverDashboard() {
               </div>
             </div>
             <div className="dd-load-actions">
-              <button className="btn small dd-navigate-btn">
+              <button className="btn small ghost-cd dd-btn">
                 <i className="fa-solid fa-location-arrow"></i>
                 Navigate
               </button>
-              <button className="btn small dd-upload-btn">
+              <button className="btn small ghost-cd dd-btn">
                 <i className="fa-solid fa-upload"></i>
                 Upload POD
               </button>
-              <button className="btn small dd-message-btn">
+              <button className="btn small ghost-cd dd-btn">
                 <i className="fa-solid fa-comment"></i>
                 Message Dispatch
               </button>
@@ -243,15 +243,15 @@ export default function DriverDashboard() {
               <div className="card dd-load-summary-card dd-no-header">
                 <div className="dd-summary-stats-horizontal">
                   <div className="dd-stat-item-horizontal">
-                    <div className="dd-stat-number-large dd-stat-blue">2</div>
+                    <div className="dd-stat-number-large">2</div>
                     <div className="dd-stat-label-horizontal">Assigned</div>
                   </div>
                   <div className="dd-stat-item-horizontal">
-                    <div className="dd-stat-number-large dd-stat-orange">1</div>
+                    <div className="dd-stat-number-large">1</div>
                     <div className="dd-stat-label-horizontal">In Transit</div>
                   </div>
                   <div className="dd-stat-item-horizontal">
-                    <div className="dd-stat-number-large dd-stat-green">12</div>
+                    <div className="dd-stat-number-large">12</div>
                     <div className="dd-stat-label-horizontal">Completed</div>
                   </div>
                 </div>
@@ -262,7 +262,7 @@ export default function DriverDashboard() {
             <div className="card dd-route-card">
               <div className="dd-route-header">
                 <h4>Denver to Phoenix</h4>
-                <span className="dd-route-status dd-assigned">Assigned</span>
+                <span className="int-status-badge active">Assigned</span>
               </div>
               <div className="dd-route-info">
                 <div className="dd-route-details">
@@ -271,8 +271,8 @@ export default function DriverDashboard() {
                   <div>Rate: $1,850</div>
                 </div>
                 <div className="dd-route-actions">
-                  <button className="btn small dd-start-trip-btn">Start Trip</button>
-                  <button className="btn small dd-view-details-btn">View Details</button>
+                  <button className="btn small-cd">Start Trip</button>
+                  <button className="btn small ghost-cd">View Details</button>
                 </div>
               </div>
             </div>
@@ -280,7 +280,7 @@ export default function DriverDashboard() {
             <div className="card dd-route-card">
               <div className="dd-route-header">
                 <h4>Phoenix to Los Angeles</h4>
-                <span className="dd-route-status dd-pending">Pending</span>
+                <span className="int-status-badge pending">Pending</span>
               </div>
               <div className="dd-route-info">
                 <div className="dd-route-details">
@@ -289,7 +289,7 @@ export default function DriverDashboard() {
                   <div>Rate: $950</div>
                 </div>
                 <div className="dd-route-actions">
-                  <button className="btn small dd-view-details-btn">View Details</button>
+                  <button className="btn small ghost-cd">View Details</button>
                 </div>
               </div>
             </div>
@@ -319,28 +319,28 @@ export default function DriverDashboard() {
                 <h3>Compliance Status</h3>
               </div>
               <div className="dd-compliance-items">
-                <div className="dd-compliance-item dd-status-good">
+                <div className="dd-compliance-item ">
                   <i className="fa-solid fa-id-card"></i>
                   <span>CDL License</span>
                   <i className="fa-solid fa-check"></i>
                 </div>
-                <div className="dd-compliance-item dd-status-good">
+                <div className="dd-compliance-item ">
                   <i className="fa-solid fa-file-medical"></i>
                   <span>Medical Card</span>
                   <i className="fa-solid fa-exclamation-triangle"></i>
                 </div>
-                <div className="dd-compliance-item dd-status-good">
+                <div className="dd-compliance-item">
                   <i className="fa-solid fa-search"></i>
                   <span>Drug Test</span>
                   <i className="fa-solid fa-check"></i>
                 </div>
-                <div className="dd-compliance-item dd-status-good">
+                <div className="dd-compliance-item">
                   <i className="fa-solid fa-clipboard-check"></i>
                   <span>Background Check</span>
                   <i className="fa-solid fa-check"></i>
                 </div>
               </div>
-              <button className="btn small dd-view-docs-btn">View All Documents</button>
+              <button className="btn small-cd" style={{width: '100%'}}>View All Documents</button>
             </div>
 
             {/* Messages & Alerts Section */}
@@ -349,7 +349,7 @@ export default function DriverDashboard() {
               
               {/* Route Update Card */}
               <div className="card dd-message-card dd-route-update-card">
-                <div className="dd-message-icon dd-icon-blue">
+                <div className="dd-message-icon ">
                   <i className="fa-solid fa-route"></i>
                 </div>
                 <div className="dd-message-content">
@@ -360,7 +360,7 @@ export default function DriverDashboard() {
 
               {/* Medical Card Expiring Card */}
               <div className="card dd-message-card dd-medical-warning-card">
-                <div className="dd-message-icon dd-icon-orange">
+                <div className="dd-message-icon ">
                   <i className="fa-solid fa-exclamation-triangle"></i>
                 </div>
                 <div className="dd-message-content">
@@ -371,7 +371,7 @@ export default function DriverDashboard() {
 
               {/* Carrier Message Card */}
               <div className="card dd-message-card dd-carrier-message-card">
-                <div className="dd-message-icon dd-icon-green">
+                <div className="dd-message-icon ">
                   <i className="fa-solid fa-comment"></i>
                 </div>
                 <div className="dd-message-content">

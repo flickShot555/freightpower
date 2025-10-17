@@ -17,8 +17,7 @@ export default function MyCarrier() {
               <div className="mc-carrier-info">
                 <div className="mc-carrier-name">
                   <h3>TransLogistics Inc.</h3>
-                  <span className="mc-verified-badge">
-                    <i className="fa-solid fa-check-circle"></i>
+                  <span className="int-status-badge active">
                     Verified Carrier
                   </span>
                 </div>
@@ -30,7 +29,7 @@ export default function MyCarrier() {
                 </div>
               </div>
               <div className="mc-carrier-status">
-                <span className="mc-status-badge active">Active</span>
+                <span className="int-status-badge active">Active</span>
                 <div className="mc-rating">
                   <i className="fa-solid fa-star"></i>
                   <span>98.5% On-Time</span>
@@ -40,16 +39,13 @@ export default function MyCarrier() {
           </div>
 
             {/* AI Assistant Alert */}
-          <div className="card mc-ai-alert-card">
+          <div className="mc-ai-alert-card" style={{marginTop: '10px', marginBottom: '10px'}}>
             <div className="mc-ai-alert">
-              <div className="mc-ai-icon">
-                <i className="fa-solid fa-robot"></i>
+              <div className="mc-ai-content" >
+                <h4 style={{fontWeight: '700', color: 'white'}}>AI Assistant</h4>
+                <p style={{color: "white"}}>Your CDL expires in 45 days. Upload renewal to maintain compliance.</p>
               </div>
-              <div className="mc-ai-content">
-                <h4>AI Assistant</h4>
-                <p>Your CDL expires in 45 days. Upload renewal to maintain compliance.</p>
-              </div>
-              <button className="btn small mc-upload-btn">Upload Now</button>
+              <button className="btn small ghost-cd dd-btn">Upload Now</button>
             </div>
           </div>
 
@@ -63,17 +59,14 @@ export default function MyCarrier() {
               <div className="card mc-active-load-card">
                 <div className="mc-load-header">
                   <div className="mc-load-title">
-                    <div className="mc-status-dot active"></div>
                     <span className="mc-load-badge">Active Load #TL-4829</span>
-                    <span className="mc-transit-badge">In Transit</span>
+                    <span className="int-status-badge active">In Transit</span>
                   </div>
                   <div className="mc-load-actions">
                     <button className="btn small mc-view-route-btn">
-                      <i className="fa-solid fa-route"></i>
                       View Route
                     </button>
                     <button className="btn small mc-message-dispatch-btn">
-                      <i className="fa-solid fa-message"></i>
                       Message Dispatch
                     </button>
                   </div>
@@ -94,14 +87,14 @@ export default function MyCarrier() {
                       <h5>Delivery</h5>
                       <p>Walmart Distribution</p>
                       <p>5678 Commerce Way, Jacksonville, FL 32218</p>
-                      <p className="mc-eta-text">ETA: 4:30 PM (127 miles left)</p>
+                      <p>ETA: 4:30 PM (127 miles left)</p>
                     </div>
                   </div>
 
                   <div className="mc-progress-section">
                     <div className="mc-progress-header">
-                      <span>Trip Progress</span>
-                      <span>68% Complete</span>
+                      <span style={{fontWeight: '650'}}>Trip Progress</span>
+                      <span style={{fontWeight: '650'}}>68% Complete</span>
                     </div>
                     <div className="mc-progress-bar">
                       <div className="mc-progress-fill" style={{width: '68%'}}></div>
@@ -109,11 +102,11 @@ export default function MyCarrier() {
                   </div>
 
                   <div className="mc-load-buttons">
-                    <button className="btn mc-view-docs-btn">
+                    <button className="btn small ghost-cd">
                       <i className="fa-solid fa-file-text"></i>
                       View Docs
                     </button>
-                    <button className="btn mc-upload-pod-btn">
+                    <button className="btn small ghost-cd">
                       <i className="fa-solid fa-upload"></i>
                       Upload POD
                     </button>
@@ -151,7 +144,7 @@ export default function MyCarrier() {
                   <div className="mc-assignment-item">
                     <div className="mc-assignment-info">
                       <h4>Load #TL-4830</h4>
-                      <span className="mc-assignment-badge assigned">Assigned</span>
+                      <span className="int-status-badge active">Assigned</span>
                       <div className="mc-assignment-route">
                         <p>From: Miami, FL</p>
                         <p>Home Depot Warehouse</p>
@@ -166,14 +159,14 @@ export default function MyCarrier() {
                     </div>
                     <div className="mc-assignment-schedule">
                       <p>Pickup: Tomorrow 8:00 AM</p>
-                      <button className="btn small mc-start-trip-btn">Start Trip</button>
+                      <button className="btn small-cd">Start Trip</button>
                     </div>
                   </div>
 
                   <div className="mc-assignment-item">
                     <div className="mc-assignment-info">
                       <h4>Load #TL-4831</h4>
-                      <span className="mc-assignment-badge pending">Pending</span>
+                      <span className="int-status-badge pending">Pending</span>
                       <div className="mc-assignment-route">
                         <p>From: Orlando, FL</p>
                         <p>Target Distribution</p>
@@ -188,7 +181,7 @@ export default function MyCarrier() {
                     </div>
                     <div className="mc-assignment-schedule">
                       <p>Pickup: Dec 28, 10:00 AM</p>
-                      <button className="btn small mc-view-details-btn">View Details</button>
+                      <button className="btn small-cd">View Details</button>
                     </div>
                   </div>
                 </div>
@@ -205,37 +198,36 @@ export default function MyCarrier() {
                 <div className="mc-compliance-list">
                   <div className="mc-compliance-item">
                     <span>CDL License</span>
-                    <div className="mc-status-icon active">
+                    <div className="mc-status-icon">
                       <i className="fa-solid fa-check"></i>
                     </div>
                   </div>
                   <div className="mc-compliance-item">
                     <span>Medical Certificate</span>
-                    <div className="mc-status-icon active">
+                    <div className="mc-status-icon">
                       <i className="fa-solid fa-check"></i>
                     </div>
                   </div>
                   <div className="mc-compliance-item">
                     <span>Background Check</span>
-                    <div className="mc-status-icon active">
+                    <div className="mc-status-icon ">
                       <i className="fa-solid fa-check"></i>
                     </div>
                   </div>
                   <div className="mc-compliance-item">
                     <span>Drug Test</span>
-                    <div className="mc-status-icon warning">
+                    <div className="mc-status-icon">
                       <i className="fa-solid fa-exclamation-triangle"></i>
                     </div>
                   </div>
                   <div className="mc-compliance-item">
                     <span>Insurance</span>
-                    <div className="mc-status-icon active">
+                    <div className="mc-status-icon">
                       <i className="fa-solid fa-check"></i>
                     </div>
                   </div>
                 </div>
-                <p className="mc-compliance-note">
-                  <i className="fa-solid fa-check"></i>
+                <p className="int-status-badge active">
                   Driver has consented to share information with this carrier.
                 </p>
               </div>
@@ -261,11 +253,11 @@ export default function MyCarrier() {
                   </div>
 
                   <div className="mc-communication-actions">
-                    <button className="btn mc-message-full-btn">
+                    <button className="btn small-cd">
                       <i className="fa-solid fa-message"></i>
                       Message
                     </button>
-                    <button className="btn mc-call-btn">
+                    <button className="btn small-cd">
                       <i className="fa-solid fa-phone"></i>
                       Call
                     </button>
@@ -279,15 +271,15 @@ export default function MyCarrier() {
                   <h3>Quick Actions</h3>
                 </div>
                 <div className="mc-quick-actions">
-                  <button className="mc-quick-action">
+                  <button className="btn small-cd">
                     <i className="fa-solid fa-upload"></i>
                     <span>Upload Documents</span>
                   </button>
-                  <button className="mc-quick-action">
+                  <button className="btn small-cd">
                     <i className="fa-solid fa-calendar"></i>
                     <span>View Schedule</span>
                   </button>
-                  <button className="mc-quick-action">
+                  <button className="btn small-cd">
                     <i className="fa-solid fa-chart-line"></i>
                     <span>Performance Report</span>
                   </button>

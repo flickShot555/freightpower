@@ -20,7 +20,7 @@ export default function Marketplace({ isPostHire, setIsPostHire }) {
           <div className="card mp-availability-card">
             <div className="card-header">
               <h3>Driver Availability</h3>
-              <span className="mp-status-badge currently-available">Currently Available</span>
+              <span className="int-status-badge active">Currently Available</span>
             </div>
             <div className="mp-availability-content">
               <div className="mp-visibility-status">
@@ -28,11 +28,11 @@ export default function Marketplace({ isPostHire, setIsPostHire }) {
                 <span>You are visible to carriers in FreightPower's staffing pool</span>
               </div>
               <div className="mp-consent-info">
-                <div className="mp-consent-badge">
-                  <i className="fa-solid fa-info-circle"></i>
-                  <span>Auto-Consent Active</span>
-                </div>
                 <p className="mp-consent-text">By being available, you've agreed to share your CDL & compliance information with carriers through FreightPower.</p>
+                <button className='btn small-cd'>
+                  <i className="fa-solid fa-info-circle"></i>
+                  Auto-Consent Active
+                </button>
               </div>
             </div>
           </div>
@@ -41,18 +41,17 @@ export default function Marketplace({ isPostHire, setIsPostHire }) {
           <div className="mp-promote-card">
             <div className="mp-promote-content">
               <div className="mp-promote-header">
-                <i className="fa-solid fa-star mp-promote-icon"></i>
+                <i className="fa-solid fa-star"></i>
                 <h4>Promote Myself</h4>
               </div>
               <p className="mp-promote-text">Boost your profile to appear higher in carrier searches</p>
-              <button className="btn mp-promote-btn">Promote Profile - $9.99</button>
+              <button className="btn small-cd">Promote Profile - $9.99</button>
             </div>
           </div>
 
           {/* AI Staffing Insights */}
           <div className="card mp-ai-insights-card">
             <div className="mp-ai-header">
-              <i className="fa-solid fa-brain mp-ai-icon"></i>
               <h3>AI Staffing Insights</h3>
             </div>
             <div className="mp-insights-grid">
@@ -85,63 +84,75 @@ export default function Marketplace({ isPostHire, setIsPostHire }) {
             
             <div className="mp-services-grid">
               <div className="mp-service-category">
-                <div className="mp-service-icon cdl-protection">
-                  <i className="fa-solid fa-shield-check"></i>
+                <div>
+                  <div className="mp-service-icon cdl-protection">
+                  <i className="fa-solid fa-shield"></i>
                 </div>
                 <h4>CDL Protection (TVC)</h4>
                 <p>Protect your CDL with expert legal representation and violation defense services.</p>
-                <span className="mp-service-offer">20% Off This Week</span>
-                <button className="btn small mp-connect-btn">Connect</button>
+                <span className="int-status-badge pending">20% Off This Week</span>
+                </div>
+                <button className="btn small-cd" style={{marginTop: '20px', width: '100%'}}>Connect</button>
               </div>
 
               <div className="mp-service-category">
-                <div className="mp-service-icon eld-solutions">
+                <div>
+                  <div className="mp-service-icon eld-solutions">
                   <i className="fa-solid fa-tablet-screen-button"></i>
                 </div>
                 <h4>ELD Solutions</h4>
                 <p>Advanced ELD integrations with real-time compliance monitoring and reporting.</p>
-                <span className="mp-service-options">Multiple Options</span>
-                <button className="btn small mp-connect-btn">Connect</button>
+                <span className="int-status-badge pending">Multiple Options</span>
+                </div>
+                <button className="btn small-cd" style={{marginTop: '20px', width: '100%'}}>Connect</button>
               </div>
 
               <div className="mp-service-category">
-                <div className="mp-service-icon fuel-programs">
+                <div>
+                  <div className="mp-service-icon fuel-programs">
                   <i className="fa-solid fa-gas-pump"></i>
                 </div>
                 <h4>Fuel Programs</h4>
                 <p>Access exclusive fuel discounts and rewards programs nationwide.</p>
-                <span className="mp-service-savings">Save up to 15¢/gal</span>
-                <button className="btn small mp-connect-btn">Connect</button>
+                <span className="int-status-badge active">Save up to 15¢/gal</span>
+                </div>
+                <button className="btn small-cd" style={{marginTop: '20px', width: '100%'}}>Connect</button>
               </div>
 
               <div className="mp-service-category">
-                <div className="mp-service-icon roadside">
+                <div>
+                  <div className="mp-service-icon roadside">
                   <i className="fa-solid fa-wrench"></i>
                 </div>
                 <h4>Roadside Repair</h4>
                 <p>24/7 roadside assistance and repair network for emergency breakdowns.</p>
-                <span className="mp-service-availability">24/7 Available</span>
-                <button className="btn small mp-connect-btn">Connect</button>
+                <span className="int-status-badge pending">24/7 Available</span>
+                </div>
+                <button className="btn small-cd" style={{marginTop: '20px', width: '100%'}}>Connect</button>
               </div>
 
               <div className="mp-service-category">
-                <div className="mp-service-icon training">
+                <div>
+                  <div className="mp-service-icon training">
                   <i className="fa-solid fa-graduation-cap"></i>
                 </div>
                 <h4>Training & Compliance</h4>
                 <p>Continuing education and compliance training to advance your career.</p>
-                <span className="mp-service-certifications">Earn Certifications</span>
-                <button className="btn small mp-connect-btn">Connect</button>
+                <span className="int-status-badge pending">Earn Certifications</span>
+                </div>
+                <button className="btn small-cd" style={{marginTop: '20px', width: '100%'}}>Connect</button>
               </div>
 
               <div className="mp-service-category">
-                <div className="mp-service-icon financial">
+                <div>
+                  <div className="mp-service-icon financial">
                   <i className="fa-solid fa-credit-card"></i>
                 </div>
                 <h4>Financial Services</h4>
                 <p>Banking, factoring, and financial planning services for drivers.</p>
-                <span className="mp-service-partners">Multiple Partners</span>
-                <button className="btn small mp-connect-btn">Connect</button>
+                <span className="int-status-badge pending">Multiple Partners</span>
+                </div>
+                <button className="btn small-cd" style={{marginTop: '20px', width: '100%'}}>Connect</button>
               </div>
             </div>
           </div>
@@ -173,7 +184,7 @@ export default function Marketplace({ isPostHire, setIsPostHire }) {
               <span className="mp-alert-title">You are currently hidden from carriers</span>
               <p className="mp-alert-subtitle">Toggle 'Available' to enter the hiring pool</p>
             </div>
-            <button className="btn mp-become-available-btn">Become Available</button>
+            <button className="btn small-cd">Become Available</button>
           </div>
         </div>
 
@@ -187,7 +198,6 @@ export default function Marketplace({ isPostHire, setIsPostHire }) {
             <div className="mp-search-input">
               <i className="fa-solid fa-search"></i>
               <input type="text" placeholder="Search services near you..." />
-              <button className="btn small mp-search-btn">Search</button>
             </div>
           </div>
 
@@ -238,7 +248,7 @@ export default function Marketplace({ isPostHire, setIsPostHire }) {
           </div>
           
           <div className="mp-highlight-item">
-            <div className="mp-highlight-icon fuel-discount">
+            <div className="mp-highlight-icon">
               <i className="fa-solid fa-gas-pump"></i>
             </div>
             <div className="mp-highlight-content">
@@ -248,7 +258,7 @@ export default function Marketplace({ isPostHire, setIsPostHire }) {
           </div>
 
           <div className="mp-highlight-item">
-            <div className="mp-highlight-icon cdl-reminder">
+            <div className="mp-highlight-icon">
               <i className="fa-solid fa-exclamation-triangle"></i>
             </div>
             <div className="mp-highlight-content">
@@ -286,11 +296,10 @@ export default function Marketplace({ isPostHire, setIsPostHire }) {
                 <span className="mp-provider-offer">15¢ discount active</span>
               </div>
               <div className="mp-provider-actions">
-                <span className="mp-verification-badge verified">
-                  <i className="fa-solid fa-check-circle"></i>
+                <span className="int-status-badge active">
                   Verified
                 </span>
-                <button className="btn small mp-details-btn">View Details</button>
+                <button className="btn small-cd">View Details</button>
               </div>
             </div>
 
@@ -302,14 +311,13 @@ export default function Marketplace({ isPostHire, setIsPostHire }) {
                 <h4>Mike's Truck Repair</h4>
                 <p>3.8 miles • Open until 8 PM</p>
                 <p className="mp-provider-description">Full-service truck repair and maintenance facility</p>
-                <span className="mp-provider-service">Emergency service available</span>
+                <span className="mp-provider-offer">Emergency service available</span>
               </div>
               <div className="mp-provider-actions">
-                <span className="mp-verification-badge connected">
-                  <i className="fa-solid fa-heart"></i>
+                <span className="int-status-badge active">
                   Connected
                 </span>
-                <button className="btn small mp-contact-btn">Contact Now</button>
+                <button className="btn small-cd">Contact Now</button>
               </div>
             </div>
 
@@ -321,14 +329,13 @@ export default function Marketplace({ isPostHire, setIsPostHire }) {
                 <h4>TruckStop Plaza</h4>
                 <p>6.1 miles • Open 24/7</p>
                 <p className="mp-provider-description">Secure parking with showers, food court, and WiFi</p>
-                <span className="mp-provider-availability">42 spots available</span>
+                <span className="mp-provider-offer">42 spots available</span>
               </div>
               <div className="mp-provider-actions">
-                <span className="mp-verification-badge verified">
-                  <i className="fa-solid fa-check-circle"></i>
+                <span className="int-status-badge active">
                   Verified
                 </span>
-                <button className="btn small mp-reserve-btn">Reserve Spot</button>
+                <button className="btn small-cd">Reserve Spot</button>
               </div>
             </div>
 
@@ -343,8 +350,8 @@ export default function Marketplace({ isPostHire, setIsPostHire }) {
                 <span className="mp-provider-offer">Special offer this week</span>
               </div>
               <div className="mp-provider-actions">
-                <span className="mp-verification-badge offer">20% Off</span>
-                <button className="btn small mp-learn-more-btn">Learn More</button>
+                <span className="int-status-badge pending">20% Off</span>
+                <button className="btn small-cd">Learn More</button>
               </div>
             </div>
           </div>

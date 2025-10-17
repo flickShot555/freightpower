@@ -11,6 +11,10 @@
   -webkit-overflow-scrolling:touch;
 }
 
+.dark-root .fpdd-consent-tabs{
+  border-color:#333333;
+}
+
 .header-consent-driver {
   display: flex;
   justify-content: space-between;
@@ -38,13 +42,18 @@
   max-width:220px;
 }
 
-.fpdd-consent-tabs .fpdd-tab.active{ color:#0ea5e9 }
+.fpdd-consent-tabs .fpdd-tab.active{ color:#3B57A7 }
+.dark-root .fpdd-consent-tabs .fpdd-tab.active{ color:#7FA4F6 }
 .fpdd-consent-tabs .fpdd-tab.active::after{
   content:'';
   position:absolute;
-  left:0;right:0;height:2px;background:#0ea5e9;border-radius:2px;bottom:-6px;
+  left:0;right:0;height:2px;background:#3B57A7;border-radius:2px;bottom:-6px;
 }
-.fpdd-consent-tabs .fpdd-tab:hover{ color:#0ea5e9 }
+.dark-root  .fpdd-consent-tabs .fpdd-tab.active::after{
+  background:#7FA4F6;
+}
+.fpdd-consent-tabs .fpdd-tab:hover{ color:#3B57A7 }
+.dark-root .fpdd-consent-tabs .fpdd-tab:hover{ color:#7FA4F6 }
 
 @media (max-width: 900px){
   .fpdd-consent-tabs{ gap:14px }
@@ -116,42 +125,6 @@
   color: #ffffff;
 }
 
-
-.fpdd-badge {
-  padding: 6px 8px;
-  border-radius: 999px;
-  font-size: 12px;
-  line-height: 1;
-  background: #f3f4f6;
-  color: #374151;
-  font-weight: 600;
-}
-
-.fpdd-badge.operational { background: #eff6ff; color: #0369a1; }
-.dark-root .fpdd-badge.operational { background: #0369a1; color: #eff6ff; }
-.fpdd-badge.consent { background: #fff0f6; color: #b91c1c; }
-.dark-root .fpdd-badge.consent { background: #9f1239; color: #fff0f6; }
-.fpdd-badge.policy { background: #ecfdf5; color: #047857; }
-.dark-root .fpdd-badge.policy { background: #047857; color: #ecfdf5; }
-
-.fpdd-status-pill {
-  margin-left: 8px;
-  padding: 6px 8px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 600;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.fpdd-status-pill.signed { background: #ecfdf3; color: #047857; }
-.dark-root .fpdd-status-pill.signed { background: #047857; color: #ecfdf5; }
-.fpdd-status-pill.pending { background: #fff7ed; color: #b45309; }
-.dark-root .fpdd-status-pill.pending { background: #b45309; color: #fff7ed; }
-.fpdd-status-pill.unsigned { background: #fff1f2; color: #9f1239; }
-.dark-root .fpdd-status-pill.unsigned { background: #9f1239; color: #fff1f2; }
-
 .fpdd-consent-note {
   margin: 8px 0 0 0;
   color: #374151;
@@ -202,12 +175,6 @@
 .dark-root .fpdd-recent-table td { color: #d1d5db; border-color: #333333; }
 
 .fpdd-recent-cat { padding: 4px 8px; border-radius: 999px; font-size: 12px; font-weight:600 }
-.fpdd-recent-cat.policy { background: #ecfdf5; color: #047857; }
-.dark-root .fpdd-recent-cat.policy { background: #047857; color: #ecfdf5; }
-.fpdd-recent-cat.operational { background: #eff6ff; color: #0369a1; }
-.dark-root .fpdd-recent-cat.operational { background: #0369a1; color: #eff6ff; }
-.fpdd-recent-cat.consent { background: #fff0f6; color: #b91c1c; }
-.dark-root .fpdd-recent-cat.consent { background: #9f1239; color: #fff0f6; }
 
 .fpdd-recent-status.green { color: #16a34a; font-weight:700 }
 .fpdd-recent-status.orange { color: #b45309; font-weight:700 }

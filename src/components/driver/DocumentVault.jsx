@@ -12,7 +12,7 @@ export default function DocumentVault({ isPostHire, setIsPostHire }) {
       expires: "March 15, 2026",
       lastUpdated: "Jan 10, 2024",
       status: "Active",
-      statusColor: "green",
+      statusColor: "active",
       sharedStatus: "Not Shared Yet"
     },
     {
@@ -22,7 +22,7 @@ export default function DocumentVault({ isPostHire, setIsPostHire }) {
       expires: "June 20, 2025",
       lastUpdated: "Dec 15, 2023",
       status: "Active",
-      statusColor: "green",
+      statusColor: "active",
       sharedStatus: "Not Shared Yet"
     },
     {
@@ -32,7 +32,7 @@ export default function DocumentVault({ isPostHire, setIsPostHire }) {
       expires: "-",
       lastUpdated: "-",
       status: "Missing",
-      statusColor: "red",
+      statusColor: "disconnected",
       description: "Required for marketplace eligibility"
     },
     {
@@ -42,7 +42,7 @@ export default function DocumentVault({ isPostHire, setIsPostHire }) {
       expires: "-",
       lastUpdated: "-",
       status: "Missing",
-      statusColor: "red",
+      statusColor: "revoked",
       description: "Required for marketplace eligibility"
     }
   ];
@@ -54,7 +54,7 @@ export default function DocumentVault({ isPostHire, setIsPostHire }) {
       icon: "fa-solid fa-file-invoice",
       lastUpdated: "Jan 5, 2024",
       status: "Complete",
-      statusColor: "green",
+      statusColor: "active",
       sharedStatus: "Not Shared Yet"
     },
     {
@@ -63,7 +63,7 @@ export default function DocumentVault({ isPostHire, setIsPostHire }) {
       icon: "fa-solid fa-handshake",
       lastUpdated: "-",
       status: "Pending",
-      statusColor: "orange",
+      statusColor: "pending",
       description: "Required before sharing profile with carriers",
       hasAction: true
     }
@@ -74,7 +74,7 @@ export default function DocumentVault({ isPostHire, setIsPostHire }) {
       id: 1,
       title: "Commercial Driver License",
       status: "Active",
-      statusColor: "green",
+      statusColor: "active",
       date: "Updated: Oct 1, 2024",
       expires: "Expires: Oct 1, 2026"
     },
@@ -82,7 +82,7 @@ export default function DocumentVault({ isPostHire, setIsPostHire }) {
       id: 2,
       title: "Medical Certificate",
       status: "Pending Soon",
-      statusColor: "orange",
+      statusColor: "pending",
       date: "Updated: Nov 15, 2023",
       expires: "Expires: Nov 15, 2025"
     },
@@ -90,7 +90,7 @@ export default function DocumentVault({ isPostHire, setIsPostHire }) {
       id: 3,
       title: "Background Check",
       status: "Active",
-      statusColor: "green",
+      statusColor: "active",
       date: "Updated: Jan 10, 2024",
       expires: "Expires: Jan 10, 2026"
     },
@@ -98,7 +98,7 @@ export default function DocumentVault({ isPostHire, setIsPostHire }) {
       id: 4,
       title: "Drug Test Results",
       status: "Active",
-      statusColor: "green",
+      statusColor: "active",
       date: "Updated: Mar 5, 2024",
       expires: "Expires: Mar 5, 2026"
     }
@@ -109,7 +109,7 @@ export default function DocumentVault({ isPostHire, setIsPostHire }) {
       id: 1,
       title: "Rate Confirmation",
       status: "Active",
-      statusColor: "green",
+      statusColor: "active",
       date: "Load #: FP-2024-519",
       carrier: "Signed with Carrier A"
     },
@@ -117,7 +117,7 @@ export default function DocumentVault({ isPostHire, setIsPostHire }) {
       id: 2,
       title: "Bill of Lading",
       status: "Active",
-      statusColor: "green",
+      statusColor: "active",
       date: "Load #: FP-2024-520",
       carrier: "Morning Start"
     },
@@ -125,7 +125,7 @@ export default function DocumentVault({ isPostHire, setIsPostHire }) {
       id: 3,
       title: "Proof of Delivery",
       status: "Missing",
-      statusColor: "red",
+      statusColor: "disconnected",
       date: "Load #: FP-2024-519",
       carrier: "Required by Carrier A"
     },
@@ -184,13 +184,11 @@ export default function DocumentVault({ isPostHire, setIsPostHire }) {
             <div className="dd-status-info">
               <span className="dd-status-main">4/5 Documents Active</span>
               <div className="dd-status-badges">
-                <span className="dd-status-badge expiring">1 Expiring Soon</span>
-                <span className="dd-status-badge active">
-                  <i className="fa-solid fa-check"></i>
+                <span className="int-status-badge revoked">1 Expiring Soon</span>
+                <span className="int-status-badge active">
                   4 Active
                 </span>
-                <span className="dd-status-badge warning">
-                  <i className="fa-solid fa-exclamation-triangle"></i>
+                <span className="int-status-badge warning">
                   1 Expiring
                 </span>
               </div>
@@ -206,15 +204,15 @@ export default function DocumentVault({ isPostHire, setIsPostHire }) {
 
         {/* Action Buttons */}
         <div className="dd-action-buttons">
-          <button className="btn dd-upload-btn">
+          <button className="btn small-cd">
             <i className="fa-solid fa-upload"></i>
             Upload Documents
           </button>
-          <button className="btn dd-scan-btn">
+          <button className="btn small ghost-cd">
             <i className="fa-solid fa-camera"></i>
             Scan with Camera
           </button>
-          <button className="btn dd-export-btn">
+          <button className="btn small ghost-cd">
             <i className="fa-solid fa-download"></i>
             Export Doc Pack
           </button>
@@ -229,7 +227,6 @@ export default function DocumentVault({ isPostHire, setIsPostHire }) {
         <div className="dd-post-hire-section">
           <div className="dd-section-header-post">
             <div className="dd-section-title-post">
-              <i className="fa-solid fa-shield-halved dd-section-icon"></i>
               <h3>Compliance Documents</h3>
             </div>
             <span className="dd-section-count">4 documents</span>
@@ -242,7 +239,7 @@ export default function DocumentVault({ isPostHire, setIsPostHire }) {
                   <i className="fa-solid fa-file-text"></i>
                 </div>
                 <div className="dd-card-status">
-                  <span className={`dd-status-badge ${doc.statusColor}`}>
+                  <span className={`int-status-badge ${doc.statusColor}`}>
                     {doc.status}
                   </span>
                 </div>
@@ -272,7 +269,6 @@ export default function DocumentVault({ isPostHire, setIsPostHire }) {
         <div className="dd-post-hire-section">
           <div className="dd-section-header-post">
             <div className="dd-section-title-post">
-              <i className="fa-solid fa-truck dd-section-icon"></i>
               <h3>Trip Documents</h3>
             </div>
             <span className="dd-section-count">3 documents</span>
@@ -289,7 +285,7 @@ export default function DocumentVault({ isPostHire, setIsPostHire }) {
                     <h4 className="dd-card-title">{doc.title}</h4>
                     <p className="dd-card-date">{doc.date}</p>
                     <p className="dd-card-carrier">{doc.carrier}</p>
-                    <button className="btn dd-upload-btn-small">
+                    <button className="btn small-cd">
                       <i className="fa-solid fa-upload"></i>
                       Upload
                     </button>
@@ -300,7 +296,7 @@ export default function DocumentVault({ isPostHire, setIsPostHire }) {
                       <i className="fa-solid fa-file-text"></i>
                     </div>
                     <div className="dd-card-status">
-                      <span className={`dd-status-badge ${doc.statusColor}`}>
+                      <span className={`int-status-badge ${doc.statusColor}`}>
                         {doc.status}
                       </span>
                     </div>
@@ -325,17 +321,6 @@ export default function DocumentVault({ isPostHire, setIsPostHire }) {
                 )}
               </div>
             ))}
-          </div>
-        </div>
-
-        {/* Onboarding Documents Section */}
-        <div className="dd-post-hire-section">
-          <div className="dd-section-header-post">
-            <div className="dd-section-title-post">
-              <i className="fa-solid fa-user-plus dd-section-icon"></i>
-              <h3>Onboarding Documents</h3>
-            </div>
-            <span className="dd-section-count">2 documents</span>
           </div>
         </div>
       </div>
@@ -390,7 +375,7 @@ export default function DocumentVault({ isPostHire, setIsPostHire }) {
               <span>Background Check (Required by 92% of carriers)</span>
             </div>
           </div>
-          <button className="btn dd-upload-missing-btn-new">Upload Missing Documents</button>
+          <button className="btn small-cd">Upload Missing Documents</button>
         </div>
       </div>
 
@@ -399,7 +384,6 @@ export default function DocumentVault({ isPostHire, setIsPostHire }) {
         {/* Compliance Documents */}
         <div className="dd-document-section-new">
           <div className="dd-section-header-new">
-            <i className="fa-solid fa-shield-halved dd-section-icon-new"></i>
             <h3>Compliance Documents</h3>
           </div>
           
@@ -408,7 +392,7 @@ export default function DocumentVault({ isPostHire, setIsPostHire }) {
               <div key={doc.id} className={`dd-document-card ${doc.status === 'Missing' ? 'dd-missing-doc' : ''}`}>
                 <div className="dd-doc-header">
                   <i className={`${doc.icon} dd-doc-icon`}></i>
-                  <span className={`dd-status-badge-new ${doc.statusColor}`}>
+                  <span className={`int-status-badge ${doc.statusColor}`}>
                     {doc.status}
                   </span>
                 </div>
@@ -421,15 +405,15 @@ export default function DocumentVault({ isPostHire, setIsPostHire }) {
                     <div className="dd-doc-shared">
                       <span className="dd-shared-status">{doc.sharedStatus}</span>
                       <div className="dd-doc-buttons">
-                        <button className="dd-doc-btn dd-view-btn-new">View</button>
-                        <button className="dd-doc-btn dd-replace-btn">Replace</button>
+                        <button className="btn small ghost-cd">View</button>
+                        <button className="btn small ghost-cd">Replace</button>
                       </div>
                     </div>
                   </>
                 ) : (
                   <>
                     <p className="dd-doc-description">{doc.description}</p>
-                    <button className="dd-upload-doc-btn">Upload Document</button>
+                    <button className="btn small-cd"style={{width:"100%"}}>Upload Document</button>
                   </>
                 )}
               </div>
@@ -440,7 +424,6 @@ export default function DocumentVault({ isPostHire, setIsPostHire }) {
         {/* Onboarding Documents */}
         <div className="dd-document-section-new">
           <div className="dd-section-header-new">
-            <i className="fa-solid fa-user-plus dd-section-icon-new"></i>
             <h3>Onboarding Documents</h3>
           </div>
           
@@ -449,7 +432,7 @@ export default function DocumentVault({ isPostHire, setIsPostHire }) {
               <div key={doc.id} className={`dd-document-card ${doc.status === 'Pending' ? 'dd-pending-doc' : ''}`}>
                 <div className="dd-doc-header">
                   <i className={`${doc.icon} dd-doc-icon`}></i>
-                  <span className={`dd-status-badge-new ${doc.statusColor}`}>
+                  <span className={`int-status-badge ${doc.statusColor}`}>
                     {doc.status}
                   </span>
                 </div>
@@ -461,15 +444,15 @@ export default function DocumentVault({ isPostHire, setIsPostHire }) {
                     <div className="dd-doc-shared">
                       <span className="dd-shared-status">{doc.sharedStatus}</span>
                       <div className="dd-doc-buttons">
-                        <button className="dd-doc-btn dd-view-btn-new">View</button>
-                        <button className="dd-doc-btn dd-replace-btn">Replace</button>
+                        <button className="btn small ghost-cd">View</button>
+                        <button className="btn small ghost-cd">Replace</button>
                       </div>
                     </div>
                   </>
                 ) : (
                   <>
                     <p className="dd-doc-description">{doc.description}</p>
-                    <button className="dd-consent-btn">Sign Consent Form</button>
+                    <button className="btn small-cd"style={{width:"100%"}}>Sign Consent Form</button>
                   </>
                 )}
               </div>

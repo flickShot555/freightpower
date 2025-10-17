@@ -39,7 +39,7 @@ export default function AiHub() {
               <div className="trip-info-box">
                 <div className="trip-info-top">
                   <div className="trip-id">Load <strong>#FP-2024-1205</strong></div>
-                  <div className="trip-pill in-transit">In Transit</div>
+                  <div className="int-status-badge active">In Transit</div>
                 </div>
                 <div className="trip-route">Chicago, IL → Dallas, TX</div>
                 <div className="trip-meta">ETA: Dec 6, 2:30 PM</div>
@@ -47,15 +47,15 @@ export default function AiHub() {
 
               <div className="trip-stats">
                 <div className="trip-stat">
-                  <i class="fa-solid fa-clock" style={{ color: 'orange' }}></i>
+                  <i class="fa-solid fa-clock"></i>
                   <span className="stat-text">Break needed in 45 mins</span>
                 </div>
                 <div className="trip-stat">
-                  <i class="fa-solid fa-gas-pump" style={{ color: '#10b981' }}></i>
+                  <i class="fa-solid fa-gas-pump"></i>
                   <span className="stat-text">Fuel: 78% (520 miles)</span>
                 </div>
                 <div className="trip-stat">
-                  <i class="fa-solid fa-triangle-exclamation" style={{ color: '#f5e90bee' }}></i>
+                  <i class="fa-solid fa-triangle-exclamation"></i>
                   <span className="stat-text">Traffic delay: +15 mins</span>
                 </div>
               </div>
@@ -72,7 +72,6 @@ export default function AiHub() {
                   <div className="alert-sub">Expires in 28 days - renew now</div>
                 </div>
               </div>
-              <div className="alert-action-pill">Act</div>
             </div>
 
             <div className="smart-alert alert-info">
@@ -83,7 +82,6 @@ export default function AiHub() {
                   <div className="alert-sub">Medical card image is blurry</div>
                 </div>
               </div>
-              <div className="alert-action-pill yellow">Fix</div>
             </div>
           </div>
 
@@ -107,7 +105,7 @@ export default function AiHub() {
                 <span className="qa-label">Dispatcher</span>
               </button>
             </div>
-            <button className="emergency">Emergency Assist</button>
+            <button className="btn small-cd emergency">Emergency Assist</button>
           </div>
 
           <div className="rail-card insights">

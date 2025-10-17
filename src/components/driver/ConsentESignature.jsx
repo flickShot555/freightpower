@@ -68,7 +68,7 @@ export default function ConsentESignature() {
             <p className="fp-subtitle">Review, sign, and manage your required documents</p>
           </div>
           <div className="fpdd-consent-cta">
-          <button className="btn small blue">Sign All Pending (3)</button>
+          <button className="btn small-cd">Sign All Pending (3)</button>
         </div>
         </header>
 
@@ -87,8 +87,8 @@ export default function ConsentESignature() {
               <div className="fpdd-consent-card-left">
                 <div className="fpdd-consent-title-row">
                   <h3>{d.title}</h3>
-                  <div className={`fpdd-badge ${d.category.toLowerCase()}`}>{d.category}</div>
-                  <div className={`fpdd-status-pill ${d.status === 'Signed' ? 'signed' : d.status === 'Pending' ? 'pending' : 'unsigned'}`}>{d.status}</div>
+                  <div className={`int-status-badge ${d.category === 'Operational' ? 'active' : 'Policy' ? 'pending' : 'revoked'}`}>{d.category}</div>
+                  <div className={`int-status-badge ${d.status === 'Signed' ? 'active' : d.status === 'Pending' ? 'pending' : 'revoked'}`}>{d.status}</div>
                 </div>
                 <p className="fpdd-consent-note">{d.note}</p>
                 <div className="fpdd-consent-meta">
@@ -97,8 +97,8 @@ export default function ConsentESignature() {
                 </div>
               </div>
               <div className="fpdd-consent-card-right">
-                <button className="btn small outlinee">View</button>
-                <button className="btn small primary" onClick={() => setModalDoc(d)}>Sign</button>
+                <button className="btn small ghost-cd">View</button>
+                <button className="btn small-cd" onClick={() => setModalDoc(d)}>Sign</button>
                 <button className="fpdd-more-btn" aria-label="more">⋯</button>
               </div>
             </div>
@@ -125,11 +125,11 @@ export default function ConsentESignature() {
                     <td><span className={`fpdd-recent-cat ${r.category.toLowerCase()}`}>{r.category}</span></td>
                     <td>
                       {r.status === 'Signed' ? (
-                        <span className="fpdd-recent-status signed"><i className="fa-solid fa-check fpdd-status-icon" aria-hidden="true"/> Signed</span>
+                        <span className="int-status-badge active">Signed</span>
                       ) : r.status === 'Pending' ? (
-                        <span className="fpdd-recent-status pending"><i className="fa-solid fa-circle fpdd-status-icon" aria-hidden="true"/> Pending</span>
+                        <span className="int-status-badge pending"> Pending</span>
                       ) : (
-                        <span className="fpdd-recent-status unsigned"><i className="fa-solid fa-circle fpdd-status-icon" aria-hidden="true"/> Unsigned</span>
+                        <span className="int-status-badge revoked">Unsigned</span>
                       )}
                     </td>
                     <td>{r.date || '—'}</td>

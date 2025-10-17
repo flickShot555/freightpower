@@ -138,7 +138,7 @@
 .dd-progress-fill-new {
   width: 60%;
   height: 100%;
-  background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+  background: linear-gradient(to right,#7FA4F6 0%, #3B57A7 100%);
   border-radius: 6px;
   transition: width 0.3s ease;
 }
@@ -237,34 +237,16 @@
 .dd-alert-icon.orange {
   color: #f59e0b;
 }
-
-.dd-upload-missing-btn {
-  background: #3b82f6;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 6px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.dd-upload-missing-btn:hover {
-  background: #2563eb;
-}
-
 /* AI Readiness Check - New Styling */
 .dd-ai-readiness-check {
-  background: #f0f4ff;
-  border: 1px solid #e0e7ff;
+  border: 1px solid #e9eaef;
   border-radius: 12px;
   padding: 20px;
   margin-top: 24px;
 }
 
 .dark-root .dd-ai-readiness-check {
-  background: #1e3b8a68;
-  border-color: #3830a37d;
+  border-color: #353535;
 }
 
 .dd-ai-header {
@@ -287,11 +269,11 @@
   margin: 0;
   font-size: 16px;
   font-weight: 600;
-  color: #1e40af;
+  color:#3B57A7;
 }
 
 .dark-root .dd-ai-header h4 {
-  color: #dbeafe;
+  color: #7FA4F6;
 }
 
 .dd-ai-description {
@@ -328,22 +310,6 @@
   color: #ef4444;
 }
 
-.dd-upload-missing-btn-new {
-  background: #3b82f6;
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  margin-left: 44px;
-}
-
-.dd-upload-missing-btn-new:hover {
-  background: #2563eb;
-}
-
 /* Documents Grid */
 .dd-documents-grid {
   display: grid;
@@ -376,7 +342,7 @@
 
 .dark-root .dd-section-header-new {
   background: #2c2c2c;
-  border-color: #374151;
+  border-color: #353535;
 }
 
 .dd-section-icon-new {
@@ -413,22 +379,7 @@
 
 .dark-root .dd-document-card {
   background: #2c2c2c;
-  border-color: #4b5563;
-}
-
-.dd-document-card:hover {
-  border-color: #d1d5db;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
-.dd-missing-doc {
-  background: #fef2f2;
-  border-color: #fecaca;
-}
-
-.dd-pending-doc {
-  background: #fefbf2;
-  border-color: #fed7aa;
+  border-color: #353535;
 }
 
 .dd-doc-header {
@@ -449,21 +400,6 @@
   font-size: 11px;
   font-weight: 600;
   text-transform: capitalize;
-}
-
-.dd-status-badge-new.green {
-  background: #dcfce7;
-  color: #166534;
-}
-
-.dd-status-badge-new.orange {
-  background: #fed7aa;
-  color: #c2410c;
-}
-
-.dd-status-badge-new.red {
-  background: #fecaca;
-  color: #dc2626;
 }
 
 .dd-doc-title-new {
@@ -494,6 +430,10 @@
   margin-top: 12px;
   padding-top: 12px;
   border-top: 1px solid #f3f4f6;
+}
+
+.dark-root .dd-doc-shared {
+  border-color: #353535;
 }
 
 .dd-shared-status {
@@ -784,27 +724,12 @@
 
 .dark-root .dd-upload-option {
   background: #2c2c2c;
-  border-color: #4b5563;
-}
-
-.dd-upload-option:hover {
-  border-color: #3b82f6;
-  background: #eff6ff;
-}
-
-.dark-root .dd-upload-option:hover {
-  background: #374151;
-  border-color: #3b82f6;
+  border-color: #353535;
 }
 
 .dd-upload-icon {
   font-size: 32px;
-  color: #3b82f6;
   margin-bottom: 12px;
-}
-
-.dark-root .dd-upload-icon {
-  color: #60a5fa;
 }
 
 .dd-upload-text h4 {
@@ -904,33 +829,10 @@
   color: #f9fafb;
 }
 
-.dd-document-vault.dark .dd-document-item {
-  background: #374151;
-  border-color: #4b5563;
-}
-
-.dd-document-vault.dark .dd-upload-option {
-  background: #374151;
-  border-color: #4b5563;
-}
-
-.dd-document-vault.dark .dd-upload-option:hover {
-  background: #4b5563;
-}
 
 .dd-document-vault.dark .dd-upload-text h4 {
   color: #f9fafb;
 }
-
-.dd-document-vault.dark .dd-ai-readiness-check {
-  background: #1e3a8a;
-  border-color: #3730a3;
-}
-
-.dd-document-vault.dark .dd-ai-header h4 {
-  color: #dbeafe;
-}
-
 .dd-document-vault.dark .dd-ai-description,
 .dd-document-vault.dark .dd-alert-item-new {
   color: #d1d5db;
@@ -952,21 +854,6 @@
 
 .dd-document-vault.dark .dd-section-header-new h3 {
   color: #f9fafb;
-}
-
-.dd-document-vault.dark .dd-document-card {
-  background: #374151;
-  border-color: #4b5563;
-}
-
-.dd-document-vault.dark .dd-missing-doc {
-  background: #7f1d1d;
-  border-color: #dc2626;
-}
-
-.dd-document-vault.dark .dd-pending-doc {
-  background: #92400e;
-  border-color: #f59e0b;
 }
 
 .dd-document-vault.dark .dd-doc-title-new {
@@ -1104,21 +991,6 @@
   font-weight: 500;
 }
 
-.dd-status-badge.expiring {
-  background: #fef3c7;
-  color: #92400e;
-}
-
-.dd-status-badge.active {
-  background: #dcfce7;
-  color: #166534;
-}
-
-.dd-status-badge.warning {
-  background: #fed7aa;
-  color: #c2410c;
-}
-
 .dd-progress-bar-container-new {
   padding: 0 20px 16px 20px;
 }
@@ -1134,7 +1006,7 @@
 .dd-progress-fill-full {
   width: 80%;
   height: 100%;
-  background: linear-gradient(90deg, #f59e0b, #d97706);
+  background: linear-gradient(to right, #7FA4F6 0%, #3B57A7 100%);
   border-radius: 4px;
 }
 
@@ -1237,12 +1109,16 @@
 .dd-filter-select {
   padding: 10px 16px;
   border: 1px solid #d1d5db;
-  border-radius: 6px;
+  border-radius: 100px;
   background: white;
   color: #374151;
-  font-weight: 500;
+  font-weight: 400;
   cursor: pointer;
   margin-left: auto;
+}
+
+.dd-filter-select:focus{
+  box-shadow:0 0 0 0.5px #3B57A7,0 4px 8px -5px rgba(0,0,0,0.15)!important;
 }
 
 /* Post Hire Sections */
@@ -1298,12 +1174,7 @@
 
 .dark-root .dd-post-hire-card {
   background: #2c2c2c;
-  border-color: #4b5563;
-}
-
-.dd-post-hire-card:hover {
-  border-color: #3b82f6;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+  border-color: #353535;
 }
 
 .dd-add-card {
@@ -1454,11 +1325,6 @@
 
 .dd-document-vault.dark .dd-status-progress {
   background: #1f2937;
-}
-
-.dd-document-vault.dark .dd-post-hire-card {
-  background: #1f2937;
-  border-color: #374151;
 }
 
 .dd-document-vault.dark .dd-card-title,
