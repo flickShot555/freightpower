@@ -210,7 +210,7 @@ export default function AdminDashboard() {
             <>
             <header className="fp-header">
             <div className="fp-header-titles">
-              <h2>Welcome, Farhan Salad <span role="img" aria-label="wave">👋</span></h2>
+              <h2>Welcome, Farhan <span role="img" aria-label="wave">👋</span></h2>
               <p className="fp-subtitle">Role: Compliance & Operations Sub-Admin — Last login: Today at 8:45 AM</p>
             </div>
           </header>
