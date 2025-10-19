@@ -1,7 +1,7 @@
 
 .tasks-main { display:flex; gap:16px }
 .tasks-actions { display:flex; gap: 8px; }
-.tasks-table-wrap { flex:1; background:#fff; border-radius:8px; box-shadow:0 6px 18px rgba(2,6,23,0.04); border:1px solid #eef2f7; overflow-x:auto }
+.tasks-table-wrap { flex:1; background:#fff; border-radius:8px; box-shadow:0 6px 18px rgba(2,6,23,0.04); border:1px solid #eef2f7; overflow-x:auto}
 .dark-root .tasks-table-wrap { background:#2c2c2c; border-color:#353535; color:#f1f5f9 }
 .tasks-table { min-width:850px;}
 .tasks-filters { display:flex; gap:8px; margin-bottom:12px }

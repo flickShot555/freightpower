@@ -47,7 +47,7 @@ export default function HiringOnboarding(){
 
       <div className="tasks-main" style={{marginTop: '12px'}}>
         <div className="tasks-table-wrap">
-          <div className="tabs">
+          <div className="tabs" style={{marginBottom: '10px', marginLeft: '20px'}}>
             <button className={`tab ${tab==='all' ? 'active' : ''}`} onClick={() => setTab('all')}>All</button>
             <button className={`tab ${tab==='carriers' ? 'active' : ''}`} onClick={() => setTab('carriers')}>Carriers</button>
             <button className={`tab ${tab==='drivers' ? 'active' : ''}`} onClick={() => setTab('drivers')}>Drivers</button>

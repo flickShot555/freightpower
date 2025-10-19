@@ -254,32 +254,32 @@ export default function AdminDashboard() {
             </div>
             <section className="fp-grid">
             <div className="card stats-card">
-              <div className="card-header"><h3>Pending Documents</h3><i className="fa-regular fa-file card-icon"/></div>
+              <div className="card-headers"><h3>Pending Documents</h3><i className="fa-regular fa-file card-icon"/></div>
               <div className="statss"><div>42</div></div>
             </div>
 
             <div className="card stats-card">
-              <div className="card-header"><h3>Active Carriers</h3><i className="fa-solid fa-truck card-icon"/></div>
+              <div className="card-headers"><h3>Active Carriers</h3><i className="fa-solid fa-truck card-icon"/></div>
               <div className="statss"><div>18</div></div>
             </div>
 
             <div className="card stats-card">
-              <div className="card-header"><h3>Active Drivers</h3><i className="fa-solid fa-user card-icon"/></div>
+              <div className="card-headers"><h3>Active Drivers</h3><i className="fa-solid fa-user card-icon"/></div>
               <div className="statss"><div>24</div></div>
             </div>
 
             <div className="card stats-card">
-              <div className="card-header"><h3>Pending Onboardings</h3><i className="fa-solid fa-hourglass-half card-icon"/></div>
+              <div className="card-headers"><h3>Pending Onboardings</h3><i className="fa-solid fa-hourglass-half card-icon"/></div>
               <div className="statss"><div>9</div></div>
             </div>
 
             <div className="card stats-card">
-              <div className="card-header"><h3>Support Tickets</h3><i className="fa-solid fa-ticket card-icon"/></div>
+              <div className="card-headers"><h3>Support Tickets</h3><i className="fa-solid fa-ticket card-icon"/></div>
               <div className="statss"><div>12</div></div>
             </div>
 
             <div className="card stats-card">
-              <div className="card-header"><h3>Compliance Rate</h3><i className="fa-solid fa-shield-halved card-icon"/></div>
+              <div className="card-headers"><h3>Compliance Rate</h3><i className="fa-solid fa-shield-halved card-icon"/></div>
               <div className="statss"><div>94% <span>+2% this week</span></div></div>
             </div>
           </section>

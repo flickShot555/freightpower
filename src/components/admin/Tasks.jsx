@@ -41,7 +41,7 @@ export default function Tasks() {
 
       <div className="tasks-main" style={{marginTop: '20px'}}>
         <div className="tasks-table-wrap">
-          <div className="tabs">
+          <div className="tabs" style={{marginBottom: '10px', marginLeft: '20px'}}>
             <button className={`tab ${tab==='all' ? 'active' : ''}`} onClick={() => setTab('all')}>All Tasks</button>
             <button className={`tab ${tab==='team' ? 'active' : ''}`} onClick={() => setTab('team')}>My Team</button>
             <button className={`tab ${tab==='done' ? 'active' : ''}`} onClick={() => setTab('done')}>Completed</button>
