@@ -30,24 +30,24 @@ export default function InviteCarrierModal({ isOpen, onClose }) {
             <div className="ic-suggestions-title">AI Carrier Suggestions</div>
             <div className="ic-suggestion"> 
               <div className="s-left">Midwest Express <div className="s-sub">DOT: 456789</div></div>
-              <button className="ic-invite-small">Invite</button>
+              <button className="btn small-cd">Invite</button>
             </div>
             <div className="ic-suggestion"> 
               <div className="s-left">Lone Star Logistics <div className="s-sub">DOT: 789456</div></div>
-              <button className="ic-invite-small">Invite</button>
+              <button className="btn small-cd">Invite</button>
             </div>
             <div className="ic-suggestion"> 
               <div className="s-left">Rapid Transit Co <div className="s-sub">DOT: 321654</div></div>
-              <button className="ic-invite-small">Invite</button>
+              <button className="btn small-cd">Invite</button>
             </div>
           </div>
         </div>
 
         <div className="ic-modal-footer">
-          <button className="ic-copy">Copy Invite Link</button>
+          <button className="btn small ghost-cd">Copy Invite Link</button>
           <div className="ic-actions">
-            <button className="ic-btn ghost" onClick={onClose}>Cancel</button>
-            <button className="ic-btn primary" onClick={() => { /* TODO: send invite */ onClose(); }}>Send Invite</button>
+            <button className="btn small ghost-cd" onClick={onClose}>Cancel</button>
+            <button className="btn small-cd" onClick={() => { /* TODO: send invite */ onClose(); }}>Send Invite</button>
           </div>
         </div>
       </div>

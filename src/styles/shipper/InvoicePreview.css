@@ -37,15 +37,11 @@
 
 .fpip-title { display:flex; flex-direction:column }
 .fpip-status { display:inline-block; padding:6px 10px; border-radius:18px; font-size:12px; margin-bottom:8px; align-self:flex-start }
-.fpip-pending { background:#fff7cc; color:#a78b00; border:1px solid rgba(167,139,0,0.08) }
-
 .fpip-title h2 { margin:0; font-size:20px; line-height:1.05; font-weight:600 }
 .fpip-meta { color:#6b7280; font-size:13px; margin-top:6px; font-weight:500 }
 
 
 .fpip-actions { display:flex; gap:8px; align-items:center }
-.fpip-btn { padding:8px 12px; font-size:13px; border-radius:8px; border:1px solid #eef6f7; background:#fff; min-height:36px }
-.dark-root .fpip-btn { background:#2c2c2c; border-color:#353535; color:#f1f5f9 }
 .fpip-ghost { background:#fff; color:#0f172a }
 .dark-root .fpip-ghost { background:transparent; color:#f1f5f9; border-color:#3a4147 }
 .fpip-primary { background:#0ea5a4; color:#fff; border:none }
@@ -77,8 +73,8 @@
 .fpip-charges-list .fpip-charge-amount { font-weight:500 }
 .fpip-total-row { display:flex; justify-content:space-between; font-weight:700; padding-top:8px }
 .fpip-total-amount { font-size:16px; font-weight:700 }
-.fpip-callout { background:#fff7ed; padding:10px; border-radius:6px; margin-top:12px; color:#92400e }
-.dark-root .fpip-callout { background:#4b2e0f1f; color:#fcd34da9 }
+.fpip-callout { background:#fff; padding:10px; border-radius:6px; margin-top:12px; border:1px solid #f1f5f9; font-size:13px }
+.dark-root .fpip-callout { background:#2c2c2c; border-color:#353535; color:#f1f5f9 }
 
 
 .fpip-card-header { display:flex; justify-content:space-between; align-items:center }
@@ -89,10 +85,8 @@
 .fpip-doc-icon { width:24px; height:24px; display:inline-flex; align-items:center; justify-content:center; background:#f8fafc; border-radius:6px; font-size:14px }
 .fpip-doc-label { font-weight:600; font-size:14px }
 .fpip-doc-meta { color:#6b7280; font-size:13px; font-weight:500 }
-.fpip-doc-actions a { color:#06b6d4; margin-left:12px }
-.fpip-doc-status.verified { color:#10b981 }
-.fpip-doc-status.linked { color:#06b6d4 }
-.fpip-doc-status.missing { color:#f59e0b }
+.fpip-doc-actions a { color:#3B57A7; margin-left:12px; font-size: 14px; }
+.dark-root .fpip-doc-actions a { color:#7FA4F6; }
 
 .fpip-notes-box { width:100%; min-height:80px; border:1px solid #e6eef1; border-radius:6px; padding:10px }
 .dark-root .fpip-notes-box { background:#2c2c2c; border-color:#353535; color:#f1f5f9 }
@@ -101,15 +95,13 @@
 
 .fpip-timeline-list { list-style:none; padding:0; margin:6px 0 0 0 }
 .fpip-timeline-item { display:flex; gap:10px; align-items:flex-start; padding:8px 0 }
-.fpip-dot { width:14px; height:14px; border-radius:50%; background:#e5e7eb; margin-top:4px }
-.fpip-timeline-item.done .fpip-dot { background:#10b981 }
-.fpip-timeline-item.inprogress .fpip-dot { background:#f59e0b }
-.fpip-timeline-item.pending .fpip-dot { background:#e5e7eb }
+.fpip-dot { width:10px; height:10px; border-radius:50%; background:linear-gradient(#7FA4F6 0%, #3B57A7 100%); margin-top:4px }
 .fpip-tl-content .fpip-tl-label { font-weight:600; font-size:13px }
 .fpip-tl-date { font-size:12px; color:#6b7280; font-weight:500 }
 
 
 .fpip-live-row { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #f1f5f9 }
+.dark-root .fpip-live-row { border-color:#353535 }
 
 
 
@@ -119,7 +111,6 @@
 .fpip-audit-list { list-style:none; padding:0; margin:0 }
 
 .fpip-audit-item { display:flex; align-items:center; gap:12px; padding:12px 8px }
-.fpip-dot-teal { width:10px; height:10px; border-radius:50%; background:#06b6d4; display:inline-block; flex:0 0 10px }
 .fpip-audit-left { display:flex; flex-direction:column }
 .fpip-audit-title { font-weight:700; font-size:14px }
 .fpip-audit-sub { font-size:13px; color:#6b7280; margin-top:4px }

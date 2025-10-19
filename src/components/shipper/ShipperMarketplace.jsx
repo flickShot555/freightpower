@@ -211,7 +211,7 @@ export default function ShipperMarketplace() {
       </div>
 
       {/* Navigation Tabs */}
-      <div className="tabs" style={{marginBottom: '20px'}}>
+      <div className="mrkt-tabs tabs" style={{marginBottom: '20px'}}>
         {tabs.map(tab => (
           <button
             key={tab}

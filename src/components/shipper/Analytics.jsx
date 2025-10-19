@@ -141,10 +141,10 @@ export default function ShipperAnalytics(){
       </section>
 
       <footer className="sa-footer">
-        <button className="btn teal">View Loads</button>
-        <button className="btn ghost">Create Invoice</button>
-        <button className="btn ghost">Carrier Report</button>
-        <button className="btn ghost">Export Analytics</button>
+        <button className="btn small-cd">View Loads</button>
+        <button className="btn small ghost-cd">Create Invoice</button>
+        <button className="btn small ghost-cd">Carrier Report</button>
+        <button className="btn small ghost-cd">Export Analytics</button>
       </footer>
     </div>
   )

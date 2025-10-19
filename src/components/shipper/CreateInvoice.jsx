@@ -26,9 +26,9 @@ export default function CreateInvoice({ onClose }) {
               <div className="create-subtitle">Generate and send an invoice linked to a load and supporting documents</div>
             </div>
             <div className="create-actions">
-              <button className="btn ghost" onClick={(e) => { e.stopPropagation(); openPreview(); }}>Preview PDF</button>
-              <button className="btn ghost">Save Draft</button>
-              <button className="btn primary">Create & Send Invoice</button>
+              <button className="btn small ghost-cd" onClick={(e) => { e.stopPropagation(); openPreview(); }}>Preview PDF</button>
+              <button className="btn small ghost-cd">Save Draft</button>
+              <button className="btn small-cd">Create & Send Invoice</button>
             </div>
           </div>
 
@@ -40,7 +40,7 @@ export default function CreateInvoice({ onClose }) {
               </div>
             </div>
             <div>
-              <button className="ai-yes">Yes</button>
+              <button className="btn small ghost-cd dd-btn">Yes</button>
             </div>
           </div>
 
@@ -118,7 +118,7 @@ export default function CreateInvoice({ onClose }) {
                   <a href="#" className="doc-action">View</a>
                 </div>
                 <div className="doc-right">
-                  <div className="doc-status verified">Verified</div>
+                  <div className="int-status-badge Verified">Verified</div>
                 </div>
               </div>
 
@@ -129,18 +129,18 @@ export default function CreateInvoice({ onClose }) {
                   <a href="#" className="doc-action">View</a>
                 </div>
                 <div className="doc-right">
-                  <div className="doc-status linked">Linked</div>
+                  <div className="int-status-badge active">Linked</div>
                 </div>
               </div>
 
-              <div className="doc-card missing">
+              <div className="doc-card">
                 <div className="doc-left">
                   <div className="doc-title">BOL</div>
                   <div className="doc-meta">—</div>
                   <a href="#" className="doc-action">Upload</a>
                 </div>
                 <div className="doc-right">
-                  <div className="doc-status missing">Missing</div>
+                  <div className="int-status-badge warning">Missing</div>
                 </div>
               </div>
             </div>
@@ -165,7 +165,6 @@ export default function CreateInvoice({ onClose }) {
             <div className="summary-row"><div className="muted">Load #</div><div>8237</div></div>
             <div className="summary-row"><div className="muted">Subtotal</div><div>$3,600.00</div></div>
             <div className="summary-row"><div className="muted">Accessorials</div><div>$380.00</div></div>
-            <hr />
             <div className="summary-total"><div>Total</div><div className="total-amount">$3,980.00</div></div>
 
             <div className="muted small">Payment Terms</div>

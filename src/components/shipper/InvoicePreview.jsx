@@ -36,18 +36,17 @@ export default function InvoicePreview({ invoice = {}, onClose = () => {} }) {
           <div>
             <button className="fpip-close"  onClick={onClose} aria-label="Close">×</button>
             <div className="fpip-title">
-            <div className="fpip-status fpip-pending">Pending</div>
+            <div className="fpip-status int-status-badge pending">Pending</div>
             <h2>Invoice {invoiceNumber}</h2>
             <div className="fpip-meta">Linked to Load #{load} · {partner}</div>
           </div>
-          
           </div>
 
           <div className="fpip-actions">
-            <button className="fpip-btn fpip-ghost">Share</button>
-            <button className="fpip-btn fpip-ghost">Download PDF</button>
-            <button className="fpip-btn fpip-ghost">Resend</button>
-            <button className="fpip-btn fpip-primary">Mark as Paid</button>
+            <button className="btn small ghost-cd">Share</button>
+            <button className="btn small ghost-cd">Download PDF</button>
+            <button className="btn small ghost-cd">Resend</button>
+            <button className="btn small-cd">Mark as Paid</button>
           </div>
         </div>
 
@@ -81,7 +80,7 @@ export default function InvoicePreview({ invoice = {}, onClose = () => {} }) {
                   <div>Net 30</div>
 
                   <div className="fpip-muted">Current Status</div>
-                  <div className="fpip-status fpip-pending">Pending Funding</div>
+                  <div className="fpip-status int-status-badge pending">Pending Funding</div>
                 </div>
               </div>
             </section>
@@ -130,7 +129,7 @@ export default function InvoicePreview({ invoice = {}, onClose = () => {} }) {
               <h3>Notes / Internal Comments</h3>
               <textarea className="fpip-notes-box" defaultValue={"Delivered on time, verified POD signature. Awaiting factoring deposit."} />
               <div className="fpip-notes-actions">
-                <button className="fpip-btn">Save Note</button>
+                <button className="btn small ghost-cd">Save Note</button>
               </div>
             </section>
           </div>
@@ -162,12 +161,12 @@ export default function InvoicePreview({ invoice = {}, onClose = () => {} }) {
             <section className="fpip-quick fpip-card">
               <h4>Quick Actions</h4>
               <div className="fpip-qa-grid">
-                <button className="fpip-btn">Download PDF</button>
-                <button className="fpip-btn">Share Link</button>
-                <button className="fpip-btn">Resend</button>
-                <button className="fpip-btn">Mark Paid</button>
-                <button className="fpip-btn">Send to Factoring</button>
-                <button className="fpip-btn">Save to Vault</button>
+                <button className="btn small ghost-cd">Download PDF</button>
+                <button className="btn small ghost-cd">Share Link</button>
+                <button className="btn small ghost-cd">Resend</button>
+                <button className="btn small ghost-cd">Mark Paid</button>
+                <button className="btn small ghost-cd">Send to Factoring</button>
+                <button className="btn small ghost-cd">Save to Vault</button>
               </div>
             </section>
 
@@ -175,7 +174,7 @@ export default function InvoicePreview({ invoice = {}, onClose = () => {} }) {
               <h4>Audit & Activity Log</h4>
               <ul className="fpip-audit-list">
                 <li className="fpip-audit-item">
-                  <span className="fpip-dot-teal" />
+                  <span className="fpip-dot" />
                   <div className="fpip-audit-left">
                     <div className="fpip-audit-title">Created Invoice</div>
                     <div className="fpip-audit-sub">Farhan S.</div>
@@ -184,7 +183,7 @@ export default function InvoicePreview({ invoice = {}, onClose = () => {} }) {
                 </li>
 
                 <li className="fpip-audit-item">
-                  <span className="fpip-dot-teal" />
+                  <span className="fpip-dot" />
                   <div className="fpip-audit-left">
                     <div className="fpip-audit-title">Sent Email to FedEx</div>
                     <div className="fpip-audit-sub">System</div>
@@ -193,7 +192,7 @@ export default function InvoicePreview({ invoice = {}, onClose = () => {} }) {
                 </li>
 
                 <li className="fpip-audit-item">
-                  <span className="fpip-dot-teal" />
+                  <span className="fpip-dot" />
                   <div className="fpip-audit-left">
                     <div className="fpip-audit-title">Matched Bank Deposit</div>
                     <div className="fpip-audit-sub">AI Agent</div>
@@ -202,7 +201,7 @@ export default function InvoicePreview({ invoice = {}, onClose = () => {} }) {
                 </li>
 
                 <li className="fpip-audit-item">
-                  <span className="fpip-dot-teal" />
+                  <span className="fpip-dot" />
                   <div className="fpip-audit-left">
                     <div className="fpip-audit-title">Confirmed Funding</div>
                     <div className="fpip-audit-sub">Apex Factoring</div>

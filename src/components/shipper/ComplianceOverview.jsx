@@ -9,15 +9,15 @@ export default function ComplianceOverview(){
         <div className="co-titles">
           <h2>Compliance Overview</h2>
           <div className="co-status-row">
-            <div className="chip success">Fully Compliant</div>
+            <div className="int-status-badge active">Fully Compliant</div>
             <div className="muted small">Audit Readiness Score: <strong>94%</strong></div>
             <div className="muted small">Last Verified: Oct 8, 2025 | Next Review: Jan 2026</div>
           </div>
         </div>
 
         <div className="co-actions">
-          <button className="btn small ghostt">Sync with FMCSA</button>
-          <button className="btn">Generate Compliance Packet</button>
+          <button className="btn small ghost-cd">Sync with FMCSA</button>
+          <button className="btn small-cd">Generate Compliance Packet</button>
         </div>
       </header>
 
@@ -28,17 +28,17 @@ export default function ComplianceOverview(){
             <div className="ai-action-list">
               <div className="ai-action-row">
                 <div className="ai-action-left">Renew Cargo Insurance (due in 10 days)</div>
-                <div className="ai-action-right"><button className="btn small">Mark Done</button> <button className="btn small ghostt">Remind Later</button> <button className="btn small ghostt">View Details</button></div>
+                <div className="ai-action-right"><button className="btn small ghost-cd">Mark Done</button> <button className="btn small ghost-cd">Remind Later</button> <button className="btn small ghost-cd">View Details</button></div>
               </div>
               <div className="ai-action-row">
                 <div className="ai-action-left">Confirm BMC-84 Bond renewal with Roanoke</div>
-                <div className="ai-action-right"><button className="btn small">Mark Done</button> <button className="btn small ghostt">Remind Later</button> <button className="btn small ghostt">View Details</button></div>
+                <div className="ai-action-right"><button className="btn small ghost-cd">Mark Done</button> <button className="btn small ghost-cd">Remind Later</button> <button className="btn small ghost-cd">View Details</button></div>
               </div>
             </div>
           </div>
 
           <div className="card co-stats-grid">
-            <div className="ffco-stat-row">
+            <div className="ffco-stat-row" style={{marginBottom: '12px'}}>
               <div className="ffco-stat-card">
                 <div className="ffco-stat-title">FMCSA Authority</div>
                 <div className="ffco-stat-meta muted">DOT: 3547951 · MC: 1198476</div>
@@ -79,7 +79,7 @@ export default function ComplianceOverview(){
               <div><strong>EIN</strong><div className="muted">82-9376542</div></div>
               <div><strong>FMCSA Status</strong><div className="muted">Active</div></div>
             </div>
-            <div className="co-note">Verification Note: Authority confirmed with FMCSA API at 10:42 AM. No pending filings.</div>
+            <div className="co-note"><strong>Verification Note:</strong> Authority confirmed with FMCSA API at 10:42 AM. No pending filings.</div>
           </div>
 
           <div className="card ffco-filings" style={{marginTop: '12px'}}>
@@ -88,15 +88,15 @@ export default function ComplianceOverview(){
             <table className="co-table">
               <thead><tr><th>Filing</th><th>Status</th><th>Last Verified</th><th>Source</th><th>Action</th></tr></thead>
               <tbody>
-                <tr><td>Broker Authority</td><td className="status green">Active</td><td>Oct 8</td><td>FMCSA</td><td><a href="#">View</a></td></tr>
-                <tr><td>Operating Status</td><td>Authorized for Property</td><td>Oct 8</td><td>FMCSA</td><td><a href="#">View</a></td></tr>
-                <tr><td>BMC-91X Insurance Filing</td><td className="status yellow">On File</td><td>Oct 8</td><td>FMCSA</td><td><a href="#">View</a></td></tr>
+                <tr><td>Broker Authority</td><td><span className='int-status-badge active'>Active</span></td><td>Oct 8</td><td>FMCSA</td><td><i className='fas fa-ellipsis-h'></i></td></tr>
+                <tr><td>Operating Status</td><td><span className='int-status-badge active'>Authorized for Property</span></td><td>Oct 8</td><td>FMCSA</td><td><i className='fas fa-ellipsis-h'></i></td></tr>
+                <tr><td>BMC-91X Insurance Filing</td><td><span className='int-status-badge pending'>On File</span></td><td>Oct 8</td><td>FMCSA</td><td><i className='fas fa-ellipsis-h'></i></td></tr>
               </tbody>
             </table>
             </div>
             <div className="co-ai-note">
-              <span className="ai-emoji">🧠</span>
-              <div className="ai-text">AI Suggestion: Next FMCSA update check scheduled in 5 days.</div>
+              <span><i className="fas fa-brain"></i></span>
+              <div className="ai-text"><strong>AI Suggestion:</strong> Next FMCSA update check scheduled in 5 days.</div>
             </div>
           </div>
 
@@ -110,28 +110,28 @@ export default function ComplianceOverview(){
                   <td>Cargo Insurance</td>
                   <td>Travelers</td>
                   <td>Oct 18, 2025</td>
-                  <td className="status yellow"><span className="chip">⚠️ Expiring</span></td>
-                  <td><a href="#">View</a></td>
+                  <td className="status yellow"><span className="int-status-badge pending">Expiring</span></td>
+                  <td><i className='fas fa-ellipsis-h'></i></td>
                 </tr>
                 <tr>
                   <td>General Liability</td>
                   <td>Progressive</td>
                   <td>2026</td>
-                  <td className="status green"><span className="chip success">✔ Active</span></td>
-                  <td><a href="#">View</a></td>
+                  <td className="status green"><span className="int-status-badge active">Active</span></td>
+                  <td><i className='fas fa-ellipsis-h'></i></td>
                 </tr>
                 <tr>
                   <td>Surety Bond (BMC-84)</td>
                   <td>Roanoke</td>
                   <td>2027</td>
-                  <td><span className="verified">✔</span></td>
-                  <td><a href="#">View</a></td>
+                  <td><span className="int-status-badge Verified">Verified</span></td>
+                  <td><i className='fas fa-ellipsis-h'></i></td>
                 </tr>
               </tbody>
             </table>
             </div>
             <div className="co-ai-note">
-              <span className="ai-emoji">🧠</span>
+              <span><i className="fas fa-brain"></i></span>
               <div className="ai-text">AI Note: Cargo policy expiring in 10 days. Renewal reminder sent to provider.</div>
             </div>
           </div>
@@ -142,18 +142,18 @@ export default function ComplianceOverview(){
             <h4>AI Compliance Assistant</h4>
 
             <div className="assistant-stack">
-              <div className="assistant-item warning"><span className="assistant-emoji">⚠️</span><div className="assistant-body">"1 policy expiring soon (Cargo Insurance)"</div></div>
-              <div className="assistant-item success"><span className="assistant-emoji">✅</span><div className="assistant-body">"All authority filings verified with FMCSA."</div></div>
-              <div className="assistant-item info"><span className="assistant-emoji">📅</span><div className="assistant-body">"Next auto-sync scheduled for Oct 10."</div></div>
-              <div className="assistant-item question"><span className="assistant-emoji">🤖</span><div className="assistant-body">"Generate full compliance packet for insurer?"</div></div>
-              <div className="assistant-item neutral"><span className="assistant-emoji">💠</span><div className="assistant-body">"Compliance health: 94% — audit-ready."</div></div>
+              <div className="assistant-item"><span className="assistant-emoji"><i className="fas fa-exclamation-circle"></i></span><div className="assistant-body">"1 policy expiring soon (Cargo Insurance)"</div></div>
+              <div className="assistant-item"><span className="assistant-emoji"><i className="fas fa-check-circle"></i></span><div className="assistant-body">"All authority filings verified with FMCSA."</div></div>
+              <div className="assistant-item"><span className="assistant-emoji"><i className="fas fa-calendar-alt"></i></span><div className="assistant-body">"Next auto-sync scheduled for Oct 10."</div></div>
+              <div className="assistant-item"><span className="assistant-emoji"><i className="fas fa-robot"></i></span><div className="assistant-body">"Generate full compliance packet for insurer?"</div></div>
+              <div className="assistant-item"><span className="assistant-emoji"><i className="fas fa-circle"></i></span><div className="assistant-body">"Compliance health: 94% — audit-ready."</div></div>
             </div>
 
             <div className="assistant-actions">
-              <button className="btn teal">Renew Policy</button>
-              <button className="btn ghost block">Generate Packet</button>
-              <button className="btn ghost block">Recalculate Score</button>
-              <button className="btn ghost block">Share Snapshot</button>
+              <button className="btn small-cd">Renew Policy</button>
+              <button className="btn small ghost-cd">Generate Packet</button>
+              <button className="btn small ghost-cd">Recalculate Score</button>
+              <button className="btn small ghost-cd">Share Snapshot</button>
             </div>
 
             <h5 style={{marginTop:14, fontWeight:600}}>Recent Activity</h5>

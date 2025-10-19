@@ -12,6 +12,7 @@ import CarrierDashboard from './components/carrier/CarrierDashboard'
 import DriverDashboard from './components/driver/DriverDashboard'
 import ShipperDashboard from './components/shipper/ShipperDashboard'
 import AdminDashboard from './components/admin/AdminDashboard'
+import SuperAdminDashboard from './components/super_admin/SuperAdminDashboard'
 import CarrierOnboarding from './components/onboarding/CarrierOnboarding'
 import DriverOnboarding from './components/onboarding/DriverOnboarding'
 import ShipperOnboarding from './components/onboarding/ShipperOnboarding'
@@ -61,6 +62,7 @@ function InnerRoutes({ chatOpen, chatMinimized, setChatOpen, setChatMinimized })
   <Route path="/carrier-dashboard" element={<CarrierDashboard />} />
   <Route path="/driver-dashboard" element={<DriverDashboard />} />
   <Route path="/admin-dashboard" element={<AdminDashboard />} />
+  <Route path="/super-admin-dashboard" element={<SuperAdminDashboard />} />
   <Route path="/shipper-dashboard" element={<ShipperDashboard />} />
       </Routes>
       {showChat && <Chatbot isOpen={chatOpen} onClose={() => setChatOpen(false)} onMinimizeChange={(min)=>{ setChatMinimized(min) }} />}

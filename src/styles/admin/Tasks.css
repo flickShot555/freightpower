@@ -1,15 +1,17 @@
 
 .tasks-main { display:flex; gap:16px }
 .tasks-actions { display:flex; gap: 8px; }
-.tasks-table-wrap { flex:1; background:#fff; border-radius:8px; padding: 16px!important; box-shadow:0 6px 18px rgba(2,6,23,0.04); border:1px solid #eef2f7; overflow-x:auto }
+.tasks-table-wrap { flex:1; background:#fff; border-radius:8px; box-shadow:0 6px 18px rgba(2,6,23,0.04); border:1px solid #eef2f7; overflow-x:auto }
 .dark-root .tasks-table-wrap { background:#2c2c2c; border-color:#353535; color:#f1f5f9 }
 .tasks-table { min-width:850px;}
 .tasks-filters { display:flex; gap:8px; margin-bottom:12px }
 .tasks-table { width:100%; border-collapse:collapse;}
-.tasks-table thead th{ padding:12px; text-align:left; color:#64748b; font-size: 13px; }
+.tasks-table thead th{ padding:12px; text-align:left; color:#64748b; font-size: 13px; background-color: #fff;}
+.dark-root .tasks-table thead th{ background-color: #2c2c2c; color:#94a3b8; border-color: #353535; }
 .tasks-table tbody td{ padding:12px; border-bottom:1px solid rgba(255,255,255,0.03); font-size: 14px; }
+.dark-root .tasks-table tbody td{ border-color: #353535; background-color: #2c2c2c;}
 
-.tasks-right { width:300px }
+.tasks-right { width:270px }
 .task-detail { background:#fff; padding:12px; border-radius:8px; box-shadow:0 6px 18px rgba(2,6,23,0.04);}
 .dark-root .task-detail { background:#2c2c2c; color:#f1f5f9 }
 .task-detail .header-title { margin-bottom:8px }

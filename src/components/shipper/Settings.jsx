@@ -33,17 +33,17 @@ export default function Settings(){
 
             <div className="ss-brand-row">
               <div className="ss-logo">TL</div>
-              <button className="btn ghost small">Upload Logo</button>
+              <button className="btn small ghost-cd">Upload Logo</button>
             </div>
 
-            <button className="btn teal ss-save">Save Company Info</button>
+            <button className="btn small-cd">Save Company Info</button>
           </div>
 
           <div className="ss-card ss-right">
             <h4 className='heading-setting-sh'>User Info</h4>
             <div className="ss-photo-row">
               <img className="ss-avatar" src="https://randomuser.me/api/portraits/men/32.jpg" alt="avatar" />
-              <button className="btn ghost small">Change Photo</button>
+              <button className="btn small ghost-cd">Change Photo</button>
             </div>
 
             <label>Name</label>
@@ -58,7 +58,7 @@ export default function Settings(){
             <label>Username</label>
             <input className="ss-input" defaultValue="jsmith" />
 
-            <button className="btn ghost ss-change-pass">Change Password</button>
+            <button className="btn small ghost-cd">Change Password</button>
 
             <div className="ss-mfa">
               <label>Enable MFA (2-Step)</label>
@@ -85,7 +85,7 @@ export default function Settings(){
                 </div>
               </div>
               <div>
-                <button className={`btn small ${i%2===0? 'ghost':'teal'}`}>{i%2===0 ? 'Manage' : 'Connect'}</button>
+                <button className={`btn small ${i%2===0? 'small ghost-cd':'small-cd'}`}>{i%2===0 ? 'Manage' : 'Connect'}</button>
               </div>
             </div>
           ))}
@@ -115,8 +115,8 @@ export default function Settings(){
             </div>
           ))}
           <div className="ss-not-actions">
-            <button className="btn ghost small">Daily Digest Mode</button>
-            <button className="btn ghost small">Saved Text Alert</button>
+            <button className="btn small ghost-cd">Daily Digest Mode</button>
+            <button className="btn small ghost-cd">Saved Text Alert</button>
           </div>
         </div>
       </div>

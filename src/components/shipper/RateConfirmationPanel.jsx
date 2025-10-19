@@ -87,8 +87,8 @@ export default function RateConfirmationPanel({ onClose = () => {} }) {
           </section>
 
           <div className="fp_rc-actions">
-            <button className="fp_rc-ghost">Preview PDF</button>
-            <button className="fp_rc-primary">Generate &amp; Send</button>
+            <button className="btn small ghost-cd">Preview PDF</button>
+            <button className="btn small-cd">Generate &amp; Send</button>
           </div>
         </div>
       </aside>

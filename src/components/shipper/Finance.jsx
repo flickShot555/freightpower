@@ -47,26 +47,11 @@ export default function Finance() {
       </header>
 
       {/* Controls row: range, partners, status, search, actions */}
-
-      <div className="finance-controls">
-
-        <div className="search-box">
-          <input placeholder="Search loads, invoices, partners" />
-        </div>
-
-        <div className="filter">
-          <select
-            className="sb-carrier-filter-select"
-            value={selectedRange}
-            onChange={(e) => setSelectedRange(e.target.value)}
-          >
-            {ranges.map(r => (
-              <option key={r} value={r}>{r}</option>
-            ))}
-          </select>
-        </div>
-
-        <div className="filter">
+      <div className="dv-top-row">
+        <div className="dv-controls">
+          <div className="dv-search">
+            <input placeholder="Search documents (OCR-enabled)" />
+          </div>
           <select
             className="sb-carrier-filter-select"
             value={selectedPartner}
@@ -76,9 +61,15 @@ export default function Finance() {
               <option key={p} value={p}>{p}</option>
             ))}
           </select>
-        </div>
-
-        <div className="filter">
+          <select
+            className="sb-carrier-filter-select"
+            value={selectedRange}
+            onChange={(e) => setSelectedRange(e.target.value)}
+          >
+            {ranges.map(r => (
+              <option key={r} value={r}>{r}</option>
+            ))}
+          </select>
           <select
             className="sb-carrier-filter-select"
             value={selectedStatus}
@@ -93,35 +84,35 @@ export default function Finance() {
 
       <section className="finance-top-cards">
         <div className="card finance-card">
-          <div className="card-icon-invoice"><i className="fa-solid fa-dollar-sign"></i></div>
+          <div className="card-icon"><i className="fa-solid fa-dollar-sign"></i></div>
           <div>
             <div className="muted">Total Invoiced</div>
             <div className="finance-num">$1,208,440</div>
           </div>
         </div>
         <div className="card finance-card">
-          <div className="card-icon-pending-invoice"><i className="fa-solid fa-clock"></i></div>
+          <div className="card-icon"><i className="fa-solid fa-clock"></i></div>
           <div>
             <div className="muted">Pending Invoices</div>
             <div className="finance-num">$142,890</div>
           </div>
         </div>
         <div className="card finance-card">
-          <div className="card-icon-funds"><i className="fa-solid fa-coins"></i></div>
+          <div className="card-icon"><i className="fa-solid fa-coins"></i></div>
           <div>
             <div className="muted">Factored Funds</div>
             <div className="finance-num">$84,300</div>
           </div>
         </div>
         <div className="card finance-card">
-          <div className="card-icon-connected-account"><i className="fa-solid fa-bank"></i></div>
+          <div className="card-icon"><i className="fa-solid fa-bank"></i></div>
           <div>
             <div className="muted">Connected Accounts</div>
             <div className="finance-num">3</div>
           </div>
         </div>
         <div className="card finance-card">
-          <div className="card-icon-cash-flow"><i className="fa-solid fa-chart-line"></i></div>
+          <div className="card-icon"><i className="fa-solid fa-chart-line"></i></div>
           <div>
             <div className="muted">Cash Flow Trend</div>
             <div className="finance-num green">+7.2%</div>
@@ -129,7 +120,7 @@ export default function Finance() {
         </div>
       </section>
 
-      <nav className="fp-tabs" role="tablist" aria-label="Finance navigation">
+      <nav className="tabs" role="tablist" aria-label="Finance navigation" style={{marginBottom: '20px'}}>
         {tabs.map(t => (
           <button
             key={t}
@@ -160,7 +151,7 @@ export default function Finance() {
                       <div className="muted">Load #8231 · ACH Transfer · 2 hours ago</div>
                     </div>
                   </div>
-                  <div className="fin-right"><span className="fin-amount green">+$1,220</span><div className="muted small">2 hours ago</div></div>
+                  <div className="fin-right"><span className="fin-amount">+$1,220</span><div className="muted small">2 hours ago</div></div>
                 </li>
 
                 <li className="fin-item positive">
@@ -171,7 +162,7 @@ export default function Finance() {
                       <div className="muted">INV-1048 · 90% advance · 4 hours ago</div>
                     </div>
                   </div>
-                  <div className="fin-right"><span className="fin-amount blue">+$3,582</span><div className="muted small">4 hours ago</div></div>
+                  <div className="fin-right"><span className="fin-amount">+$3,582</span><div className="muted small">4 hours ago</div></div>
                 </li>
 
                 <li className="fin-item negative">
@@ -182,7 +173,7 @@ export default function Finance() {
                       <div className="muted">INV-1042 · Due Oct 5 · 3 days overdue</div>
                     </div>
                   </div>
-                  <div className="fin-right"><span className="fin-amount red">$2,450</span><div className="muted small">3 days overdue</div></div>
+                  <div className="fin-right"><span className="fin-amount">$2,450</span><div className="muted small">3 days overdue</div></div>
                 </li>
               </ul>
             </div>
@@ -218,16 +209,16 @@ export default function Finance() {
           <aside className="finance-right">
             <div className="card quick-actions">
               <h4>Quick Actions</h4>
-              <button className="btn primary" style={{width:'100%',marginBottom:12}} onClick={() => setShowCreateInvoicePage(true)}>Create Invoice</button>
-              <button className="btn ghost" style={{width:'100%',marginBottom:8}} onClick={() => setShowRatePanel(true)}>Generate Rate Confirmation</button>
-              <button className="btn ghost" style={{width:'100%',marginBottom:8}}>Send Payment Reminder</button>
-              <button className="btn ghost" style={{width:'100%'}}>Connect Bank Account</button>
+              <button className="btn small-cd" style={{width:'100%',marginBottom:12}} onClick={() => setShowCreateInvoicePage(true)}>Create Invoice</button>
+              <button className="btn ghost-cd small" style={{width:'100%',marginBottom:8}} onClick={() => setShowRatePanel(true)}>Generate Rate Confirmation</button>
+              <button className="btn ghost-cd small" style={{width:'100%',marginBottom:8}}>Send Payment Reminder</button>
+              <button className="btn ghost-cd small" style={{width:'100%'}}>Connect Bank Account</button>
             </div>
 
             <div className="card ai-box">
               <h4>AI Assistant</h4>
               <p className="muted">3 delivered loads are missing invoices. Would you like me to generate them?</p>
-              <button className="btn primary" style={{marginTop:12, background: 'transparent', border: '2px solid #06b6d4', color: '#fff'}}>Generate All</button>
+              <button className="btn small ghost-cd dd-btn" style={{marginTop: '10px'}}>Generate All</button>
             </div>
           </aside>
         </div>
@@ -235,7 +226,7 @@ export default function Finance() {
           <div className="finance-left">
                 <div className="invoices-alert">
                 <div className="muted">3 delivered loads don't have invoices yet.</div>
-                <button className="btn-create-now" onClick={() => setShowCreateInvoicePage(true)}>Create Now</button>
+                <button className="btn small-cd" onClick={() => setShowCreateInvoicePage(true)}>Create Now</button>
               </div>
             <div className="card invoices-card">
               <div className="table-wrap">
@@ -268,13 +259,13 @@ export default function Finance() {
                         <td className="cell">{row.partner}</td>
                         <td className="cell">{row.amount}</td>
                         <td className="cell">
-                          {row.status === 'Paid' && <span className="status-chip paid">Paid</span>}
-                          {row.status === 'Pending' && <span className="status-chip pending">Pending</span>}
-                          {row.status === 'Overdue' && <span className="status-chip overdue">Overdue</span>}
+                          {row.status === 'Paid' && <span className="int-status-badge active">Paid</span>}
+                          {row.status === 'Pending' && <span className="int-status-badge pending">Pending</span>}
+                          {row.status === 'Overdue' && <span className="int-status-badge revoked">Overdue</span>}
                         </td>
                         <td className="cell">{row.due}</td>
                         <td className="cell">{row.payment}</td>
-                        <td className="cell"><a href="#" className="muted">View</a></td>
+                        <td className="cell"><i className='fa-solid fa-ellipsis-h'></i></td>
                       </tr>
                     ))}
                   </tbody>
@@ -321,10 +312,10 @@ export default function Finance() {
                       <td className="cell">{row.inv}</td>
                       <td className="cell">{row.partner}</td>
                       <td className="cell">{row.amount}</td>
-                      <td className="cell"><span className={`status-chip ${row.status === 'Completed' ? 'paid' : row.status === 'Processing' ? 'pending' : 'overdue'}`}>{row.status}</span></td>
+                      <td className="cell"><span className={`int-status-badge ${row.status === 'Completed' ? 'active' : row.status === 'Processing' ? 'pending' : 'revoked'}`}>{row.status}</span></td>
                       <td className="cell">{row.method}</td>
                       <td className="cell">{row.date}</td>
-                      <td className="cell"><a href="#" className="muted">View</a></td>
+                      <td className="cell"><i className='fa-solid fa-ellipsis-h'></i></td>
                     </tr>
                   ))}
                 </tbody>
@@ -359,7 +350,7 @@ export default function Finance() {
             <div className="card">
               <h3>Partner Connections</h3>
               <div className="partner-connections">
-                <div className="partner-card connected">
+                <div className="partner-card">
                   <div className="partner-initials">AP</div>
                   <div className="partner-body">
                     <strong>Apex Factoring</strong>
@@ -427,9 +418,9 @@ export default function Finance() {
                         <td className="cell">{row.load}</td>
                         <td className="cell">{row.partner}</td>
                         <td className="cell">{row.amount}</td>
-                        <td className="cell"><span className={`status-chip ${row.status === 'Funded' ? 'paid' : row.status === 'Submitted' ? 'pending' : row.status === 'Pending' ? 'pending' : 'overdue'}`}>{row.status}</span></td>
+                        <td className="cell"><span className={`int-status-badge ${row.status === 'Funded' ? 'active' : row.status === 'Submitted' ? 'pending' : row.status === 'Pending' ? 'pending' : 'revoked'}`}>{row.status}</span></td>
                         <td className="cell">{row.funded}</td>
-                        <td className="cell"><a href="#" className="muted">View</a></td>
+                        <td className="cell"><i className='fa-solid fa-ellipsis-h'></i></td>
                       </tr>
                     ))}
                   </tbody>
@@ -482,11 +473,11 @@ export default function Finance() {
                       <tr key={row.acct}>
                         <td>{row.bank}</td>
                         <td>{row.acct}</td>
-                        <td><span className="chip type" data-type={row.type}>{row.type}</span></td>
+                        <td><span className="int-status-badge blue" data-type={row.type}>{row.type}</span></td>
                         <td className={`amount ${row.balance && row.balance.startsWith('+') ? 'positive' : ''}`}>{row.balance}</td>
                         <td className="muted small">{row.sync}</td>
-                        <td><span className={`status-dot ${row.status === 'Connected' ? 'online' : row.status === 'Syncing' ? 'idle' : 'offline'}`}></span> <span className="muted">{row.status}</span></td>
-                        <td><a href="#" className="muted">{row.action}</a></td>
+                        <td><span className={`int-status-badge ${row.status === 'Connected' ? 'active' : row.status === 'Syncing' ? 'warning' : 'revoked'}`}>{row.status}</span></td>
+                        <td><i className='fa-solid fa-ellipsis-h'></i></td>
                       </tr>
                     ))}
                   </tbody>
@@ -520,9 +511,9 @@ export default function Finance() {
                         <td className="cell">{row.partner}</td>
                         <td className="cell">{row.desc}</td>
                         <td className={`cell ${row.amount.startsWith('-') ? 'negative' : 'positive'}`}>{row.amount}</td>
-                        <td className="cell"><a href="#" className="muted link-pill">{row.inv}</a></td>
+                        <td className="cell"><a href="#" className="int-status-badge blue">{row.inv}</a></td>
                         <td className="cell">{row.type}</td>
-                        <td className="cell"><span className={`status-chip ${row.status === 'Cleared' ? 'paid' : 'pending'}`}>{row.status}</span></td>
+                        <td className="cell"><span className={`int-status-badge ${row.status === 'Cleared' ? 'active' : 'pending'}`}>{row.status}</span></td>
                       </tr>
                     ))}
                   </tbody>

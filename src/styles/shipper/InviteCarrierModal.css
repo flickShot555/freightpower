@@ -36,13 +36,8 @@
 .ic-suggestion{display:flex;align-items:center;justify-content:space-between;padding:8px 6px;border-radius:6px;background:#fff;margin-bottom:8px;border:1px solid #e6eef6}
 .ic-suggestion .s-left{font-size:14px}
 .ic-suggestion .s-sub{font-size:12px;color:#64748b}
-.ic-invite-small{background:#14b8a6;border:0;color:#fff;padding:6px 10px;border-radius:6px;cursor:pointer}
 .ic-modal-footer{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-top:1px solid rgba(15,20,30,0.06)}
-.ic-copy{background:transparent;border:0;color:#475569;cursor:pointer}
 .ic-actions{display:flex;gap:10px}
-.ic-btn{padding:8px 14px;border-radius:8px;border:1px solid transparent;cursor:pointer}
-.ic-btn.ghost{background:transparent;border-color:#cbd5e1}
-.ic-btn.primary{background:#06b6d4;color:#fff}
 
 @media (max-width:520px){
   .ic-modal{width:92%}

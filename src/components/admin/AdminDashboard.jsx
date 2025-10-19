@@ -8,6 +8,7 @@ import Carriers from './Carriers';
 import Shippers from './Shippers';
 import Drivers from './Drivers';
 import ServiceProviders from './ServiceProviders';
+import AdminMarketplace from './AdminMarketplace';
 import ComplianceAudit from './ComplianceAudit';
 import DocumentVault from './DocumentVault';
 import AdminMessaging from './Messaging';
@@ -41,7 +42,8 @@ export default function AdminDashboard() {
         { key: 'carriers', label: 'Carriers', icon: 'fa-solid fa-truck' },
         { key: 'shippers', label: 'Shippers / Brokers', icon: 'fa-solid fa-people-group' },
         { key: 'drivers', label: 'Drivers', icon: 'fa-solid fa-person' },
-        { key: 'service-providers', label: 'Service Providers', icon: 'fa-solid fa-briefcase' }
+        { key: 'service-providers', label: 'Service Providers', icon: 'fa-solid fa-briefcase' },
+        { key: 'marketplace', label: 'Marketplace', icon: 'fa-solid fa-store' }
       ]
     },
     {
@@ -189,6 +191,10 @@ export default function AdminDashboard() {
 
           {activeNav === 'service-providers' && (
             <ServiceProviders />
+          )}
+
+          {activeNav === 'marketplace' && (
+            <AdminMarketplace />
           )}
 
           {activeNav === 'document-vault' && (
