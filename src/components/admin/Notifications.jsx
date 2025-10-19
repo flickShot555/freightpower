@@ -48,15 +48,15 @@ export default function Notifications(){
       <div className="card notifications-list-card">
         <div className="card-header"><h3>Notifications</h3></div>
         <div className="notifications-table-wrap">
-          <table className="notifications-table">
+          <table className="sa-notifications-table">
             <thead>
               <tr>
-                <th></th>
-                <th>Type</th>
-                <th>Description</th>
-                <th>Time</th>
-                <th>Status</th>
-                <th>Actions</th>
+                <th className='table-header-border'></th>
+                <th className='table-header-border'>Type</th>
+                <th className='table-header-border'>Description</th>
+                <th className='table-header-border'>Time</th>
+                <th className='table-header-border'>Status</th>
+                <th className='table-header-border'>Actions</th>
               </tr>
             </thead>
             <tbody>
