@@ -13,6 +13,11 @@ import DocumentVault from './DocumentVault';
 import AdminMessaging from './Messaging';
 import Tasks from './Tasks';
 import HiringOnboarding from './HiringOnboarding';
+import SupportHub from './SupportHub';
+import SystemSettings from './SystemSettings';
+import MyProfile from './MyProfile';
+import Notifications from './Notifications';
+import Logout from './Logout';
 
 export default function AdminDashboard() {
   const [activeNav, setActiveNav] = useState('dashboard');
@@ -204,6 +209,26 @@ export default function AdminDashboard() {
 
           {activeNav === 'hiring' && (
             <HiringOnboarding />
+          )}
+
+          {activeNav === 'support' && (
+            <SupportHub />
+          )}
+
+          {activeNav === 'system-settings' && (
+            <SystemSettings />
+          )}
+
+          {activeNav === 'my-profile' && (
+            <MyProfile />
+          )}
+
+          {activeNav === 'notifications' && (
+            <Notifications />
+          )}
+
+          {activeNav === 'logout' && (
+            <Logout />
           )}
 
           {activeNav === 'dashboard' && (

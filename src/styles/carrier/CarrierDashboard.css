@@ -95,13 +95,13 @@
 
 /* Icons should be white in dark mode for consistency */
 .dark-root .icon,
-.dark-root .card-icon,
+.dark-root .cd-card-icon,
 .dark-root .notif-icon,
 .dark-root .bot-icon,
 .dark-root .btn i{color:#d1d7db !important}
 
 /* Specific expiring-card icon should be black in dark mode (only this icon) */
-.dark-root .expiring-card .card-icon{color:#ffffff !important}
+.dark-root .expiring-card .cd-card-icon{color:#ffffff !important}
 .dark-root .expiring-card .card-header h3{color:#ffffff}
 
 /* Preserve integration health dots colors in dark mode (undo the global dot->white for these list items) */
@@ -368,9 +368,9 @@
 .card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
 .card-header h4{margin:0;color:#0f3b4a;font-size:16px}
 .dark-root .card-header h4{color:#d1d7db}
-.card-icon{color:#f59e0b;font-size:16px}
+.cd-card-icon{color:#f59e0b;font-size:16px}
 
-.card-header .card-icon.small{font-size:14px;color:inherit}
+.card-header .cd-card-icon.small{font-size:14px;color:inherit}
 .card-header h3{margin:0;font-size:18px;color:#0b3240;font-weight:800}
 .dark-root .card-header h3{color:#d1d7db}
 
@@ -439,7 +439,7 @@
   box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12)!important;
 }
 .suggestions-card .card-header h3{color: #fff !important;font-size:18px;font-weight:650}
-.suggestions-card .card-header .card-icon{color:#fff}
+.suggestions-card .card-header .cd-card-icon{color:#fff}
 .suggestions-card ul{list-style:none;padding:0;margin:12px 0}
 .suggestions-card li{background:rgba(255,255,255,0.12);padding:12px;border-radius:8px;margin-bottom:10px;color:#fff}
 .suggestions-card li:last-child{margin-bottom:0}

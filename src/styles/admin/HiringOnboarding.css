@@ -20,7 +20,6 @@
 .onboarding-tasks-table .task-title{ font-weight:700 ; }
 .type-badge{ padding:6px 8px; border-radius:9999px; font-size:12px; background-color: #f3f3f3; }
 .dark-root .type-badge{ background-color: #3a3a3a; color:#f1f5f9; }
-.tasks-right .team-performance{ background: rgba(255,255,255,0.02); padding:12px; border-radius:10px }
 .onboarding-tasks-table .progress{ border-radius:8px; overflow:hidden }
 .onboarding-tasks-table .progress-fill{ height:8px; background: linear-gradient(to right,#7FA4F6 0%, #3B57A7 100%); }
 
@@ -36,4 +35,33 @@
 
 @media (max-width: 520px){
   .sstat-row{ grid-template-columns: 1fr; }
+}
+
+.ai-card-content{
+    background-color: #f3f3f31d;
+    border: 1px solid #d1d5db62;
+    border-radius: 8px;
+    padding: 12px;
+}
+
+.dark-root .ai-card-content{
+    background-color: #3a3a3a53;
+    border: 1px solid #353535;
+}
+
+.ai-line{
+    font-size: 14px;
+}
+
+.ai-action{
+    margin-top: 12px;
+    display: flex;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #3B57A7;
+}
+
+.dark-root .ai-action{
+    color: #7FA4F6;
 }

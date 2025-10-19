@@ -1215,21 +1215,6 @@
   text-transform: uppercase;
 }
 
-.dd-status-badge.green {
-  background: #dcfce7;
-  color: #166534;
-}
-
-.dd-status-badge.orange {
-  background: #fed7aa;
-  color: #c2410c;
-}
-
-.dd-status-badge.red {
-  background: #fecaca;
-  color: #dc2626;
-}
-
 .dd-card-title {
   margin: 40px 0 8px 0;
   font-size: 16px;

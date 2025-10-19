@@ -333,33 +333,9 @@
   font-weight: 600;
 }
 
-.mp-verification-badge.verified {
-  background: #d4edda;
-  color: #155724;
-}
-
-.mp-verification-badge.connected {
-  background: #f8d7da;
-  color: #721c24;
-}
-
-.mp-verification-badge.offer {
-  background: #fff3cd;
-  color: #856404;
-}
-
 /* Post-Hire Marketplace Styles */
 .mp-availability-card {
   grid-column: span 2;
-}
-
-.mp-status-badge.currently-available {
-  background: #d4edda;
-  color: #155724;
-  padding: 0.25rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: 600;
 }
 
 .mp-availability-content {

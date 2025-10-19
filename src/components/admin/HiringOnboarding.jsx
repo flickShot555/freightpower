@@ -28,6 +28,7 @@ export default function HiringOnboarding(){
                 <span className="aai-icon"><i className="fa fa-info-circle" aria-hidden="true"></i></span>
                 <div className="aai-text"><strong>AI Summary:</strong> 15 onboardings in progress — 3 missing signatures, 2 inactive, 10 near completion <br /> <span style={{marginTop: '10px', fontWeight: '600'}}>Document Vault • Messaging Center • Compliance Tracker</span> </div>
               </div>
+              <button className="btn small-cd"><i className="fa fa-add" aria-hidden="true"></i> New Onboarding</button>
             </div>
 
       <section className="sstat-row" style={{marginTop: '20px'}}>
@@ -102,13 +103,48 @@ export default function HiringOnboarding(){
 
         <aside className="tasks-right">
           <div className="team-performance">
-            <h4 style={{fontWeight: '700'}}>Onboardings Summary</h4>
-            <div className="tp-row"><div className="tp-label">Completed</div><div className="tp-value">32</div></div>
-            <div className="tp-row"><div className="tp-label">Pending</div><div className="tp-value">9</div></div>
-            <div className="tp-row"><div className="tp-label">Missing Docs</div><div className="tp-value">14</div></div>
+            <h4 style={{fontWeight: '700', fontSize: '16px'}}>AI Assistant</h4>
+            <div>
+                <div className="ai-card-content">
+                  <div>
+                    <div className="ai-line">Suggestion: Auto-assign new driver applications to Koshin</div>
+                    <a className="ai-action">Apply rule →</a>
+                  </div>
+                </div>
+                <div className="ai-card-content" style={{marginTop: '10px'}}>
+                  <div>
+                    <div className="ai-line">Suggestion: Auto-assign new driver applications to Koshin</div>
+                    <a className="ai-action">Apply rule →</a>
+                  </div>
+                </div>
+                <div className="ai-card-content" style={{marginTop: '10px'}}>
+                  <div>
+                    <div className="ai-line">Suggestion: Auto-assign new driver applications to Koshin</div>
+                    <a className="ai-action">Apply rule →</a>
+                  </div>
+                </div>
+            </div>
           </div>
+          <div className="card recent-messages" style={{marginTop:18, border: '1px solid transparent'}}>
+                <div className="card-row"><h3>Recent Messages</h3></div>
+                <ul className="recent-list">
+                  <li className="msg-item"><img className="msg-avatar" src="https://randomuser.me/api/portraits/women/65.jpg" alt="sarah" /><div className="msg-body"><div className="msg-head"><strong>Sarah Johnson</strong> <span className="muted">New carrier registration approved</span></div><div className="muted">15 min ago</div></div></li>
+                  <li className="msg-item"><img className="msg-avatar" src="https://randomuser.me/api/portraits/men/32.jpg" alt="mike" /><div className="msg-body"><div className="msg-head"><strong>Mike Davis</strong> <span className="muted">Document verification needed</span></div><div className="muted">1 hour ago</div></div></li>
+                </ul>
+                <div style={{marginTop:12}}><a className="view-all">View All Messages</a></div>
+              </div>
         </aside>
       </div>
+
+      <div className="ai-summary">
+              <div className="ai-summary-left">
+              </div>
+              <div className="aai-actions">
+                <button className="btn small ghost-cd"><i className="fa fa-brain" aria-hidden="true"></i> AI Summary</button>
+                <button className="btn small ghost-cd"><i className="fa fa-users" aria-hidden="true"></i> Bulk Assign</button>
+                <button className="btn small ghost-cd"><i className="fa fa-sync" aria-hidden="true"></i> Sync Vault</button>
+              </div>
+            </div>
 
     </div>
   );

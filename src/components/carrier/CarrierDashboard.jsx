@@ -93,7 +93,7 @@ export default function CarrierDashboard() {
           <div className="card stats-card">
             <div className="card-header">
               <h3>Active Loads</h3>
-              <i className="fa-solid fa-truck card-icon small" aria-hidden="true" />
+              <i className="fa-solid fa-truck cd-card-icon small" aria-hidden="true" />
             </div>
             <div className="stats">
               <div>In Progress <span>{activeLoads.inProgress}</span></div>
@@ -105,7 +105,7 @@ export default function CarrierDashboard() {
           <div className="card compliance-card">
             <div className="card-header">
               <h3>Drivers Compliance</h3>
-              <i className="fa-solid fa-people-group card-icon small" aria-hidden="true" />
+              <i className="fa-solid fa-people-group cd-card-icon small" aria-hidden="true" />
             </div>
             <div className="stats">
               <div>Active Drivers <span>{driversCompliance.active}</span></div>
@@ -117,7 +117,7 @@ export default function CarrierDashboard() {
           <div className="card small-card expiring-card">
             <div className="card-header">
               <h3>Expiring Documents</h3>
-              <i className="fa-solid fa-triangle-exclamation card-icon" aria-hidden="true" />
+              <i className="fa-solid fa-triangle-exclamation cd-card-icon small" aria-hidden="true" />
             </div>
             <div className="expiring-list">
               <div className="exp-item pill yellow">
@@ -135,7 +135,7 @@ export default function CarrierDashboard() {
           <div className="card suggestions-card">
             <div className="card-header">
               <h3>AI Suggestions</h3>
-              <i className="fa-solid fa-robot card-icon small" aria-hidden="true" />
+              <i className="fa-solid fa-robot cd-card-icon small" aria-hidden="true" />
             </div>
             <ul>
               <li>Renew insurance in 12 days to avoid compliance issues</li>
@@ -146,7 +146,7 @@ export default function CarrierDashboard() {
           <div className="card earnings-card">
             <div className="card-header">
               <h3>Earnings Overview</h3>
-              <i className="fa-solid fa-dollar-sign card-icon small" aria-hidden="true" />
+              <i className="fa-solid fa-dollar-sign cd-card-icon small" aria-hidden="true" />
             </div>
             <div className="stats earnings-stats">
               <div>This Week <span className="green">{earnings.week}</span></div>
@@ -158,7 +158,7 @@ export default function CarrierDashboard() {
           <div className="card small-card integrations-card">
             <div className="card-header">
               <h3>Integrations Health</h3>
-              <i className="fa-solid fa-plug card-icon small" aria-hidden="true" />
+              <i className="fa-solid fa-plug cd-card-icon small" aria-hidden="true" />
             </div>
             <ul className="integrations-list">
               <li>QuickBooks <span className="dot green"/></li>
@@ -245,11 +245,11 @@ export default function CarrierDashboard() {
                 <h4 className="col-title">Service Offers</h4>
                 <div className="offer-item">
                   <div className="offer-left">Fuel Discount<div className="muted">Save on fuel at 500+ locations</div></div>
-                  <div className="offer-right"><span className="badge small orange">15% OFF</span></div>
+                  <div className="offer-right"><span className="int-status-badge active">15% OFF</span></div>
                 </div>
                 <div className="offer-item">
                   <div className="offer-left">Factoring Rate<div className="muted">Special rate for new clients</div></div>
-                  <div className="offer-right"><span className="badge small blue">1.5%</span></div>
+                  <div className="offer-right"><span className="int-status-badge active">1.5%</span></div>
                 </div>
               </div>
             </div>

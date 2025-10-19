@@ -15,6 +15,7 @@
 .adm-main .card .card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
 .adm-main .card .card-header h3{margin:0;font-size:16px;color:#0b3240}
 .adm-main .card .card-icon{background:transparent;color:#0b3240;padding:6px;border-radius:6px;font-size:16px}
+.dark-root .adm-main .card .card-icon{color:#f1f5f9}
 .adm-main .card .stats{margin-top:12px;font-size:20px;font-weight:800;color:#0b1720}
 .adm-main .card .muted{color:#64748b;font-size:13px}
 

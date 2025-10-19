@@ -76,22 +76,6 @@ section.ddd-grid {
   font-weight: 600;
 }
 
-.mc-verified-badge {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: #d4edda;
-  color: #155724;
-  padding: 0.25rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: 600;
-}
-
-.mc-verified-badge i {
-  color: #28a745;
-}
-
 .mc-carrier-details {
   display: flex;
   gap: 1rem;
@@ -108,18 +92,6 @@ section.ddd-grid {
   flex-direction: column;
   align-items: flex-end;
   gap: 0.5rem;
-}
-
-.mc-status-badge {
-  padding: 0.25rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: 600;
-}
-
-.mc-status-badge.active {
-  background: #d4edda;
-  color: #155724;
 }
 
 .mc-rating {
@@ -417,16 +389,6 @@ section.ddd-grid {
   border-radius: 20px;
   font-size: 0.8rem;
   font-weight: 600;
-}
-
-.mc-assignment-badge.assigned {
-  background: #fff3cd;
-  color: #856404;
-}
-
-.mc-assignment-badge.pending {
-  background: #cce5ff;
-  color: #004085;
 }
 
 .mc-assignment-route p {

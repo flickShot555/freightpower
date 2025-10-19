@@ -2,14 +2,17 @@ import React, { act, useState } from 'react';
 import '../../styles/shipper/ShipperMarketplace.css';
 
 export default function ShipperMarketplace() {
-  const [activeTab, setActiveTab] = useState('All');
-  const [openDropdown, setOpenDropdown] = useState(null);
-
   const tabs = ['All', 'Public Listings', 'Carriers', 'Service Providers', 'Technology', 'Insurance', 'AI Matches'];
-  
+
   const regions = ['All Regions', 'North', 'South', 'East', 'West', 'Midwest'];
   const equipment = ['All Equipment', 'Dry Van', 'Reefer', 'Flatbed', 'Container'];
   const ratings = ['All Ratings', '4.5+ Stars', '4.0+ Stars', '3.5+ Stars'];
+
+  const [activeTab, setActiveTab] = useState('All');
+  const [openDropdown, setOpenDropdown] = useState(null);
+  const [selectedRegion, setSelectedRegion] = useState(regions[0]);
+  const [selectedEquipment, setSelectedEquipment] = useState(equipment[0]);
+  const [selectedRating, setSelectedRating] = useState(ratings[0]);
 
   const allListings = [
     {
@@ -73,20 +76,20 @@ export default function ShipperMarketplace() {
   ];
 
   const serviceProviders = [
-    { name: 'LoadSure', category: 'Insurance', services: 'Freight & cargo coverage', rating: '4.9', status: 'Verified', contact: 'email', actionText: 'View' },
-    { name: 'EFS', category: 'Fuel', services: 'Fuel cards, payment network', rating: '4.8', status: 'Verified', contact: 'website', actionText: 'View' },
+    { name: 'LoadSure', category: 'Insurance', services: 'Freight & cargo coverage', rating: '4.9', status: 'Active', contact: 'email', actionText: 'View' },
+    { name: 'EFS', category: 'Fuel', services: 'Fuel cards, payment network', rating: '4.8', status: 'Active', contact: 'website', actionText: 'View' },
     { name: 'OpenFactoring', category: 'Factoring', services: 'Quick pay & cash flow', rating: '4.7', status: 'Active', contact: 'phone', actionText: 'Contact' },
     { name: 'FleetGuard', category: 'Compliance', services: 'Safety, BOC-3, Authority', rating: '4.6', status: 'Renewal Pending', contact: 'email', actionText: 'View' },
-    { name: 'TruckerPath', category: 'Technology', services: 'Fleet visibility & routing', rating: '4.9', status: 'Verified', contact: 'website', actionText: 'Connect' }
+    { name: 'TruckerPath', category: 'Technology', services: 'Fleet visibility & routing', rating: '4.9', status: 'Active', contact: 'website', actionText: 'Connect' }
   ];
 
   // Insurance-specific providers (shown under Insurance tab)
   const insuranceProviders = [
-    { name: 'LoadSure', icon: 'fa-solid fa-shield-halved', sub: 'Freight Insurance', category: 'Insurance', services: 'Cargo & liability coverage', rating: '4.9', status: 'Verified', contact: 'website', actionText: 'Get Quote' },
-    { name: 'CoverWallet', icon: 'fa-solid fa-wallet', sub: 'General Insurance', category: 'Insurance', services: 'COI, cargo, and commercial auto', rating: '4.8', status: 'Verified', contact: 'email', actionText: 'Contact' },
+    { name: 'LoadSure', icon: 'fa-solid fa-shield-halved', sub: 'Freight Insurance', category: 'Insurance', services: 'Cargo & liability coverage', rating: '4.9', status: 'Active', contact: 'website', actionText: 'Get Quote' },
+    { name: 'CoverWallet', icon: 'fa-solid fa-wallet', sub: 'General Insurance', category: 'Insurance', services: 'COI, cargo, and commercial auto', rating: '4.8', status: 'Active', contact: 'email', actionText: 'Contact' },
     { name: 'FleetGuard Compliance', icon: 'fa-solid fa-clipboard-check', sub: 'Compliance', category: 'Compliance', services: 'BOC-3, IFTA, UCR, safety filings', rating: '4.7', status: 'Active', contact: 'phone', actionText: 'View' },
     { name: 'TruckShield', icon: 'fa-solid fa-truck', sub: 'Safety / Compliance', category: 'Safety', services: 'FMCSA monitoring, document audit', rating: '4.6', status: 'Renewal Pending', contact: 'website', actionText: 'Connect' },
-    { name: 'TrueRate', icon: 'fa-solid fa-percent', sub: 'Factoring + Insurance', category: 'Multi Service', services: 'Cargo coverage with load factoring', rating: '4.8', status: 'Verified', contact: 'email', actionText: 'View' }
+    { name: 'TrueRate', icon: 'fa-solid fa-percent', sub: 'Factoring + Insurance', category: 'Multi Service', services: 'Cargo coverage with load factoring', rating: '4.8', status: 'Active', contact: 'email', actionText: 'View' }
   ];
 
   const techProviders = [
@@ -100,7 +103,7 @@ export default function ShipperMarketplace() {
 
   // AI Matches carrier rows for the AI Matches tab
   const carrierMatches = [
-    { name: 'RoadStar Freight', subtitle: 'High compliance, 3 matching lanes', region: 'Midwest', equipment: 'Reefer', match: '97%', compliance: 'Verified', actionText: 'Invite', avatarIcon: 'fa-solid fa-truck', avatarClass: 'match-blue' },
+    { name: 'RoadStar Freight', subtitle: 'High compliance, 3 matching lanes', region: 'Midwest', equipment: 'Reefer', match: '97%', compliance: 'Valid', actionText: 'Invite', avatarIcon: 'fa-solid fa-truck', avatarClass: 'match-blue' },
     { name: 'Atlas Hauling', subtitle: 'Strong delivery score', region: 'South', equipment: 'Flatbed', match: '95%', compliance: 'Valid', actionText: 'View', avatarIcon: 'fa-solid fa-box', avatarClass: 'match-purple' },
     { name: 'Skyline Logistics', subtitle: '2 matching lanes', region: 'West', equipment: 'Van', match: '92%', compliance: 'Insurance Expiring', actionText: 'Save', avatarIcon: 'fa-solid fa-shipping-fast', avatarClass: 'match-orange' }
   ];
@@ -118,7 +121,7 @@ export default function ShipperMarketplace() {
         <div className="dashboard-card">
           <div className="card-header">
             <h4>Public Listings</h4>
-            <div className="card-icon blue">
+            <div className="sm-card-icon blue">
               <i className="fa-solid fa-list"/>
             </div>
           </div>
@@ -129,7 +132,7 @@ export default function ShipperMarketplace() {
         <div className="dashboard-card">
           <div className="card-header">
             <h4>Verified Carriers</h4>
-            <div className="card-icon green">
+            <div className="sm-card-icon green">
               <i className="fa-solid fa-question"/>
             </div>
           </div>
@@ -140,7 +143,7 @@ export default function ShipperMarketplace() {
         <div className="dashboard-card">
           <div className="card-header">
             <h4>Service Providers</h4>
-            <div className="card-icon purple">
+            <div className="sm-card-icon purple">
               <i className="fa-solid fa-handshake"/>
             </div>
           </div>
@@ -151,7 +154,7 @@ export default function ShipperMarketplace() {
         <div className="dashboard-card">
           <div className="card-header">
             <h4>AI Matches</h4>
-            <div className="card-icon orange">
+            <div className="sm-card-icon orange">
               <i className="fa-solid fa-lightbulb"/>
             </div>
           </div>
@@ -163,7 +166,7 @@ export default function ShipperMarketplace() {
       {/* Action Bar and Filters */}
       <div className="action-bar">
         <div className="action-left">
-          <button className="btn-primary">
+          <button className="btn small-cd">
             <i className="fa-solid fa-plus" />
             Post Load to Marketplace
           </button>
@@ -174,57 +177,45 @@ export default function ShipperMarketplace() {
           </div>
         </div>
 
-        <div className="action-right">
-          <div className="filter-dropdown" onClick={(e) => { e.stopPropagation(); setOpenDropdown(openDropdown === 'region' ? null : 'region'); }}>
-            <span>All Regions</span>
-            <i className="fa-solid fa-chevron-down" />
-            {openDropdown === 'region' && (
-              <div className="dropdown" onClick={(e) => e.stopPropagation()}>
-                {regions.map(region => (
-                  <div key={region} className="dropdown-item" onClick={() => setOpenDropdown(null)}>
-                    {region}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+        <div className="action-right fp-filters">
+            <select
+              className="sb-carrier-filter-select"
+              value={selectedRegion}
+              onChange={(e) => setSelectedRegion(e.target.value)}
+            >
+              {regions.map(r => (
+                <option key={r} value={r}>{r}</option>
+              ))}
+            </select>
 
-          <div className="filter-dropdown" onClick={(e) => { e.stopPropagation(); setOpenDropdown(openDropdown === 'equipment' ? null : 'equipment'); }}>
-            <span>All Equipment</span>
-            <i className="fa-solid fa-chevron-down" />
-            {openDropdown === 'equipment' && (
-              <div className="dropdown" onClick={(e) => e.stopPropagation()}>
-                {equipment.map(eq => (
-                  <div key={eq} className="dropdown-item" onClick={() => setOpenDropdown(null)}>
-                    {eq}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+            <select
+              className="sb-carrier-filter-select"
+              value={selectedEquipment}
+              onChange={(e) => setSelectedEquipment(e.target.value)}
+            >
+              {equipment.map(eq => (
+                <option key={eq} value={eq}>{eq}</option>
+              ))}
+            </select>
 
-          <div className="filter-dropdown" onClick={(e) => { e.stopPropagation(); setOpenDropdown(openDropdown === 'rating' ? null : 'rating'); }}>
-            <span>All Ratings</span>
-            <i className="fa-solid fa-chevron-down" />
-            {openDropdown === 'rating' && (
-              <div className="dropdown" onClick={(e) => e.stopPropagation()}>
-                {ratings.map(rating => (
-                  <div key={rating} className="dropdown-item" onClick={() => setOpenDropdown(null)}>
-                    {rating}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+            <select
+              className="sb-carrier-filter-select"
+              value={selectedRating}
+              onChange={(e) => setSelectedRating(e.target.value)}
+            >
+              {ratings.map(rt => (
+                <option key={rt} value={rt}>{rt}</option>
+              ))}
+            </select>
         </div>
       </div>
 
       {/* Navigation Tabs */}
-      <div className="sb-mrkt-nav-tabs">
+      <div className="tabs" style={{marginBottom: '20px'}}>
         {tabs.map(tab => (
           <button
             key={tab}
-            className={`sb-mrkt-nav-tab ${activeTab === tab ? 'active' : ''}`}
+            className={`tab ${activeTab === tab ? 'active' : ''}`}
             onClick={() => setActiveTab(tab)}
           >
             {tab}
@@ -253,17 +244,16 @@ export default function ShipperMarketplace() {
               <div className="lane">{listing.lane}</div>
               <div className="equipment">{listing.equipment}</div>
               <div className="offer-count">
-                <a href="#" className="offer-link">{listing.offerCount}</a>
+                <a href="#" className="int-status-badge blue">{listing.offerCount}</a>
               </div>
               <div className="posted-on">{listing.postedOn}</div>
               <div className="mrkt-status">
-                <span className={`mrkt-status-badge ${listing.status.toLowerCase()}`}>
+                <span className={`int-status-badge ${listing.status.toLowerCase()}`}>
                   {listing.status}
                 </span>
               </div>
               <div className="actions">
-                <a href="#" className="action-link view">View</a>
-                <a href="#" className="action-link close">Close</a>
+                <i className="fa-solid fa-ellipsis-h"></i>
               </div>
             </div>
           ))}
@@ -285,7 +275,7 @@ export default function ShipperMarketplace() {
               </div>
               </div>
               <div className="mrkt-carrier-rating">
-                <i className="fa-solid fa-star" />
+                <i className="fa-solid fa-star" /> 
                 <span>{carrier.rating}</span>
               </div>
             </div>
@@ -301,14 +291,15 @@ export default function ShipperMarketplace() {
                 <div className="detail-item">
                   <span className="detail-label">Compliance:</span>
                   <span className="detail-value">
-                    <i className="fa-solid fa-check" />
-                    {carrier.compliance}
+                    <span className={`int-status-badge ${carrier.compliance}`}>
+                  {carrier.compliance}
+                    </span>
                   </span>
                 </div>
               </div>
               <div className="carrier-actions">
-              <button className="btn-snapshot">Snapshot</button>
-              <button className="btn-invite">Invite</button>
+              <button className="btn small-cd" style={{width: '100%'}}>Snapshot</button>
+              <button className="btn small ghost-cd" style={{width: '100%'}}>Invite</button>
             </div>
           </div>
         ))}
@@ -317,7 +308,6 @@ export default function ShipperMarketplace() {
       {/* AI Recommendations */}
       <div className="ai-recommendations">
         <h3>
-          <i className="fa-solid fa-robot" />
           AI Recommendations
         </h3>
         
@@ -331,7 +321,7 @@ export default function ShipperMarketplace() {
                 <span className="summary-item">96% match confidence</span>
               </div>
             </div>
-            <button className="btn-view-matches">View Matches</button>
+            <button className="btn small-cd">View Matches</button>
           </div>
 
           <div className="recommendation-card rate-intel">
@@ -343,7 +333,7 @@ export default function ShipperMarketplace() {
                 <span className="rate-change negative">-$80 avg on ATL-MIA</span>
               </div>
             </div>
-            <button className="btn-view-details">View Details</button>
+            <button className="btn small-cd">View Details</button>
           </div>
         </div>
       </div>
@@ -375,13 +365,12 @@ export default function ShipperMarketplace() {
               </div>
               <div className="posted-on">{listing.postedOn}</div>
               <div className="mrkt-status">
-                <span className={`mrkt-status-badge ${listing.status.toLowerCase()}`}>
+                <span className={`int-status-badge ${listing.status.toLowerCase()}`}>
                   {listing.status}
                 </span>
               </div>
               <div className="actions">
-                <a href="#" className="action-link view">View</a>
-                <a href="#" className="action-link close">Close</a>
+                <i className="fa-solid fa-ellipsis-h"></i>
               </div>
             </div>
           ))}
@@ -428,11 +417,15 @@ export default function ShipperMarketplace() {
                       <td className="c-dotmc"><div>DOT {c.dot}</div><div>MC {c.mc}</div></td>
                       <td>{c.region}</td>
                       <td>{c.equipment}</td>
-                      <td className="c-rating"><i className="fa-solid fa-star" /> <span>{c.rating}</span></td>
-                      <td><span className={`badge compliance ${c.compliance.toLowerCase().replace(/\s+/g,'-')}`}>{c.compliance}</span></td>
+                      <td> <span>{c.rating}</span></td>
+                      <td><span className={`int-status-badge ${c.compliance}`}>{c.compliance}</span></td>
                       <td>{c.safety}</td>
-                      <td><span className={`badge insurance ${c.insuranceStatus.toLowerCase().replace(/\s+/g,'-')}`}>{c.insuranceStatus}</span></td>
-                      <td className="c-actions"><a href="#" className="action-link view">{c.actionText}</a></td>
+                      <td>
+                        <span className={`int-status-badge ${c.insuranceStatus ? c.insuranceStatus.toLowerCase().replace(/\s+/g,'-') : ''} ${c.insuranceStatus && c.insuranceStatus.toLowerCase().includes('renewal') ? 'revoked' : ''}`.trim()}>
+                          {c.insuranceStatus}
+                        </span>
+                      </td>
+                      <td><i className="fa-solid fa-ellipsis-h"></i></td>
                     </tr>
                   ))}
                 </tbody>
@@ -469,12 +462,16 @@ export default function ShipperMarketplace() {
                   {serviceProviders.map((p, i) => (
                     <tr key={i}>
                       <td className="p-name"><div className="avatar small">{p.name.split(' ').map(s=>s[0]).slice(0,2).join('')}</div><div className="p-details"><div className="p-title">{p.name}</div><div className="p-sub">{p.category} Provider</div></div></td>
-                      <td><span className={`badge category ${p.category.toLowerCase()}`}>{p.category}</span></td>
+                      <td><span className={`int-status-badge blue ${p.category.toLowerCase()}`}>{p.category}</span></td>
                       <td className="p-services">{p.services}</td>
-                      <td className="p-rating"><i className="fa-solid fa-star"/> {p.rating}</td>
-                      <td><span className={`badge status ${p.status.toLowerCase().replace(/\s+/g,'-')}`}>{p.status}</span></td>
+                      <td className="p-rating"> {p.rating}</td>
+                      <td>
+                        <span className={`int-status-badge ${p.status.toLowerCase()} ${p.status.toLowerCase().includes('pending') ? 'revoked' : ''}`.trim()}>
+                          {p.status}
+                        </span>
+                      </td>
                       <td className="p-contact">{p.contact === 'email' ? <i className="fa-solid fa-envelope"/> : p.contact === 'phone' ? <i className="fa-solid fa-phone"/> : <i className="fa-solid fa-globe"/>}</td>
-                      <td className="p-action"><a href="#" className="action-link view">{p.actionText} ›</a></td>
+                      <td className="p-action"><i className="fa-solid fa-ellipsis-h"></i> </td>
                     </tr>
                   ))}
                 </tbody>
@@ -484,7 +481,7 @@ export default function ShipperMarketplace() {
           <div className="listings-summary">
           <div className="summary-box">
             <i className="fa-solid fa-circle-info" />
-            <span>3 providers match your comapny type (factoring & ELD integrations) · 2 offering discounts this month.</span>
+            <span>3 providers match your company type (factoring & ELD integrations) · 2 offering discounts this month.</span>
           </div>
         </div>
         </div>
@@ -511,12 +508,12 @@ export default function ShipperMarketplace() {
                   {insuranceProviders.map((p, i) => (
                     <tr key={i}>
                       <td className="p-name"><div className={`avatar small icon-bg`}><i className={p.icon} aria-hidden="true"/></div><div className="p-details"><div className="p-title">{p.name}</div><div className="p-sub">{p.sub}</div></div></td>
-                      <td><span className={`badge category ${p.category.toLowerCase().replace(/\s+/g,'-')}`}>{p.category}</span></td>
+                      <td><span className={`int-status-badge blue ${p.category.toLowerCase().replace(/\s+/g,'-')}`}>{p.category}</span></td>
                       <td className="p-services">{p.services}</td>
                       <td className="p-rating"><i className="fa-solid fa-star"/> <span>{p.rating}</span></td>
-                      <td><span className={`badge status ${p.status.toLowerCase().replace(/\s+/g,'-')}`}>{p.status}</span></td>
+                      <td><span className={`int-status-badge ${p.status.toLowerCase().replace(/\s+/g,'-')} ${p.status.toLowerCase().includes('verified') ? 'active' : ''} ${p.status.toLowerCase().includes('pending') ? 'warning' : ''}`.trim()}>{p.status}</span></td>
                       <td className="p-contact">{p.contact === 'email' ? <i className="fa-solid fa-envelope"/> : p.contact === 'phone' ? <i className="fa-solid fa-phone"/> : <i className="fa-solid fa-globe"/>}</td>
-                      <td className="p-action"><a href="#" className="action-link view">{p.actionText} <span className="chev">›</span></a></td>
+                      <td className="p-action"><i className="fa-solid fa-ellipsis-h"></i></td>
                     </tr>
                   ))}
                 </tbody>
@@ -546,8 +543,8 @@ export default function ShipperMarketplace() {
                 <div className="tech-desc">{p.title}</div>
 
                 <div className="tech-bottom">
-                  <div className={`badge status ${p.status.toLowerCase().replace(/\s+/g,'-')}`}>{p.status}</div>
-                  <button className="btn-connect">{p.action}</button>
+                  <div className={`int-status-badge active`}>{p.status}</div>
+                  <button className="btn small-cd">{p.action}</button>
                 </div>
               </div>
             ))}
@@ -592,8 +589,8 @@ export default function ShipperMarketplace() {
                     <td>{c.region}</td>
                     <td>{c.equipment}</td>
                     <td className="c-rating">{c.match}</td>
-                    <td><span className={`badge compliance ${c.compliance.toLowerCase().replace(/\s+/g,'-')}`}>{c.compliance}</span></td>
-                    <td className="c-actions"><a href="#" className="action-link view">{c.actionText} ›</a></td>
+                    <td><span className={`int-status-badge ${c.compliance}`}>{c.compliance}</span></td>
+                    <td className="c-actions"><i className='fa fa-ellipsis-h'></i></td>
                   </tr>
                 ))}
               </tbody>
@@ -606,7 +603,7 @@ export default function ShipperMarketplace() {
               <div className="match-card">
                 <div className="match-top">
                   <div className="match-left">
-                    <div className="avatar small icon-bg match-avatar-shield"><i className="fa-solid fa-shield-halved"/></div>
+                    <div className="tech-icon match-avatar"><i className="fa-solid fa-shield-halved"/></div>
                     <div className="match-meta">
                       <div className="match-title">LoadSure</div>
                       <div className="match-sub">Insurance</div>
@@ -615,13 +612,13 @@ export default function ShipperMarketplace() {
                   </div>
                   <div className="match-percent">96%</div>
                 </div>
-                <div className="match-cta"><button className="btn-primary match-btn">Contact ›</button></div>
+                <div className="match-cta"><button className="btn small-cd">Contact ›</button></div>
               </div>
 
               <div className="match-card">
                 <div className="match-top">
                   <div className="match-left">
-                    <div className="avatar small icon-bg match-avatar-clipboard"><i className="fa-solid fa-clipboard-check"/></div>
+                    <div className="tech-icon match-avatar"><i className="fa-solid fa-clipboard-check"/></div>
                     <div className="match-meta">
                       <div className="match-title">FleetGuard</div>
                       <div className="match-sub">Compliance</div>
@@ -630,13 +627,13 @@ export default function ShipperMarketplace() {
                   </div>
                   <div className="match-percent">92%</div>
                 </div>
-                <div className="match-cta"><button className="btn-primary match-btn">Connect ›</button></div>
+                <div className="match-cta"><button className="btn small-cd">Connect ›</button></div>
               </div>
 
               <div className="match-card">
                 <div className="match-top">
                   <div className="match-left">
-                    <div className="avatar small icon-bg match-avatar-dollar"><i className="fa-solid fa-sack-dollar"/></div>
+                    <div className="tech-icon match-avatar"><i className="fa-solid fa-sack-dollar"/></div>
                     <div className="match-meta">
                       <div className="match-title">OpenFactoring</div>
                       <div className="match-sub">Factoring</div>
@@ -645,7 +642,7 @@ export default function ShipperMarketplace() {
                   </div>
                   <div className="match-percent">90%</div>
                 </div>
-                <div className="match-cta"><button className="btn-primary match-btn">View ›</button></div>
+                <div className="match-cta"><button className="btn small-cd">View ›</button></div>
               </div>
             </div>
           </div>
@@ -655,7 +652,7 @@ export default function ShipperMarketplace() {
               <div className="match-card">
                 <div className="match-top">
                   <div className="match-left">
-                    <div className="tech-icon ic-eld match-avatar"><i className="fa-solid fa-clipboard-check" /></div>
+                    <div className="tech-icon match-avatar"><i className="fa-solid fa-clipboard-check" /></div>
                     <div className="match-meta">
                       <div className="match-title">FreightELD</div>
                       <div className="match-sub">ELD & Compliance</div>
@@ -664,7 +661,7 @@ export default function ShipperMarketplace() {
                   </div>
                   <div className="match-percent">98%</div>
                 </div>
-                <div className="match-cta"><button className="btn-primary match-btn">Connect ›</button></div>
+                <div className="match-cta"><button className="btn small-cd">Connect ›</button></div>
               </div>
 
               <div className="match-card">
@@ -679,7 +676,7 @@ export default function ShipperMarketplace() {
                   </div>
                   <div className="match-percent">95%</div>
                 </div>
-                <div className="match-cta"><button className="btn-primary match-btn">View ›</button></div>
+                <div className="match-cta"><button className="btn small-cd">View ›</button></div>
               </div>
 
               <div className="match-card">
@@ -694,26 +691,26 @@ export default function ShipperMarketplace() {
                   </div>
                   <div className="match-percent">91%</div>
                 </div>
-                <div className="match-cta"><button className="btn-primary match-btn">Connect ›</button></div>
+                <div className="match-cta"><button className="btn small-cd">Connect ›</button></div>
               </div>
             </div>
           </div>
-          <div className='headings-ai-tab' style={{ marginTop: '20px' }}>Rate & market Inssights</div>
+          <div className='headings-ai-tab' style={{ marginTop: '20px' }}>Rate & market Insights</div>
           <div className="aii-insights-row">
-              <div className="aii-insight-card insight-green">
+              <div className="match-card insight-green">
                 <div className="aii-insight-title">Rate Increase</div>
                 <div className="aii-insight-desc">MN → TX reefer rates are up 4.2% — consider posting more loads.</div>
-                <div className="aii-insight-cta"><button className="btn-primary small">Post Load</button></div>
+                <div className="aii-insight-cta"><button className="btn small-cd">Post Load</button></div>
               </div>
-              <div className="aii-insight-card insight-blue">
+              <div className="match-card insight-blue">
                 <div className="aii-insight-title">New Carriers</div>
                 <div className="aii-insight-desc">5 new carriers available in your service area.</div>
-                <div className="aii-insight-cta"><button className="btn-primary small blue">View Carriers</button></div>
+                <div className="aii-insight-cta"><button className="btn small-cd">View Carriers</button></div>
               </div>
-              <div className="aii-insight-card insight-purple">
+              <div className="match-card insight-purple">
                 <div className="aii-insight-title">Top Lane</div>
                 <div className="aii-insight-desc">Top performing lane: Midwest → South (avg $2.92/mi).</div>
-                <div className="aii-insight-cta"><button className="btn-primary small purple">Save Insight</button></div>
+                <div className="aii-insight-cta"><button className="btn small-cd ">Save Insight</button></div>
               </div>
             </div>
             <div className='headings-ai-tab' style={{ marginTop: '20px' }}>Opportunities</div>
@@ -726,7 +723,7 @@ export default function ShipperMarketplace() {
                     <div className="opp-desc">You haven't connected an insurance provider — save up to 12% on coverage.</div>
                   </div>
                 </div>
-                <div className="opp-cta"><button className="btn-primary small">Connect</button></div>
+                <div className="opp-cta"><button className="btn small-cd">Connect</button></div>
               </div>
 
               <div className="opp-item">
@@ -737,7 +734,7 @@ export default function ShipperMarketplace() {
                     <div className="opp-desc">2 compliance documents expiring soon — connect with FleetGuard.</div>
                   </div>
                 </div>
-                <div className="opp-cta"><button className="btn-primary small" style={{ background: '#ef4444' }}>Fix Compliance</button></div>
+                <div className="opp-cta"><button className="btn small-cd">Fix Compliance</button></div>
               </div>
 
               <div className="opp-item">
@@ -748,12 +745,12 @@ export default function ShipperMarketplace() {
                     <div className="opp-desc">3 tech tools integrate directly with your current setup — Connect now.</div>
                   </div>
                 </div>
-                <div className="opp-cta"><button className="btn-primary small blue">Connect Now</button></div>
+                <div className="opp-cta"><button className="btn small-cd">Connect Now</button></div>
               </div>
             </div>
 
             <div className="ai-analysis-box">
-              <div className="ai-analysis-left"><div className="ai-icon"><i className="fa-solid fa-robot"/></div></div>
+              <div className="ai-analysis-left"><div className="aai-icon"><i className="fa-solid fa-robot"/></div></div>
               <div className="ai-analysis-body">
                 <div className="ai-analysis-title">AI Analysis Complete</div>
                 <div className="ai-analysis-desc">AI scanned 1,243 regional carriers • Found 18 matches above 90% fit • 4 service providers recommended based on your last 5 loads.</div>

@@ -134,49 +134,21 @@ export default function ShipperDashboard() {
         </section>
 
         <section className="fp-filters" style={{display:'flex',gap:12,alignItems:'center',marginBottom:18,flexWrap:'wrap'}}>
-          <div className="filter" onClick={(e) => { e.stopPropagation(); setOpenDropdown(openDropdown === 'range' ? null : 'range'); }}>
-            <i className="fa-regular fa-calendar" aria-hidden="true"/> <span>{selectedRange}</span> <i className="fa-solid fa-chevron-down chevron"/>
-            {openDropdown === 'range' && (
-              <div className="dropdown" onClick={(e) => e.stopPropagation()}>
-                {ranges.map(r => (
-                  <div key={r} className="dropdown-item" onClick={() => { setSelectedRange(r); setOpenDropdown(null); }}>{r}</div>
-                ))}
-              </div>
-            )}
-          </div>
+            <select className="sb-carrier-filter-select" value={selectedRange} onChange={(e) => setSelectedRange(e.target.value)}>
+              {ranges.map(r => <option key={r} value={r}>{r}</option>)}
+            </select>
 
-          <div className="filter" onClick={(e) => { e.stopPropagation(); setOpenDropdown(openDropdown === 'region' ? null : 'region'); }}>
-            <i className="fa-solid fa-earth-americas" aria-hidden="true"/> <span>{selectedRegion}</span> <i className="fa-solid fa-chevron-down chevron"/>
-            {openDropdown === 'region' && (
-              <div className="dropdown" onClick={(e) => e.stopPropagation()}>
-                {regions.map(r => (
-                  <div key={r} className="dropdown-item" onClick={() => { setSelectedRegion(r); setOpenDropdown(null); }}>{r}</div>
-                ))}
-              </div>
-            )}
-          </div>
+            <select className="sb-carrier-filter-select" value={selectedRegion} onChange={(e) => setSelectedRegion(e.target.value)}>
+              {regions.map(r => <option key={r} value={r}>{r}</option>)}
+            </select>
 
-          <div className="filter" onClick={(e) => { e.stopPropagation(); setOpenDropdown(openDropdown === 'carrier' ? null : 'carrier'); }}>
-            <i className="fa-solid fa-truck" aria-hidden="true"/> <span>{selectedCarrier}</span> <i className="fa-solid fa-chevron-down chevron"/>
-            {openDropdown === 'carrier' && (
-              <div className="dropdown" onClick={(e) => e.stopPropagation()}>
-                {carriers.map(c => (
-                  <div key={c} className="dropdown-item" onClick={() => { setSelectedCarrier(c); setOpenDropdown(null); }}>{c}</div>
-                ))}
-              </div>
-            )}
-          </div>
+            <select className="sb-carrier-filter-select" value={selectedCarrier} onChange={(e) => setSelectedCarrier(e.target.value)}>
+              {carriers.map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
 
-          <div className="filter" onClick={(e) => { e.stopPropagation(); setOpenDropdown(openDropdown === 'lane' ? null : 'lane'); }}>
-            <i className="fa-solid fa-route" aria-hidden="true"/> <span>{selectedLane}</span> <i className="fa-solid fa-chevron-down chevron"/>
-            {openDropdown === 'lane' && (
-              <div className="dropdown" onClick={(e) => e.stopPropagation()}>
-                {lanes.map(l => (
-                  <div key={l} className="dropdown-item" onClick={() => { setSelectedLane(l); setOpenDropdown(null); }}>{l}</div>
-                ))}
-              </div>
-            )}
-          </div>
+            <select className="sb-carrier-filter-select" value={selectedLane} onChange={(e) => setSelectedLane(e.target.value)}>
+              {lanes.map(l => <option key={l} value={l}>{l}</option>)}
+            </select>
 
           <div style={{marginLeft:'auto'}} className="search-wrapper">
             <div className="ssd-search-box">

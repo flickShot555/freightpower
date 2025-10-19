@@ -54,37 +54,40 @@ export default function Finance() {
           <input placeholder="Search loads, invoices, partners" />
         </div>
 
-        <div className="filter" onClick={(e) => toggleDropdown('range', e)} role="button" tabIndex={0} aria-expanded={openDropdown === 'range'}>
-          {selectedRange} <i className="fa-solid fa-chevron-down chevron"/>
-          {openDropdown === 'range' && (
-            <div className="dropdown" onClick={(e) => e.stopPropagation()}>
-              {ranges.map(r => (
-                <div key={r} className="dropdown-item" onClick={() => selectOption('range', r)}>{r}</div>
-              ))}
-            </div>
-          )}
+        <div className="filter">
+          <select
+            className="sb-carrier-filter-select"
+            value={selectedRange}
+            onChange={(e) => setSelectedRange(e.target.value)}
+          >
+            {ranges.map(r => (
+              <option key={r} value={r}>{r}</option>
+            ))}
+          </select>
         </div>
 
-        <div className="filter" onClick={(e) => toggleDropdown('partner', e)} role="button" tabIndex={0} aria-expanded={openDropdown === 'partner'}>
-          {selectedPartner} <i className="fa-solid fa-chevron-down chevron"/>
-          {openDropdown === 'partner' && (
-            <div className="dropdown" onClick={(e) => e.stopPropagation()}>
-              {partners.map(p => (
-                <div key={p} className="dropdown-item" onClick={() => selectOption('partner', p)}>{p}</div>
-              ))}
-            </div>
-          )}
+        <div className="filter">
+          <select
+            className="sb-carrier-filter-select"
+            value={selectedPartner}
+            onChange={(e) => setSelectedPartner(e.target.value)}
+          >
+            {partners.map(p => (
+              <option key={p} value={p}>{p}</option>
+            ))}
+          </select>
         </div>
 
-        <div className="filter" onClick={(e) => toggleDropdown('status', e)} role="button" tabIndex={0} aria-expanded={openDropdown === 'status'}>
-          {selectedStatus} <i className="fa-solid fa-chevron-down chevron"/>
-          {openDropdown === 'status' && (
-            <div className="dropdown" onClick={(e) => e.stopPropagation()}>
-              {statuses.map(s => (
-                <div key={s} className="dropdown-item" onClick={() => selectOption('status', s)}>{s}</div>
-              ))}
-            </div>
-          )}
+        <div className="filter">
+          <select
+            className="sb-carrier-filter-select"
+            value={selectedStatus}
+            onChange={(e) => setSelectedStatus(e.target.value)}
+          >
+            {statuses.map(s => (
+              <option key={s} value={s}>{s}</option>
+            ))}
+          </select>
         </div>
       </div>
 

@@ -11,23 +11,23 @@ export default function TrackingVisibility() {
             </div>
           </div>
         </header>
-      <header className="tracking-header">
-        <div className="tracking-controls">
+      <header className="sh-tracking-header">
+        <div className="sh-tracking-controls">
           <select className="filter"> <option>Last 7 Days</option> </select>
           <select className="filter"> <option>All Status</option> </select>
           <select className="filter"> <option>All Modes</option> </select>
-          <div className="search-box">
+          <div className="shh-search-box">
             <input placeholder="Search Load #, PO..." />
           </div>
         </div>
 
         {/* Status badges row (unique classes prefixed with tv-) */}
         <div className="tv-badges-row">
-          <div className="tv-badge tv-active"><span className="tv-dot"/> Active Loads (24)</div>
-          <div className="tv-badge tv-risk"><span className="tv-dot"/> At Risk (3)</div>
-          <div className="tv-badge tv-exc"><span className="tv-dot"/> Exceptions (2)</div>
-          <div className="tv-badge tv-eta"><span className="tv-dot"/> ETA &lt; 4h (8)</div>
-          <div className="tv-badge tv-deliv"><span className="tv-dot"/> Delivered Today (12)</div>
+          <div className="int-status-badge active tv-active"><span className="tv-dot"/> Active Loads (24)</div>
+          <div className="int-status-badge pending tv-risk"><span className="tv-dot"/> At Risk (3)</div>
+          <div className="int-status-badge revoked tv-exc"><span className="tv-dot"/> Exceptions (2)</div>
+          <div className="int-status-badge pending tv-risk"><span className="tv-dot"/> ETA &lt; 4h (8)</div>
+          <div className="int-status-badge active tv-active"><span className="tv-dot"/> Delivered Today (12)</div>
         </div>
       </header>
 
@@ -50,7 +50,7 @@ export default function TrackingVisibility() {
                 <div className="load-route">Chicago, IL → Atlanta, GA</div>
               </div>
               <div className="load-header-right">
-                <div className="load-status-pill">In Transit</div>
+                <div className="int-status-badge pending" style={{display: "inline-block"}}>In Transit</div>
                 <div className="load-eta">ETA: <strong>2:40 PM</strong> <span className="load-late">(40 min late)</span></div>
               </div>
             </div>
@@ -62,7 +62,7 @@ export default function TrackingVisibility() {
             <div className="load-body">
               <div className="ai-insight-card">
                 <div className="tr-ai-icon"><i className="fa-regular fa-lightbulb"/></div>
-                <div className="ai-text">AI Insight: Load 1321 running 40 min late due to heavy traffic near Madison. Suggest notifying consignee.</div>
+                <div className="ai-text"><strong>AI Insight:</strong> Load 1321 running 40 min late due to heavy traffic near Madison. Suggest notifying consignee.</div>
               </div>
 
               <div className="timeline">
@@ -96,10 +96,10 @@ export default function TrackingVisibility() {
               </div>
 
               <div className="load-actions-col">
-                <button className="btn primary large"><i className="fa-solid fa-phone" style={{marginRight: '20px'}}/>  Call Driver</button>
-                <button className="btn ghost large"><i className="fa-solid fa-comment" style={{marginRight: '20px'}}/> Send Message</button>
-                  <button className="btn ghost"><i className="fa-solid fa-share-nodes" style={{marginRight: '20px'}}/> Share Tracking</button>
-                  <button className="btn ghost"><i className="fa-solid fa-flag" style={{marginRight: '20px'}}/> Report Issue</button>
+                <button className="btn small-cd"><i className="fa-solid fa-phone" style={{marginRight: '20px'}}/>  Call Driver</button>
+                <button className="btn small ghost-cd"><i className="fa-solid fa-comment" style={{marginRight: '20px'}}/> Send Message</button>
+                  <button className="btn small ghost-cd"><i className="fa-solid fa-share-nodes" style={{marginRight: '20px'}}/> Share Tracking</button>
+                  <button className="btn small ghost-cd"><i className="fa-solid fa-flag" style={{marginRight: '20px'}}/> Report Issue</button>
               </div>
             </div>
           </div>
