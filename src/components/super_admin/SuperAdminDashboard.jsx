@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import '../../styles/admin/AdminDashboard.css';
 import TrackingVisibility from '../super_admin/TrackingVisibility';
 import AdminAnalytics from '../super_admin/AdminAnalytics';
+import AiHub from '../super_admin/AiHub';
+import IntegrationsManager from '../super_admin/IntegrationsManager';
 import '../../styles/super_admin/SuperAdminDashboard.css';
 import UsersRoles from '../super_admin/UsersRoles';
 import Carriers from '../super_admin/Carriers';
@@ -16,6 +18,8 @@ import AdminMessaging from '../super_admin/Messaging';
 import Tasks from '../super_admin/Tasks';
 import HiringOnboarding from '../super_admin/HiringOnboarding';
 import MarketingPromotion from '../super_admin/MarketingPromotion';
+import SupportHub from '../super_admin/SupportHub';
+import SystemSettings from '../super_admin/SystemSettings';
 
 export default function SuperAdminDashboard(){
   const [activeNav, setActiveNav] = useState('dashboard');
@@ -248,8 +252,12 @@ export default function SuperAdminDashboard(){
             {activeNav === 'finance-billing' && <FinanceBilling /> }
             {activeNav === 'messages' && (<AdminMessaging /> )}
             {activeNav === 'marketing' && <MarketingPromotion /> }
+            {activeNav === 'ai-hub' && <AiHub /> }
+            {activeNav === 'integrations' && <IntegrationsManager /> }
             {activeNav === 'tasks' && <Tasks /> }
             {activeNav === 'hiring' && <HiringOnboarding /> }
+            {activeNav === 'support' && <SupportHub /> }
+            {activeNav === 'system-settings' && <SystemSettings /> }
         </main>
       </div>
     </div>
