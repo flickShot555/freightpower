@@ -1,5 +1,12 @@
 /* Header Component Styles */
+.landing-logo-image {
+  height: 100px;
+  width: auto;
+}
 
+/* Desktop logo visible by default, mobile logo hidden. */
+.landing-logo-image.mobile-logo{display:none}
+.landing-logo-image.desktop-logo{display:inline-block}
 /* Remove focus outlines for header elements */
 .landing-header button:focus,
 .landing-header button:focus-visible,
@@ -84,6 +91,13 @@
     font-size: 1.2rem;
     font-weight: 400 !important;
   }
+}
+
+/* At 768px and below, swap logos: hide desktop, show responsive compact logo */
+@media (max-width: 768px){
+  .landing-logo-image.desktop-logo{display:none}
+  .landing-logo-image.mobile-logo{display:inline-block;height:40px}
+  .landing-header-container{margin-top:10px}
 }
 
 @media (min-width: 1024px) {

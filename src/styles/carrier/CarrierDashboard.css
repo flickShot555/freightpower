@@ -19,7 +19,6 @@
 .dark-root .marketplace-snapshot h3,
 .dark-root .recent-messages .card-row h3,
 .dark-root .notifications-card .card-row h3{color:#d1d7db}
-.dark-root .logo{color:#d1d7db}
 .dark-root .muted{color:#d1d7db}
 .dark-root .msg-time,.dark-root .note-time{color:#b9c0c4}
 .dark-root .nav-group-title{color:#9fb0b4}
@@ -131,7 +130,6 @@
 .topbar-row-1{padding-bottom:6px}
 .topbar-row-2{padding-top:6px}
 .brand-row{display:flex;align-items:center;gap:12px;min-width:0}
-.logo{font-weight:800;color:#0f1724;font-size:22px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .verified{background:#12b76a;color:#ffffff;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:600}
 .chips{display:flex;gap:8px;margin-left:6px}
 .brand-block{display:flex;flex-direction:column;gap:12px;min-width:0}
@@ -220,7 +218,6 @@
 /* Sidebar header (drawer) - more vertical rhythm for mobile */
 .sidebar-header{display:none;padding:18px 18px 20px 18px;border-bottom:1px solid #eef3f6}
 .sidebar-header .brand-row{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px}
-.sidebar-header .brand-row .logo{font-size:18px;line-height:1.05;margin:0}
 .sidebar-header .verified{margin-top:4px}
 .sidebar-header .chips{display:flex;flex-direction:column;gap:10px;margin:12px 0}
 .sidebar-header .fleet-stats{display:flex;gap:14px;padding-top:8px}
@@ -235,7 +232,6 @@
 /* mobile drawer: compact brand row and centered ids */
 @media (max-width: 900px){
   .sidebar-header .brand-row{display:flex;align-items:center;justify-content:space-between}
-  .sidebar-header .logo{font-size:18px;line-height:1.05}
   .sidebar-header .verified{margin-left:auto;margin-top:0}
   /* center the DOT/MC block and add breathing room */
   .mobile-ids{align-items:center;text-align:center;margin-top:6px}
@@ -700,7 +696,6 @@
   /* hide the DOT / MC ids in the topbar at tablet widths (they're in the drawer) */
   .brand-row .ids{display:none}
   .brand-block{display:flex;flex-direction:row;align-items:center;gap:12px;flex:1}
-  .logo{font-size:22px}
   .btn.small-cd{padding:6px 10px;font-size:13px}
   .chip-cd{padding:6px 10px;font-size:12px}
   .avatar-img{width:32px;height:32px}
@@ -715,7 +710,6 @@
   .topbar-row-1 .topbar-right{flex:0 0 auto;margin-left:auto}
   .brand-block{flex:0 1 auto;min-width:0}
   .brand-row{min-width:0}
-  .logo{font-size:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60%}
 
   /* Show the drawer-specific header, actions and footer at tablet widths
     so the drawer content matches the mobile drawer UI (header + actions + footer). */
@@ -780,7 +774,6 @@
   .topbar-row-1{display:flex;align-items:center;gap:12px}
   .topbar-row-1 .topbar-left{display:flex;align-items:center;gap:12px}
   .brand-block{display:flex;flex-direction:row;align-items:center;gap:12px;flex:1}
-  .logo{margin:0;font-size:22px}
   .topbar-row-1 .topbar-right{display:flex;align-items:center;gap:12px}
 
   /* condense header titles */

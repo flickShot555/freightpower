@@ -16,6 +16,8 @@ import Analytics from './Analytics';
 import Calendar from './Calendar';
 import Settings from './Settings';  
 import HelpHub from './HelpHub';
+import logo from '/src/assets/logo.png';
+import resp_logo from '/src/assets/logo_1.png';
 // Note: Font Awesome icons are used instead of custom SVGs for simplicity
 // icon images replaced by Font Awesome icons
 
@@ -361,7 +363,12 @@ export default function CarrierDashboard() {
             </button>
             <div className="brand-block">
               <div className="brand-row">
-                <div className="logo">FreightPower Logistics</div>
+                <div className="logo">
+                  {/* Desktop / large-screen logo */}
+                  <img src={logo} alt="FreightPower" className="landing-logo-image desktop-logo" />
+                  {/* Responsive compact logo shown at <=768px */}
+                  <img src={resp_logo} alt="FreightPower" className="landing-logo-image mobile-logo" />
+                </div>
                 {/* verified moved into sidebar header; topbar inline chips removed */}
                 <div className="ids">
                   <span className="id-pair"><span className="id-label">DOT:</span> <span className="id-value">3456789</span></span>
@@ -423,7 +430,7 @@ export default function CarrierDashboard() {
   <aside className={`fp-sidebar ${isSidebarOpen ? 'open' : ''} ${isSidebarDark ? 'dark' : ''}`}>
         <div className="sidebar-header">
           <div className="brand-row">
-            <div className="logo">FreightPower Logistics</div>
+            <div className="logo"> <img src={logo} alt="FreightPower" className="landing-logo-image" /></div>
           </div>
           {/* DOT / MC line for mobile drawer */}
           <div className="ids mobile-ids">

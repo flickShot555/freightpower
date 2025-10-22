@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import '../../styles/landing_page/header.css';
+import logo from '/src/assets/logo.png';
+import resp_logo from '/src/assets/logo_1.png';
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -145,7 +147,10 @@ export default function Header() {
                 }
               }}
             >
-              FreightPower
+              {/* Desktop / large-screen logo */}
+              <img src={logo} alt="FreightPower" className="landing-logo-image desktop-logo" />
+              {/* Responsive compact logo shown at <=768px */}
+              <img src={resp_logo} alt="FreightPower" className="landing-logo-image mobile-logo" />
             </Link>
           </div>
 

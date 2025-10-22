@@ -10,6 +10,8 @@ import ComplianceOverview from './ComplianceOverview';
 import AiHub from './AiHub';
 import ShipperAnalytics from './Analytics';
 import Settings from './Settings';
+import logo from '/src/assets/logo.png';
+import resp_logo from '/src/assets/logo_1.png';
 
 export default function ShipperDashboard() {
   const [activeNav, setActiveNav] = useState('home');
@@ -294,7 +296,12 @@ export default function ShipperDashboard() {
             </button>
             <div className="brand-block">
               <div className="brand-row">
-                  <div className="logo">FreightPower AI</div>
+                  <div className="logo">
+                  {/* Desktop / large-screen logo */}
+                  <img src={logo} alt="FreightPower" className="landing-logo-image desktop-logo" />
+                  {/* Responsive compact logo shown at <=768px */}
+                  <img src={resp_logo} alt="FreightPower" className="landing-logo-image mobile-logo" />
+                  </div>
                   {/* Company name placed to the right of the logo (shipper-only) */}
                   <div className="brand-info">
                     <div className="company-name">Atlas Logistics LLC</div>
@@ -325,7 +332,7 @@ export default function ShipperDashboard() {
         <aside className={`fp-sidebar ${isSidebarOpen ? 'open' : ''} ${isSidebarDark ? 'dark' : ''}`}>
           <div className="sidebar-header">
             <div className="brand-row">
-              <div className="logo">FreightPower AI</div>
+              <div className="logo"><img src={logo} alt="FreightPower" className="landing-logo-image" /></div>
             </div>
             <div className="chips sidebar-chips">
               <div className="company-name">Atlas Logistics LLC</div>

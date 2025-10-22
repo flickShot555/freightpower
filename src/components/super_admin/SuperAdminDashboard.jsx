@@ -20,6 +20,8 @@ import HiringOnboarding from '../super_admin/HiringOnboarding';
 import MarketingPromotion from '../super_admin/MarketingPromotion';
 import SupportHub from '../super_admin/SupportHub';
 import SystemSettings from '../super_admin/SystemSettings';
+import logo from '/src/assets/logo.png';
+import resp_logo from '/src/assets/logo_1.png';
 
 export default function SuperAdminDashboard(){
   const [activeNav, setActiveNav] = useState('dashboard');
@@ -79,7 +81,12 @@ export default function SuperAdminDashboard(){
               <i className="fa-solid fa-bars" />
             </button>
             <div className="brand-block" style={{display:'flex',alignItems:'center',gap:12}}>
-              <div className="logo">FreightPower AI</div>
+              <div className="logo">
+                {/* Desktop / large-screen logo */}
+                <img src={logo} alt="FreightPower" className="landing-logo-image desktop-logo" />
+                {/* Responsive compact logo shown at <=768px */}
+                <img src={resp_logo} alt="FreightPower" className="landing-logo-image mobile-logo" />
+              </div>
             </div>
           </div>
 
@@ -117,7 +124,7 @@ export default function SuperAdminDashboard(){
         <aside className={`fp-sidebar ${isSidebarOpen ? 'open' : ''} ${isSidebarDark ? 'dark' : ''}`}>
           <div className="sidebar-header">
             <div className="brand-row">
-              <div className="logo">FreightPower Admin</div>
+              <div className="logo"><img src={logo} alt="FreightPower" className="landing-logo-image" /></div>
             </div>
             <div className="chips sidebar-chips">
               <span className="chip-cd success">Super Admin</span>

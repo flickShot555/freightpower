@@ -9,6 +9,8 @@ import AccountSettings from './AccountSettings';
 import AiHub from './AiHub';
 import ConsentESignature from './ConsentESignature';
 import '../../styles/driver/DriverDashboard.css';
+import logo from '/src/assets/logo.png';
+import resp_logo from '/src/assets/logo_1.png';
 
 export default function DriverDashboard() {
   const [activeNav, setActiveNav] = useState('home');
@@ -450,7 +452,14 @@ export default function DriverDashboard() {
             </button>
             <div className="brand-block">
               <div className="brand-row">
-                <div className="logo">FreightPower</div>
+                <div className="logo">
+                  <div className="logo">
+                                    {/* Desktop / large-screen logo */}
+                                    <img src={logo} alt="FreightPower" className="landing-logo-image desktop-logo" />
+                                    {/* Responsive compact logo shown at <=768px */}
+                                    <img src={resp_logo} alt="FreightPower" className="landing-logo-image mobile-logo" />
+                                  </div>
+                </div>
                       <div className="user-profile dd-user-profile">
                         <img src="https://randomuser.me/api/portraits/men/75.jpg" alt="Marcus Johnson" className="avatar-img user-avatar-desktop dd-avatar-img"/>
                         <div className="user-info user-info-desktop dd-user-info">
@@ -508,7 +517,7 @@ export default function DriverDashboard() {
         <aside className={`fp-sidebar ${isSidebarOpen ? 'open' : ''}`}>
           <div className="sidebar-header">
             <div className="brand-row">
-              <div className="logo">FreightPower</div>
+              <div className="logo"><img src={logo} alt="FreightPower" className="landing-logo-image" /></div>
             </div>
             <div className="ids mobile-ids">
               <div className="mobile-id-line"><span className="id-pair"><span className="id-label">Marcus Johnson</span></span></div>
