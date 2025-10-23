@@ -721,6 +721,14 @@
   /* Ensure drawer content has proper vertical padding and spacing like mobile */
   .fp-sidebar{padding:18px}
   .fp-sidebar.open{transform:translateX(0)}
+
+/* Mobile fixes: remove header bottom border (thin line) and ensure sidebar sits above overlay */
+@media (max-width: 900px) {
+  .fp-sidebar .sidebar-header { border-bottom: none !important; }
+  /* ensure sidebar is above overlay to avoid any 1px seam */
+  .fp-sidebar.open { z-index: 1002; }
+  .overlay { z-index: 1000; }
+}
 }
 
 @media (max-width: 900px){
