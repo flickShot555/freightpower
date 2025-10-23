@@ -25,6 +25,9 @@
 body {
   margin: 0;
   padding: 0;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
   background-color: #ffffff;
   color: #1f2937;
   font-family: inherit;
