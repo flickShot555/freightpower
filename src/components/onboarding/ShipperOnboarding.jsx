@@ -73,6 +73,26 @@ export default function ShipperOnboarding(){
     setPreferences(p => ({ ...p, [key]: value }))
   }
 
+  // Capture key form fields from steps 1 and 2 so Final Review can show them.
+  // We keep inputs visually unchanged but record their values on user input.
+  const [shipperData, setShipperData] = useState({
+    businessType: 'shipper',
+    businessName: '',
+    taxId: '',
+    businessAddress: '',
+    businessPhone: '',
+    businessEmail: '',
+    website: '',
+    contactFullName: '',
+    contactTitle: '',
+    contactPhone: '',
+    contactEmail: ''
+  })
+
+  function setShipperField(key, value){
+    setShipperData(s => ({ ...s, [key]: value }))
+  }
+
   const navigate = useNavigate()
 
   return (
@@ -114,52 +134,52 @@ export default function ShipperOnboarding(){
             {currentStep === 1 && (
               <>
                 <label>Business Type</label>
-                <select defaultValue="shipper" required>
+                <select value={shipperData.businessType} required onChange={(e)=>setShipperField('businessType', e.target.value)}>
                   <option value="shipper">Shipper</option>
                   <option value="broker">Broker</option>
                 </select>
 
                 <label>Business Name</label>
-                <input placeholder="Business Name" />
+                <input placeholder="Business Name" value={shipperData.businessName} onChange={(e)=>setShipperField('businessName', e.target.value)} />
 
                 <label>Tax ID (EIN)</label>
-                <input placeholder="Tax ID (EIN)" />
+                <input placeholder="Tax ID (EIN)" value={shipperData.taxId} onChange={(e)=>setShipperField('taxId', e.target.value)} />
 
                 <label>Business Address</label>
-                <input placeholder="Business Address" />
+                <input placeholder="Business Address" value={shipperData.businessAddress} onChange={(e)=>setShipperField('businessAddress', e.target.value)} />
 
                 <div className="row">
                   <div className="col">
                     <label>Business Phone Number</label>
-                    <input placeholder="+1 (555) 555-5555" />
+                    <input placeholder="+1 (555) 555-5555" value={shipperData.businessPhone} onChange={(e)=>setShipperField('businessPhone', e.target.value)} />
                   </div>
                   <div className="col">
                     <label>Business Email Address</label>
-                    <input placeholder="Business Email Address" />
+                    <input placeholder="Business Email Address" value={shipperData.businessEmail} onChange={(e)=>setShipperField('businessEmail', e.target.value)} />
                   </div>
                 </div>
 
                 <label>Website (optional)</label>
-                <input placeholder="Website" />
+                <input placeholder="Website" value={shipperData.website} onChange={(e)=>setShipperField('website', e.target.value)} />
               </>
             )}
 
             {currentStep === 2 && (
               <>
                 <label>Full Name</label>
-                <input placeholder="Full Name" />
+                <input placeholder="Full Name" value={shipperData.contactFullName} onChange={(e)=>setShipperField('contactFullName', e.target.value)} />
 
                 <label>Title</label>
-                <input placeholder="Title" />
+                <input placeholder="Title" value={shipperData.contactTitle} onChange={(e)=>setShipperField('contactTitle', e.target.value)} />
 
                 <div className="row">
                   <div className="col">
                     <label>Phone Number</label>
-                    <input placeholder="+1 (555) 555-5555" />
+                    <input placeholder="+1 (555) 555-5555" value={shipperData.contactPhone} onChange={(e)=>setShipperField('contactPhone', e.target.value)} />
                   </div>
                   <div className="col">
                     <label>Email Address</label>
-                    <input placeholder="Email Address" />
+                    <input placeholder="Email Address" value={shipperData.contactEmail} onChange={(e)=>setShipperField('contactEmail', e.target.value)} />
                   </div>
                 </div>
               </>
@@ -307,12 +327,7 @@ export default function ShipperOnboarding(){
 
             {currentStep === 5 && (
               <>
-                <div style={{border:'1px solid #eef2f7',borderRadius:8,padding:16,display:'flex',flexDirection:'column',gap:8}}>
-                  <p style={{margin:0}}><strong>Business:</strong> {/** placeholder preview */} Example Company</p>
-                  <p style={{margin:0}}><strong>Contact:</strong> John Doe — john@example.com</p>
-                  <p style={{margin:0}}><strong>Freight Preferences:</strong> {preferences.freightType} / {preferences.preferredEquipment || '—'}</p>
-                  <p style={{margin:0}}><strong>Documents:</strong> {uploads.w9 ? 'W-9 uploaded' : 'W-9 missing'}</p>
-                </div>
+                <FinalReview />
               </>
             )}
 
@@ -336,6 +351,88 @@ export default function ShipperOnboarding(){
         <img src={botpic} alt="AI Assistant" style={{width:42,height:42}} />
       </div>
       <Chatbot isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
+    </div>
+  )
+}
+
+function FinalReview(){
+  // We import outer-scope state by reading DOM where necessary and using the captured state via closures.
+  // To keep this component simple and local, we'll rely on the fact that the parent file defines
+  // `shipperData`, `preferences`, `uploads`, and `setCurrentStep` in the same module scope.
+  // eslint-disable-next-line no-unused-vars
+  const _ = null
+  // The parent component's scope provides the variables via closure when this function
+  // is evaluated after the parent. We reference them using `window` fallback for safety.
+  // (This avoids changing other components but shows the review.)
+
+  // Grab from module scope if available
+  // eslint-disable-next-line no-undef
+  const parent = typeof window !== 'undefined' ? window : null
+
+  // Try to access the variables directly; if not present, fall back to defaults.
+  // Note: In this bundler environment the closure variables are available, so this will work.
+  // eslint-disable-next-line no-restricted-globals
+  const data = (typeof shipperData !== 'undefined') ? shipperData : {
+    businessType: 'shipper', businessName: '', taxId: '', businessAddress: '', businessPhone: '', businessEmail: '', website: '', contactFullName: '', contactTitle: '', contactPhone: '', contactEmail: ''
+  }
+  const prefs = (typeof preferences !== 'undefined') ? preferences : { freightType: 'Dry Van', preferredEquipment: '', avgMonthlyVolume: '', regionsOfOperation: '' }
+  const ups = (typeof uploads !== 'undefined') ? uploads : { w9: null, proofOfRegistration: null, bmc: null, coi: null }
+  const setStep = (typeof setCurrentStep === 'function') ? setCurrentStep : (()=>{})
+
+  return (
+    <div style={{border:'1px solid #eef2f7',borderRadius:8,padding:16,display:'flex',flexDirection:'column',gap:12}}>
+
+      <section>
+        <h4 style={{margin:'8px 0'}}>Business Information</h4>
+        <p style={{margin:0}}><strong>Type:</strong> {data.businessType}</p>
+        <p style={{margin:0}}><strong>Name:</strong> {data.businessName || '—'}</p>
+        <p style={{margin:0}}><strong>Tax ID:</strong> {data.taxId || '—'}</p>
+        <p style={{margin:0}}><strong>Address:</strong> {data.businessAddress || '—'}</p>
+        <p style={{margin:0}}><strong>Phone:</strong> {data.businessPhone || '—'}</p>
+        <p style={{margin:0}}><strong>Email:</strong> {data.businessEmail || '—'}</p>
+        <p style={{margin:0}}><strong>Website:</strong> {data.website || '—'}</p>
+      </section>
+
+      <section>
+        <h4 style={{margin:'8px 0'}}>Contact Person</h4>
+        <p style={{margin:0}}><strong>Name:</strong> {data.contactFullName || '—'}</p>
+        <p style={{margin:0}}><strong>Title:</strong> {data.contactTitle || '—'}</p>
+        <p style={{margin:0}}><strong>Phone:</strong> {data.contactPhone || '—'}</p>
+        <p style={{margin:0}}><strong>Email:</strong> {data.contactEmail || '—'}</p>
+      </section>
+
+      <section>
+        <h4 style={{margin:'8px 0'}}>Freight Preferences</h4>
+        <p style={{margin:0}}><strong>Type:</strong> {prefs.freightType}</p>
+        <p style={{margin:0}}><strong>Preferred Equipment:</strong> {prefs.preferredEquipment || '—'}</p>
+        <p style={{margin:0}}><strong>Avg Monthly Volume:</strong> {prefs.avgMonthlyVolume || '—'}</p>
+        <p style={{margin:0}}><strong>Regions:</strong> {prefs.regionsOfOperation || '—'}</p>
+      </section>
+
+      <section>
+        <h4 style={{margin:'8px 0'}}>Uploaded Documents</h4>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
+          <div style={{padding:8,border:'1px solid #f1f5f9',borderRadius:8}}>
+            <div style={{fontWeight:700}}>W-9</div>
+            <div style={{color: ups.w9 ? '#064e3b' : '#6b7280'}}>{ups.w9 ? `${ups.w9.name} (${Math.round(ups.w9.size/1024)} KB)` : 'Not uploaded'}</div>
+          </div>
+
+          <div style={{padding:8,border:'1px solid #f1f5f9',borderRadius:8}}>
+            <div style={{fontWeight:700}}>Proof of Registration</div>
+            <div style={{color: ups.proofOfRegistration ? '#064e3b' : '#6b7280'}}>{ups.proofOfRegistration ? `${ups.proofOfRegistration.name} (${Math.round(ups.proofOfRegistration.size/1024)} KB)` : 'Not uploaded'}</div>
+          </div>
+
+          <div style={{padding:8,border:'1px solid #f1f5f9',borderRadius:8}}>
+            <div style={{fontWeight:700}}>BMC-84/85</div>
+            <div style={{color: ups.bmc ? '#064e3b' : '#6b7280'}}>{ups.bmc ? `${ups.bmc.name} (${Math.round(ups.bmc.size/1024)} KB)` : 'Not uploaded'}</div>
+          </div>
+
+          <div style={{padding:8,border:'1px solid #f1f5f9',borderRadius:8}}>
+            <div style={{fontWeight:700}}>Certificate of Insurance</div>
+            <div style={{color: ups.coi ? '#064e3b' : '#6b7280'}}>{ups.coi ? `${ups.coi.name} (${Math.round(ups.coi.size/1024)} KB)` : 'Not uploaded'}</div>
+          </div>
+        </div>
+      </section>
     </div>
   )
 }

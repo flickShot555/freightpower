@@ -20,7 +20,7 @@ export default function CarrierOnboarding(){
     return ()=> clearInterval(t)
   },[])
 
-  const steps = ['Business Info','Owner Verification (Optional)','Fleet Information','Compliance','Final Review']
+  const steps = ['Business Info','Owner Information (Optional)','Fleet Information','Compliance','Final Review']
 
   function handleNext(){
     setCurrentStep(s => Math.min(5, s+1))
@@ -57,7 +57,7 @@ export default function CarrierOnboarding(){
           {currentStep === 2 ? (
             <p className="muted">Upload your ID document for faster verification</p>
           ) : currentStep === 3 ? (
-            <p className="muted">Please Provide your Fleet Information</p>
+            <p className="muted">Please update your fleet information</p>
           ) : currentStep === 4 ? (
             <p className="muted">Please Provide your Compliance Documents</p>
           ) : currentStep === 5 ? (
@@ -81,6 +81,9 @@ export default function CarrierOnboarding(){
                 </label>
                 <input placeholder="MC Number" />
                 <div className="mc-subtext">We’ll verify your FMCSA data automatically to speed up approval.</div>
+
+                <label>Tx ID (EIN)</label>
+                <input placeholder="Tx ID (EIN)" />
 
                 <label>Company Address</label>
                 <input placeholder="Company Address" />
@@ -118,69 +121,87 @@ export default function CarrierOnboarding(){
                     <input placeholder="email@company.com" />
                   </div>
                 </div>
-
-                <label>Signature Upload <small className='field-note'>(optional)</small></label>
-                <div className="upload-box" style={{minHeight:120, display:'flex', alignItems:'center', justifyContent:'center', flexDirection:'column', gap:8}}>
-                  <i className="fa-solid fa-cloud-arrow-up" style={{fontSize:22, color:'grey'}} aria-hidden="true" />
-                  <div style={{color:'grey', fontWeight:700}}>Upload File</div>
-                  <small>SVG, PNG, JPG or GIF (max. 800x400px)</small>
-                </div>
               </>
             )}
 
             {currentStep === 3 && (
               <>
-                <div style={{display:'flex',gap:12}}>
-                  <div style={{flex:1}}>
-                    <label style={{opacity:1}}>COI</label>
-                    <div className="upload-box"><i className="fa-solid fa-cloud-arrow-up" style={{fontSize:20, color:'grey'}} aria-hidden="true" /><br/>Upload</div>
+
+              {currentStep === 3 && (
+              <>
+
+              <label>Fleet Size</label>
+                <input type="number" min="0" placeholder="Number of power units" />
+
+                <label>Equipment Type</label>
+                    <select>
+                      <option value="dry_van">Dry Van</option>
+                      <option value="reefer">Reefer</option>
+                      <option value="flatbed">Flatbed</option>
+                      <option value="step_deck">Step Deck</option>
+                      <option value="other">Other</option>
+                    </select>
+
+                <div className="row">
+                  <div className="col">
+                    <label>Average Truck Model Year</label>
+                    <input type="date" />
                   </div>
-                  <div style={{flex:1}}>
-                    <label>W9 <small className='field-note'>(optional) </small></label>
-                    <div className="upload-box"><i className="fa-solid fa-cloud-arrow-up" style={{fontSize:20, color:'grey'}} aria-hidden="true" /><br/>Upload</div>
+                  <div className="col">
+                    <label>Home Terminal (City, State)</label>
+                    <input placeholder="City, State" />
                   </div>
                 </div>
 
-                <div style={{display:'flex',gap:12}}>
-                  <div style={{flex:1}}>
-                    <label>Authority Letter</label>
-                    <div className="upload-box"><i className="fa-solid fa-cloud-arrow-up" style={{fontSize:20, color:'grey'}} aria-hidden="true" /><br/>Upload</div>
+                <div className="row">
+                  <div className="col">
+                    <label>ELD Provider</label>
+                    <input placeholder="ELD provider name" />
                   </div>
-                  <div style={{flex:1}}>
-                    <label>Voided Check</label>
-                    <div className="upload-box"><i className="fa-solid fa-cloud-arrow-up" style={{fontSize:20, color:'grey'}} aria-hidden="true" /><br/>Upload</div>
+                  <div className="col">
+                    <label>Factoring Company</label>
+                    <input placeholder="Factoring company name" />
                   </div>
                 </div>
 
-                <label>Other Fleet Document<small className='field-note'> (optional)</small></label>
-                <div className="upload-box"><i className="fa-solid fa-cloud-arrow-up" style={{fontSize:20, color:'grey'}} aria-hidden="true" /><br/>Click to upload or drag and drop<br/><small>SVG, PNG, JPG or GIF (max. 800x400px)</small></div>
+                <label>Fleet Size</label>
+                <input placeholder="Insurance provider name" />
+
+                <div>
+                  <label>Preferred Lanes / Routes</label>
+                  <textarea placeholder="e.g., I-95 corridor, Midwest regional, TX -> CA lanes" rows={4} />
+                </div>
+
+                <div className="divider-line" />
+              </>
+            )}
               </>
             )}
 
             {currentStep === 4 && (
               <>
-                <label>Upload MVR (Motor Vehicle Report)</label>
+                <label>Broker Carrier Agreement</label>
                 <div className="upload-box"><i className="fa-solid fa-cloud-arrow-up" style={{fontSize:22, color:'grey'}} aria-hidden="true" /><><br /></>Click to upload or drag and drop</div>
 
-                <label>Upload Medical Certificate</label>
+                <label>MC Authority Letter (FMCSA)</label>
                 <div className="upload-box"><i className="fa-solid fa-cloud-arrow-up" style={{fontSize:22, color:'grey'}} aria-hidden="true" /><><br /></>Click to upload or drag and drop</div>
 
-                <label>Drug Test Result (if available)</label>
+                <label>Certificate of Insurance (COI)</label>
                 <div className="upload-box"><i className="fa-solid fa-cloud-arrow-up" style={{fontSize:22, color:'grey'}} aria-hidden="true" /><><br /></>Click to upload or drag and drop</div>
 
-                <label>FMCSA Clearinghouse Consent</label>
+                <label>W9 Form</label>
+                <div className="upload-box"><i className="fa-solid fa-cloud-arrow-up" style={{fontSize:22, color:'grey'}} aria-hidden="true" /><><br /></>Click to upload or drag and drop</div>
+
+                <label>Voided Check / Bank Letter</label>
+                <div className="upload-box"><i className="fa-solid fa-cloud-arrow-up" style={{fontSize:22, color:'grey'}} aria-hidden="true" /><><br /></>Click to upload or drag and drop</div>
+
+                <label> Factoring Agreement or Notice of Assignment (if applicable) </label>
                 <div className="upload-box"><i className="fa-solid fa-cloud-arrow-up" style={{fontSize:22, color:'grey'}} aria-hidden="true" /><><br /></>Click to upload or drag and drop</div>
               </>
             )}
 
             {currentStep === 5 && (
-              <>
-                <div style={{border:'1px solid #eef2f7',borderRadius:8,padding:12}}>
-                  <p><strong>Company:</strong> Next Role (example)</p>
-                  <p><strong>Owner:</strong> Full name (example)</p>
-                  <p><strong>Fleet docs:</strong> COI, W9, etc.</p>
-                </div>
-              </>
+              <FinalReview onEdit={(s) => setCurrentStep(s)} navigate={navigate} />
             )}
 
             <div className="onboarding-actions">
@@ -196,6 +217,127 @@ export default function CarrierOnboarding(){
         <img src={botpic} alt="AI Assistant" style={{width:42,height:42}} />
       </div>
       <Chatbot isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
+    </div>
+  )
+}
+
+function FinalReview({ onEdit, navigate }){
+  // Snapshot basic fields using placeholders/selectors used in the form (non-invasive)
+  const get = (sel) => {
+    const el = document.querySelector(sel);
+    if(!el) return '—';
+    if(el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA') return el.value || '—';
+    return el.textContent || '—';
+  }
+
+  const data = {
+    company: get('input[placeholder="Next Role"]'),
+    dot: get('input[placeholder="DOT Number"]'),
+    mc: get('input[placeholder="MC Number"]'),
+    ein: get('input[placeholder="Tx ID (EIN)"]'),
+    email: get('input[placeholder="email@company.com"]'),
+    phone: get('input[placeholder="+1 (555) 555-5555"]'),
+    owner: get('input[placeholder="Full name"]'),
+    fleetSize: get('input[placeholder="Number of power units"]'),
+    equipment: (document.querySelector('select') && document.querySelector('select').value) || '—',
+    lanes: get('textarea')
+  }
+
+  // Documents list to display
+  const docs = [
+    {key:'COI', label: 'Certificate of Insurance (COI)'},
+    {key:'W9', label: 'W9 Form'},
+    {key:'AuthorityLetter', label: 'Authority Letter'},
+    {key:'VoidedCheck', label: 'Voided Check / Bank Letter'},
+    {key:'FactoringAgreement', label: 'Factoring Agreement'},
+    {key:'BrokerAgreement', label: 'Broker Carrier Agreement'},
+    {key:'MCAuthority', label: 'MC Authority Letter'},
+    {key:'DrugTest', label: 'Drug Test Result'}
+  ];
+
+  // Try to infer uploaded filenames from file inputs or nearby text
+  function findFilenameForLabel(labelText){
+    // search for input[type=file] whose label contains labelText
+    const fileInputs = Array.from(document.querySelectorAll('input[type="file"]'));
+    for(const fi of fileInputs){
+      const id = fi.id;
+      if(id){
+        const lab = document.querySelector(`label[for="${id}"]`);
+        if(lab && lab.textContent && lab.textContent.toLowerCase().includes(labelText.toLowerCase())){
+          return fi.files && fi.files[0] ? fi.files[0].name : null;
+        }
+      }
+    }
+
+    // find label nodes that match and look for a following text node with filename
+    const labels = Array.from(document.querySelectorAll('label'));
+    for(const lab of labels){
+      if(lab.textContent && lab.textContent.toLowerCase().includes(labelText.toLowerCase())){
+        let sib = lab.nextElementSibling;
+        while(sib){
+          if(sib.tagName === 'INPUT' && sib.type === 'file') return sib.files && sib.files[0] ? sib.files[0].name : null;
+          if(sib.textContent && /\.(png|jpg|jpeg|pdf|doc|docx|gif)/i.test(sib.textContent)) return sib.textContent.trim();
+          sib = sib.nextElementSibling;
+        }
+      }
+    }
+
+    // fallback: search upload-box for filename-like text
+    const boxes = Array.from(document.querySelectorAll('.upload-box'));
+    for(const box of boxes){
+      const txt = box.textContent || '';
+      const m = txt.match(/([\w-]+\.(png|jpg|jpeg|pdf|docx?|gif))/i);
+      if(m) return m[1];
+    }
+
+    return null;
+  }
+
+  return (
+    <div style={{border:'1px solid #eef2f7',borderRadius:8,padding:16,display:'flex',flexDirection:'column',gap:12}}>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+
+      </div>
+
+      <section>
+        <h4 style={{margin:'8px 0'}}>Business Information</h4>
+        <p style={{margin:0}}><strong>Company:</strong> {data.company || '—'}</p>
+        <p style={{margin:0}}><strong>DOT:</strong> {data.dot || '—'}</p>
+        <p style={{margin:0}}><strong>MC:</strong> {data.mc || '—'}</p>
+        <p style={{margin:0}}><strong>EIN:</strong> {data.ein || '—'}</p>
+        <p style={{margin:0}}><strong>Email:</strong> {data.email || '—'}</p>
+        <p style={{margin:0}}><strong>Phone:</strong> {data.phone || '—'}</p>
+      </section>
+
+      <section>
+        <h4 style={{margin:'8px 0'}}>Owner / Contact</h4>
+        <p style={{margin:0}}><strong>Name:</strong> {data.owner || '—'}</p>
+      </section>
+
+      <section>
+        <h4 style={{margin:'8px 0'}}>Fleet Information</h4>
+        <p style={{margin:0}}><strong>Fleet Size:</strong> {data.fleetSize || '—'}</p>
+        <p style={{margin:0}}><strong>Equipment:</strong> {data.equipment || '—'}</p>
+        <p style={{margin:0}}><strong>Preferred Lanes:</strong> {data.lanes || '—'}</p>
+      </section>
+
+      <section>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+          <h4 style={{margin:'8px 0'}}>Uploaded Documents</h4>
+        </div>
+
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
+          {docs.map(d => {
+            const fn = findFilenameForLabel(d.label) || null;
+            return (
+              <div key={d.key} style={{padding:8,border:'1px solid #f1f5f9',borderRadius:8}}>
+                <div style={{fontWeight:700}}>{d.label}</div>
+                <div style={{color: fn ? '#064e3b' : '#6b7280'}}>{fn ? `${fn}` : 'Not uploaded'}</div>
+              </div>
+            )
+          })}
+        </div>
+      </section>
     </div>
   )
 }

@@ -140,14 +140,6 @@ export default function DriverOnboarding(){
                   <option value="flat">Flatbed</option>
                 </select>
 
-                <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', marginTop:6}}>
-                  <div style={{fontWeight:700, color:'#111827'}}>Willing to be matched with carriers</div>
-                  <div className="switch">
-                    <input id="matchSwitch" type="checkbox" />
-                    <label className="switch-slider" htmlFor="matchSwitch" />
-                  </div>
-                </div>
-
                 <div className="divider-line" />
               </>
             )}
@@ -195,13 +187,7 @@ export default function DriverOnboarding(){
             )}
 
             {currentStep === 5 && (
-              <>               
-                <div style={{border:'1px solid #eef2f7',borderRadius:8,padding:12}}>
-                  <p><strong>Name:</strong> First Last (example)</p>
-                  <p><strong>CDL:</strong> CDL-XXXXX</p>
-                  <p><strong>Docs:</strong> Medical cert, MVR, COI</p>
-                </div>
-              </>
+              <DriverFinalReview onEdit={(s) => setCurrentStep(s)} navigate={navigate} />
             )}
 
             <div className="onboarding-actions">
@@ -215,6 +201,94 @@ export default function DriverOnboarding(){
         <img src={botpic} alt="AI Assistant" style={{width:42,height:42}} />
       </div>
       <Chatbot isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
+    </div>
+  )
+}
+
+function DriverFinalReview({ onEdit, navigate }){
+  const get = (sel) => {
+    const el = document.querySelector(sel);
+    if(!el) return '—';
+    if(el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA') return el.value || '—';
+    return el.textContent || '—';
+  }
+
+  const data = {
+    name: get('input[placeholder="Full name"]'),
+    phone: get('input[placeholder="+1 (555) 555-5555"]'),
+    email: get('input[placeholder="email@company.com"]'),
+    cdl: get('input[placeholder="CDL Details"]'),
+    issuingState: get('input[placeholder="Issuing State"]'),
+    equipmentExp: (document.querySelector('select[required]') && document.querySelector('select[required]').value) || '—'
+  }
+
+  // find file names inside .upload-box nodes (the driver UI doesn't use file inputs)
+  const findInUploadBoxes = (labelMatch) => {
+    const labels = Array.from(document.querySelectorAll('label'));
+    for(const lab of labels){
+      if(lab.textContent && lab.textContent.toLowerCase().includes(labelMatch.toLowerCase())){
+        // look next elements for a filename-like text
+        let sib = lab.nextElementSibling;
+        while(sib){
+          if(sib.textContent && /([\w-]+\.(png|jpg|jpeg|pdf|docx?|gif))/i.test(sib.textContent)){
+            const m = sib.textContent.match(/([\w-]+\.(png|jpg|jpeg|pdf|docx?|gif))/i);
+            if(m) return m[1];
+          }
+          sib = sib.nextElementSibling;
+        }
+      }
+    }
+    // fallback: search inside .upload-box for filename-like text
+    const boxes = Array.from(document.querySelectorAll('.upload-box'));
+    for(const box of boxes){
+      const txt = box.textContent || '';
+      const m = txt.match(/([\w-]+\.(png|jpg|jpeg|pdf|docx?|gif))/i);
+      if(m) return m[1];
+    }
+    return null;
+  }
+
+  const docs = [
+    {k:'MVR', label:'MVR (Motor Vehicle Report)'},
+    {k:'Medical', label:'Medical Certificate'},
+    {k:'Drug', label:'Drug Test Result'},
+    {k:'Clearinghouse', label:'FMCSA Clearinghouse Consent'}
+  ];
+
+  return (
+    <div style={{border:'1px solid #eef2f7',borderRadius:8,padding:16,display:'flex',flexDirection:'column',gap:12}}>
+
+      <section>
+        <h4 style={{margin:'8px 0'}}>Personal Information</h4>
+        <p style={{margin:0}}><strong>Name:</strong> {data.name || '—'}</p>
+        <p style={{margin:0}}><strong>Phone:</strong> {data.phone || '—'}</p>
+        <p style={{margin:0}}><strong>Email:</strong> {data.email || '—'}</p>
+      </section>
+
+      <section>
+        <h4 style={{margin:'8px 0'}}>CDL Details</h4>
+        <p style={{margin:0}}><strong>CDL Number:</strong> {data.cdl || '—'}</p>
+        <p style={{margin:0}}><strong>Issuing State:</strong> {data.issuingState || '—'}</p>
+        <p style={{margin:0}}><strong>Equipment Experience:</strong> {data.equipmentExp || '—'}</p>
+      </section>
+
+      <section>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+          <h4 style={{margin:'8px 0'}}>Uploaded Documents</h4>
+        </div>
+
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
+          {docs.map(d => {
+            const fn = findInUploadBoxes(d.label);
+            return (
+              <div key={d.k} style={{padding:8,border:'1px solid #f1f5f9',borderRadius:8}}>
+                <div style={{fontWeight:700}}>{d.label}</div>
+                <div style={{color: fn ? '#064e3b' : '#6b7280'}}>{fn ? `${fn}` : 'Not uploaded'}</div>
+              </div>
+            )
+          })}
+        </div>
+      </section>
     </div>
   )
 }
