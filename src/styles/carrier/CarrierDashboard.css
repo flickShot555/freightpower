@@ -123,7 +123,7 @@
 .dark-root .icons .lang{color:#ffffff}
 
 .fp-topbar{display:flex;flex-direction:column;padding:12px 20px;background:#fff;border-bottom:1px solid #eef2f6}
-.fp-dashboard-root{background:#f7f9fb;min-height:100vh}
+.fp-dashboard-root{background:#f7f9fb;min-height:100%}
 
 .dark-root{background:#1e1e1e !important}
 .topbar-row{display:flex;justify-content:space-between;align-items:center;width:100%;flex-wrap:nowrap}
@@ -208,7 +208,7 @@
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:50}
 
 /* sidebar open state (drawer) */
-.fp-sidebar.open{position:fixed;left:0;top:0;height:100vh;z-index:60;transform:translateX(0);transition:transform .2s ease;box-shadow:0 12px 40px rgba(0,0,0,0.12);display:flex}
+.fp-sidebar.open{position:fixed;left:0;top:0;height:100%;z-index:60;transform:translateX(0);transition:transform .2s ease;box-shadow:0 12px 40px rgba(0,0,0,0.12);display:flex}
 .fp-sidebar{transition:transform .2s ease}
 
 /* close button inside drawer */
@@ -668,7 +668,7 @@
     position:fixed;
     left:0;
     top:0;
-    height:100vh;
+    height: 100%;;
     width:260px;
     transform:translateX(-100%);
     z-index:60;
@@ -749,7 +749,7 @@
     position:fixed;
     left:0;
     top:0;
-    height:100vh;
+    height: 100%;
     width:260px;
     transform:translateX(-100%);
     z-index:60;
