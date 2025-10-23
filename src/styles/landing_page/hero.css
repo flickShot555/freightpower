@@ -2,7 +2,8 @@
 
 .hero-section {
   position: relative;
-  min-height: 100vh;
+  /* Use a JS-updated --vh to avoid mobile browser 100vh issues */
+  min-height: calc(var(--vh, 1vh) * 100);
   background-color: white;
   /* overflow: hidden; */
 }
