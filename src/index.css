@@ -119,43 +119,6 @@ input:focus {
   text-align: left;
 }
 
-/* Mobile viewport fixes: prefer dynamic viewport units to avoid white gaps when browser chrome resizes */
-html, body, #root {
-  height: 100%;
-  min-height: 100dvh; /* modern browsers */
-  min-height: -webkit-fill-available; /* iOS Safari fallback */
-  min-height: 100vh; /* legacy fallback */
-  background-color: var(--app-bg, #ffffff);
-}
-
-/* Make app root containers respect safe-area insets on iOS devices */
-body {
-  padding-bottom: env(safe-area-inset-bottom);
-  box-sizing: border-box;
-}
-
-/* Ensure primary layout containers fill the dynamic viewport (dashboards/pages) */
-.fp-dashboard-root, .fp-main, .adm-main, .onboarding-main {
-  min-height: 100dvh;
-  min-height: -webkit-fill-available;
-  min-height: 100vh;
-}
-
-/* Aggressive mobile fix: enforce dynamic viewport on key layout containers to avoid white gaps on some phones */
-html, body, #root, .fp-dashboard-root, .fp-main, .fp-content-row, .adm-main, .onboarding-main {
-  height: 100dvh !important;
-  min-height: 100dvh !important;
-  min-height: -webkit-fill-available !important;
-  min-height: 100vh !important;
-  background-color: var(--app-bg, #ffffff) !important;
-}
-
-/* Ensure scrolling respects the visible viewport */
-body, .fp-main, .fp-content-row {
-  overflow-y: auto !important;
-  -webkit-overflow-scrolling: touch;
-}
-
 button {
   font-family: inherit;
   cursor: pointer;
