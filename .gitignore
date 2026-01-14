@@ -23,6 +23,23 @@ dist-ssr
 *.sln
 *.sw?
 
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Env files (keep examples committed)
 .env
-.env.example
+.env.*
+!.env.example
 apps/.env
+apps/.env.*
+!apps/.env.example
+
+# Credentials / service accounts
+apps/serviceAccountkey.json
+serviceAccountkey.json
