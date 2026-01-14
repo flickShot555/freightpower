@@ -1,5 +1,6 @@
 import React from 'react';
 import '../../styles/shipper/TrackingVisibility.css';
+import HereMap from '../common/HereMap';
 
 export default function TrackingVisibility() {
   return (
@@ -39,7 +40,13 @@ export default function TrackingVisibility() {
 
       <div className="tracking-main">
         <div className="map-card">
-          <div className="map-placeholder">Map placeholder (globe)</div>
+          <HereMap
+            containerId="shipper-tracking-map"
+            center={{ lat: 39.8283, lng: -98.5795 }}
+            zoom={4}
+            height="500px"
+            width="100%"
+          />
         </div>
 
         <div className="right-panel">

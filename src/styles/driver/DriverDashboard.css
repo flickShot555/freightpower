@@ -1,3 +1,6 @@
+/* Import carrier dashboard CSS for layout structure */
+@import '../carrier/CarrierDashboard.css';
+
 .dd-service-item i {
   font-size: 2.2rem;
   margin-bottom: 0.5rem;
@@ -211,6 +214,11 @@
 
 .chip.blue {
   background-color: #3b82f6;
+  color: white;
+}
+
+.chip.gray {
+  background-color: #6c757d;
   color: white;
 }
 
@@ -553,8 +561,6 @@ input:not(:checked) + .dd-toggle-slider:before {
   color: #fff;
 }
 /* Driver Dashboard content styles with dd- prefix - uses carrier dashboard layout structure */
-/* Import carrier dashboard CSS for layout structure */
-@import '../carrier/CarrierDashboard.css';
 
 .dd-dark-root .dd-muted,
 .dd-dark-root .dd-nav-item,
@@ -1186,15 +1192,23 @@ input:not(:checked) + .dd-toggle-slider:before {
   padding: 1rem;
   border-radius: 0.5rem;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.3s ease;
+  position: relative;
 }
 
 .dd-service-item:hover {
   background: #f8fafc;
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.dd-service-item:active {
+  transform: translateY(-2px);
 }
 
 .dark-root .dd-service-item:hover {
-  background: #35353547;  
+  background: #35353547;
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.05);
 }
 
 .dd-service-icon {

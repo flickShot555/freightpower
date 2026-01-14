@@ -358,6 +358,15 @@
   background: #28a745;
 }
 
+.mp-status-icon.inactive {
+  background: #6c757d;
+}
+
+.int-status-badge.inactive {
+  background: #6c757d;
+  color: white;
+}
+
 .mp-consent-info {
   display: flex;
   flex-direction: column;
@@ -632,5 +641,436 @@ box-shadow:0 0 0 0.5px #3B57A7,0 4px 8px -5px rgba(0,0,0,0.15)!important;
   }
   .mp-highlights-card{
     grid-column: span 2;
+  }
+}
+
+/* Modal Styles for Service Type Filtering */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 20px;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  width: 100%;
+  animation: slideUp 0.3s ease-out;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.modal-header h2 {
+  margin: 0;
+  color: #1e293b;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+}
+
+.modal-close {
+  background: #f1f5f9;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #64748b;
+  font-size: 1.25rem;
+}
+
+.modal-close:hover {
+  background: #e2e8f0;
+  color: #1e293b;
+  transform: scale(1.05);
+}
+
+.modal-body {
+  padding: 24px;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Dark mode modal styles */
+.dark-root .modal-content {
+  background: #1e293b;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+}
+
+.dark-root .modal-header {
+  border-bottom-color: #334155;
+}
+
+.dark-root .modal-header h2 {
+  color: #f1f5f9;
+}
+
+.dark-root .modal-close {
+  background: #334155;
+  color: #94a3b8;
+}
+
+.dark-root .modal-close:hover {
+  background: #475569;
+  color: #f1f5f9;
+}
+
+/* Button styles - ensure text is always visible */
+.btn.small {
+  color: #1e293b !important;
+  font-weight: 500;
+}
+
+.btn.small-cd {
+  color: #ffffff !important;
+}
+
+/* Dark mode button overrides */
+.dark-root .btn.small {
+  color: #1e293b !important;
+  background: #ffffff;
+}
+
+.dark-root .btn.small:hover {
+  background: #f1f5f9;
+}
+
+/* Filter Modal Styles */
+.filter-modal-content {
+  max-width: 500px;
+}
+
+.filter-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.filter-option {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  background: #f8fafc;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filter-option:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  transform: translateX(4px);
+}
+
+.filter-option-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.filter-checkbox {
+  width: 22px;
+  height: 22px;
+  border: 2px solid #cbd5e1;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  background: #ffffff;
+}
+
+.filter-checkbox.checked {
+  background: #3b82f6;
+  border-color: #3b82f6;
+}
+
+.filter-checkbox i {
+  color: #ffffff;
+  font-size: 12px;
+}
+
+.filter-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.filter-icon.fuel {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  color: #92400e;
+}
+
+.filter-icon.parking {
+  background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
+  color: #6b21a8;
+}
+
+.filter-icon.repair {
+  background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%);
+  color: #9a3412;
+}
+
+.filter-icon.cdl {
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  color: #991b1b;
+}
+
+.filter-icon.training {
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  color: #065f46;
+}
+
+.filter-icon.eld {
+  background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+  color: #3730a3;
+}
+
+.filter-label {
+  font-weight: 600;
+  color: #1e293b;
+  font-size: 15px;
+}
+
+.filter-count {
+  background: #3b82f6;
+  color: #ffffff;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  min-width: 32px;
+  text-align: center;
+}
+
+.filter-actions {
+  display: flex;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid #e2e8f0;
+}
+
+/* Dark mode filter styles */
+.dark-root .filter-option {
+  background: #334155;
+  border-color: #475569;
+}
+
+.dark-root .filter-option:hover {
+  background: #475569;
+  border-color: #64748b;
+}
+
+.dark-root .filter-checkbox {
+  background: #1e293b;
+  border-color: #64748b;
+}
+
+.dark-root .filter-checkbox.checked {
+  background: #3b82f6;
+  border-color: #3b82f6;
+}
+
+.dark-root .filter-label {
+  color: #f1f5f9;
+}
+
+.dark-root .filter-actions {
+  border-top-color: #475569;
+}
+
+/* Horizontal Compact Filter Layout */
+.filter-options-horizontal {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.filter-option-compact {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 8px;
+  background: #f8fafc;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.filter-option-compact:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  transform: translateY(-2px);
+}
+
+.filter-option-compact .filter-checkbox {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #cbd5e1;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  background: #ffffff;
+}
+
+.filter-option-compact .filter-checkbox.checked {
+  background: #3b82f6;
+  border-color: #3b82f6;
+}
+
+.filter-option-compact .filter-checkbox i {
+  color: #ffffff;
+  font-size: 11px;
+}
+
+.filter-option-compact .filter-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+}
+
+.filter-label-compact {
+  font-weight: 600;
+  color: #1e293b;
+  font-size: 13px;
+  text-align: center;
+}
+
+.filter-count-compact {
+  background: #3b82f6;
+  color: #ffffff;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  min-width: 24px;
+  text-align: center;
+}
+
+/* Dark mode compact filters */
+.dark-root .filter-option-compact {
+  background: #334155;
+  border-color: #475569;
+}
+
+.dark-root .filter-option-compact:hover {
+  background: #475569;
+  border-color: #64748b;
+}
+
+.dark-root .filter-option-compact .filter-checkbox {
+  background: #1e293b;
+  border-color: #64748b;
+}
+
+.dark-root .filter-option-compact .filter-checkbox.checked {
+  background: #3b82f6;
+  border-color: #3b82f6;
+}
+
+.dark-root .filter-label-compact {
+  color: #f1f5f9;
+}
+
+/* Favorites button active state */
+.mp-favorites-btn.active {
+  background: #ef4444 !important;
+  color: #ffffff !important;
+  border-color: #ef4444 !important;
+}
+
+.dark-root .mp-favorites-btn.active {
+  background: #ef4444 !important;
+  color: #ffffff !important;
+  border-color: #ef4444 !important;
+}
+
+/* Favorite button hover effect */
+.favorite-btn:hover {
+  transform: scale(1.2);
+}
+
+/* Responsive horizontal filters */
+@media (max-width: 768px) {
+  .filter-options-horizontal {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Responsive modal */
+@media (max-width: 768px) {
+  .modal-content {
+    max-height: 90vh;
+  }
+
+  .modal-header {
+    padding: 16px;
+  }
+
+  .modal-header h2 {
+    font-size: 1.25rem;
+  }
+
+  .modal-body {
+    padding: 16px;
   }
 }

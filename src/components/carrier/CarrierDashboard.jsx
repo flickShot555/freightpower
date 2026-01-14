@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import { API_URL } from '../../config';
 import '../../styles/carrier/CarrierDashboard.css';
 import peopleIcon from '../../assets/ai_driver.svg';
@@ -25,11 +26,18 @@ import resp_logo from '/src/assets/logo_1.png';
 // icon images replaced by Font Awesome icons
 
 export default function CarrierDashboard() {
-  const { currentUser } = useAuth();
-  // Placeholder data to match the design in the attached mock
-  const activeLoads = { inProgress: 8, delivered: 24, completed: 156 };
-  const driversCompliance = { active: 12, expiring: 4, alerts: 1 };
-  const earnings = { week: '$24,580', month: '$98,450', factoring: '$15,200' };
+  const { currentUser, logout } = useAuth();
+  const navigate = useNavigate();
+  
+  // Dashboard stats state
+  const [activeLoads, setActiveLoads] = useState({ inProgress: 0, delivered: 0, completed: 0 });
+  const [driversCompliance, setDriversCompliance] = useState({ active: 0, expiring: 0, alerts: 0 });
+  const [earnings, setEarnings] = useState({ week: '$0', month: '$0', factoring: '$0' });
+  const [expiringDocuments, setExpiringDocuments] = useState([]);
+  const [dashboardLoading, setDashboardLoading] = useState(true);
+  const [marketplaceLoads, setMarketplaceLoads] = useState([]);
+  const [availableDriversCount, setAvailableDriversCount] = useState(0);
+  
   const [activeNav, setActiveNav] = useState('home');
   const [activeMarketplaceSection, setActiveMarketplaceSection] = useState('loads');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -42,6 +50,162 @@ export default function CarrierDashboard() {
   const [complianceScore, setComplianceScore] = useState(null);
   const [dotNumber, setDotNumber] = useState('');
   const [mcNumber, setMcNumber] = useState('');
+  
+  // Modal states
+  const [showReportFraudModal, setShowReportFraudModal] = useState(false);
+  const [showSuggestEditModal, setShowSuggestEditModal] = useState(false);
+  const [reportFraudData, setReportFraudData] = useState({ subject: '', message: '' });
+  const [suggestEditData, setSuggestEditData] = useState({ subject: '', message: '' });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Fetch dashboard data
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      if (!currentUser) {
+        setDashboardLoading(false);
+        return;
+      }
+      
+      try {
+        const token = await currentUser.getIdToken();
+        
+        // Fetch dashboard stats
+        const statsRes = await fetch(`${API_URL}/dashboard/stats`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (statsRes.ok) {
+          const statsData = await statsRes.json();
+          
+          // Update active loads
+          setActiveLoads({
+            inProgress: statsData.active_loads || 0,
+            delivered: statsData.completed_loads || 0,
+            completed: statsData.total_loads || 0
+          });
+          
+          // Calculate earnings (week and month from completed loads)
+          const totalRevenue = statsData.total_revenue || 0;
+          const weekEarnings = totalRevenue * 0.25; // Approximate weekly
+          const monthEarnings = totalRevenue;
+          const factoringAmount = totalRevenue * 0.15; // Approximate factoring
+          
+          setEarnings({
+            week: `$${weekEarnings.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+            month: `$${monthEarnings.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+            factoring: `$${factoringAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+          });
+        }
+        
+        // Fetch drivers data
+        const driversRes = await fetch(`${API_URL}/drivers/my-drivers`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        let driversData = null; // Store for reuse later
+        if (driversRes.ok) {
+          driversData = await driversRes.json();
+          const drivers = driversData.drivers || [];
+          
+          // Count active drivers
+          const activeDrivers = drivers.filter(d => d.status === 'available' || d.status === 'assigned' || d.status === 'on_route').length;
+          
+          // Count expiring licenses (check CDL expiration if available)
+          const expiringLicenses = drivers.filter(d => {
+            if (d.cdl_expiration_date) {
+              const expDate = new Date(d.cdl_expiration_date);
+              const today = new Date();
+              const daysUntilExpiry = Math.ceil((expDate - today) / (1000 * 60 * 60 * 24));
+              return daysUntilExpiry > 0 && daysUntilExpiry <= 90; // Expiring in next 90 days
+            }
+            return false;
+          }).length;
+          
+          // Count safety alerts (drivers with low safety scores or violations)
+          const safetyAlerts = drivers.filter(d => {
+            const safetyScore = d.safety_score || 100;
+            return safetyScore < 80 || d.violations_count > 0;
+          }).length;
+          
+          setDriversCompliance({
+            active: activeDrivers,
+            expiring: expiringLicenses,
+            alerts: safetyAlerts
+          });
+        }
+        
+        // Fetch compliance status for expiring documents
+        const complianceRes = await fetch(`${API_URL}/compliance/status`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (complianceRes.ok) {
+          const cData = await complianceRes.json();
+          
+          // Extract expiring documents from compliance data
+          const expiring = [];
+          if (cData.documents) {
+            cData.documents.forEach(doc => {
+              if (doc.expiration_date) {
+                const expDate = new Date(doc.expiration_date);
+                const today = new Date();
+                const daysUntilExpiry = Math.ceil((expDate - today) / (1000 * 60 * 60 * 24));
+                
+                if (daysUntilExpiry > 0 && daysUntilExpiry <= 30) {
+                  expiring.push({
+                    title: doc.document_type || 'Document',
+                    days: daysUntilExpiry,
+                    type: daysUntilExpiry <= 7 ? 'pink' : daysUntilExpiry <= 14 ? 'yellow' : 'blue'
+                  });
+                }
+              }
+            });
+          }
+          
+          // Sort by days until expiry
+          expiring.sort((a, b) => a.days - b.days);
+          setExpiringDocuments(expiring.slice(0, 3)); // Show top 3
+        }
+        
+        // Fetch marketplace loads for snapshot
+        try {
+          const loadsRes = await fetch(`${API_URL}/loads`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (loadsRes.ok) {
+            const loadsData = await loadsRes.json();
+            const loads = loadsData.loads || [];
+            // Get latest 2 loads that are posted/available
+            const availableLoads = loads
+              .filter(l => l.status === 'posted' || l.status === 'available')
+              .sort((a, b) => (b.created_at || 0) - (a.created_at || 0))
+              .slice(0, 2);
+            setMarketplaceLoads(availableLoads);
+          }
+        } catch (error) {
+          console.error('Error fetching marketplace loads:', error);
+        }
+        
+        // Get available drivers count from already fetched drivers data
+        // Count drivers who are available (not on trip)
+        if (driversData) {
+          const drivers = driversData.drivers || [];
+          const availDrivers = drivers.filter(d => 
+            (d.status === 'available' || !d.status) && 
+            d.is_available === true
+          );
+          setAvailableDriversCount(availDrivers.length);
+        }
+        
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+      } finally {
+        setDashboardLoading(false);
+      }
+    };
+    
+    fetchDashboardData();
+  }, [currentUser]);
 
   // Fetch onboarding data on mount
   useEffect(() => {
@@ -136,10 +300,123 @@ export default function CarrierDashboard() {
       title: 'SYSTEM',
       items: [
         { key: 'settings', label: 'Settings', icon: 'fa-solid fa-gear' },
-        { key: 'help', label: 'Help Hub', icon: 'fa-regular fa-circle-question' }
+        { key: 'help', label: 'Help Hub', icon: 'fa-regular fa-circle-question' },
+        { key: 'logout', label: 'Logout', icon: 'fa-solid fa-right-from-bracket' }
       ]
     }
   ];
+
+  // Handle logout
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/login');
+    } catch (error) {
+      console.error('Error logging out:', error);
+    }
+  };
+
+  // Handle navigation click
+  const handleNavClick = (key) => {
+    if (key === 'logout') {
+      handleLogout();
+    } else {
+      setActiveNav(key);
+      if (isSidebarOpen) setIsSidebarOpen(false);
+    }
+  };
+
+  // Handle Report Fraud
+  const handleReportFraud = (e) => {
+    e?.preventDefault?.();
+    e?.stopPropagation?.();
+    setShowReportFraudModal(true);
+  };
+
+  const handleSubmitReportFraud = async () => {
+    if (!reportFraudData.message.trim()) {
+      alert('Please enter a message');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const token = await currentUser.getIdToken();
+      const response = await fetch(`${API_URL}/report-fraud`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          subject: reportFraudData.subject || undefined,
+          message: reportFraudData.message,
+          user_email: currentUser.email,
+          user_name: currentUser.displayName || currentUser.email?.split('@')[0]
+        })
+      });
+
+      if (response.ok) {
+        alert('Fraud report submitted successfully!');
+        setReportFraudData({ subject: '', message: '' });
+        setShowReportFraudModal(false);
+      } else {
+        const error = await response.json();
+        alert(`Error: ${error.detail || 'Failed to submit fraud report'}`);
+      }
+    } catch (error) {
+      console.error('Error submitting fraud report:', error);
+      alert('Failed to submit fraud report. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Handle Suggest Edit
+  const handleSuggestEdit = (e) => {
+    e?.preventDefault?.();
+    e?.stopPropagation?.();
+    setShowSuggestEditModal(true);
+  };
+
+  const handleSubmitSuggestEdit = async () => {
+    if (!suggestEditData.message.trim()) {
+      alert('Please enter a suggestion');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const token = await currentUser.getIdToken();
+      const response = await fetch(`${API_URL}/suggest-edit`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          subject: suggestEditData.subject || undefined,
+          message: suggestEditData.message,
+          user_email: currentUser.email,
+          user_name: currentUser.displayName || currentUser.email?.split('@')[0]
+        })
+      });
+
+      if (response.ok) {
+        alert('Edit suggestion submitted successfully!');
+        setSuggestEditData({ subject: '', message: '' });
+        setShowSuggestEditModal(false);
+      } else {
+        const error = await response.json();
+        alert(`Error: ${error.detail || 'Failed to submit edit suggestion'}`);
+      }
+    } catch (error) {
+      console.error('Error submitting edit suggestion:', error);
+      alert('Failed to submit edit suggestion. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   // Small router for the inner content area so the sidebar & topbar remain mounted
   function HomeView() {
@@ -187,7 +464,13 @@ export default function CarrierDashboard() {
               {!companyProfile.onboarding_completed && (
                 <div style={{ marginTop: '16px', padding: '12px', background: '#fef3c7', borderRadius: '8px', color: '#92400e' }}>
                   <i className="fa-solid fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
-                  Onboarding not complete. <a href="/carrier-onboarding" style={{ color: '#1d4ed8', textDecoration: 'underline' }}>Complete now</a>
+                  Onboarding not complete.{' '}
+                  <span 
+                    onClick={() => setActiveNav('settings')}
+                    style={{ color: '#1d4ed8', textDecoration: 'underline', cursor: 'pointer' }}
+                  >
+                    Complete now
+                  </span>
                 </div>
               )}
             </div>
@@ -203,9 +486,9 @@ export default function CarrierDashboard() {
               <i className="fa-solid fa-truck cd-card-icon small" aria-hidden="true" />
             </div>
             <div className="stats">
-              <div>In Progress <span>{activeLoads.inProgress}</span></div>
-              <div>Delivered <span>{activeLoads.delivered}</span></div>
-              <div>Completed <span>{activeLoads.completed}</span></div>
+              <div>In Progress <span>{dashboardLoading ? '...' : (activeLoads.inProgress || '-')}</span></div>
+              <div>Delivered <span>{dashboardLoading ? '...' : (activeLoads.delivered || '-')}</span></div>
+              <div>Completed <span>{dashboardLoading ? '...' : (activeLoads.completed || '-')}</span></div>
             </div>
           </div>
 
@@ -215,9 +498,9 @@ export default function CarrierDashboard() {
               <i className="fa-solid fa-people-group cd-card-icon small" aria-hidden="true" />
             </div>
             <div className="stats">
-              <div>Active Drivers <span>{driversCompliance.active}</span></div>
-              <div>Expiring Licenses <span>{driversCompliance.expiring}</span></div>
-              <div>Safety Alerts <span>{driversCompliance.alerts}</span></div>
+              <div>Active Drivers <span>{dashboardLoading ? '...' : (driversCompliance.active || '-')}</span></div>
+              <div>Expiring Licenses <span>{dashboardLoading ? '...' : (driversCompliance.expiring || '-')}</span></div>
+              <div>Safety Alerts <span>{dashboardLoading ? '...' : (driversCompliance.alerts || '-')}</span></div>
             </div>
           </div>
 
@@ -227,15 +510,18 @@ export default function CarrierDashboard() {
               <i className="fa-solid fa-triangle-exclamation cd-card-icon small" aria-hidden="true" />
             </div>
             <div className="expiring-list">
-              <div className="exp-item pill yellow">
-                <span className="exp-title">Insurance</span>
-                <span className="exp-days yellow">12 days</span>
-              </div>
-
-              <div className="exp-item pill pink">
-                <span className="exp-title">Authority</span>
-                <span className="exp-days pink">3 days</span>
-              </div>
+              {dashboardLoading ? (
+                <div style={{ padding: '8px', textAlign: 'center', color: '#6b7280' }}>Loading...</div>
+              ) : expiringDocuments.length > 0 ? (
+                expiringDocuments.map((doc, index) => (
+                  <div key={index} className={`exp-item pill ${doc.type}`}>
+                    <span className="exp-title">{doc.title}</span>
+                    <span className={`exp-days ${doc.type}`}>{doc.days} {doc.days === 1 ? 'day' : 'days'}</span>
+                  </div>
+                ))
+              ) : (
+                <div style={{ padding: '8px', textAlign: 'center', color: '#6b7280', fontSize: '14px' }}>No expiring documents</div>
+              )}
             </div>
           </div>
 
@@ -256,9 +542,9 @@ export default function CarrierDashboard() {
               <i className="fa-solid fa-dollar-sign cd-card-icon small" aria-hidden="true" />
             </div>
             <div className="stats earnings-stats">
-              <div>This Week <span className="green">{earnings.week}</span></div>
-              <div>This Month <span className="green">{earnings.month}</span></div>
-              <div>Factoring Funded <span className="blue">{earnings.factoring}</span></div>
+              <div>This Week <span className="green">{dashboardLoading ? '...' : earnings.week}</span></div>
+              <div>This Month <span className="green">{dashboardLoading ? '...' : earnings.month}</span></div>
+              <div>Factoring Funded <span className="blue">{dashboardLoading ? '...' : earnings.factoring}</span></div>
             </div>
           </div>
 
@@ -324,32 +610,43 @@ export default function CarrierDashboard() {
             <div className="market-grid">
               <div className="market-col loads">
                 <h4 className="col-title">Available Loads</h4>
-                <div className="load-item">
-                  <div className="load-left">
-                    <div className="load-route">Chicago, IL 00212 Dallas, TX</div>
-                    <div className="load-sub muted">TQL Logistics</div>
-                  </div>
-                  <div className="load-right">
-                    <div className="price green">$2,450</div>
-                    <div className="pickup muted">Pickup: Tomorrow</div>
-                  </div>
-                </div>
-
-                <div className="load-item">
-                  <div className="load-left">
-                    <div className="load-route">Atlanta, GA 00212 Miami, FL</div>
-                    <div className="load-sub muted">Landstar</div>
-                  </div>
-                  <div className="load-right">
-                    <div className="price green">$1,850</div>
-                    <div className="pickup muted">Pickup: Today</div>
-                  </div>
-                </div>
+                {dashboardLoading ? (
+                  <div style={{ padding: '16px', textAlign: 'center', color: '#6b7280' }}>Loading...</div>
+                ) : marketplaceLoads.length > 0 ? (
+                  marketplaceLoads.map((load, index) => {
+                    const origin = typeof load.origin === 'string' ? load.origin : (load.origin?.city ? `${load.origin.city}, ${load.origin.state}` : 'Origin');
+                    const destination = typeof load.destination === 'string' ? load.destination : (load.destination?.city ? `${load.destination.city}, ${load.destination.state}` : 'Destination');
+                    const rate = load.total_rate || load.linehaul_rate || load.rate || 0;
+                    const pickupDate = load.pickup_date || 'TBD';
+                    
+                    return (
+                      <div 
+                        key={index} 
+                        className="load-item"
+                        onClick={() => { setActiveMarketplaceSection('loads'); setActiveNav('marketplace'); }}
+                        style={{ cursor: 'pointer', transition: 'background 0.2s' }}
+                        onMouseEnter={(e) => e.currentTarget.style.background = '#f8fafc'}
+                        onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                      >
+                        <div className="load-left">
+                          <div className="load-route">{origin} → {destination}</div>
+                          <div className="load-sub muted">{load.load_id || 'Load'}</div>
+                        </div>
+                        <div className="load-right">
+                          <div className="price green">${rate}</div>
+                          <div className="pickup muted">Pickup: {pickupDate}</div>
+                        </div>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div style={{ padding: '16px', textAlign: 'center', color: '#6b7280', fontSize: '14px' }}>No available loads</div>
+                )}
               </div>
 
               <div className="market-col drivers">
                 <h4 className="col-title">Available Drivers</h4>
-                <div className="driver-count">5</div>
+                <div className="driver-count">{dashboardLoading ? '...' : (availableDriversCount || '-')}</div>
                 <div className="driver-sub muted">Drivers ready for hire</div>
                 <button className="btn small green-btn" onClick={() => { setActiveMarketplaceSection('drivers'); setActiveNav('marketplace'); }}>View Candidates</button>
               </div>
@@ -492,9 +789,9 @@ export default function CarrierDashboard() {
 
           <div className="topbar-right actions-right">
             <div className="actions">
-              <button className="btn small-cd"><i className="fa-solid fa-link"/> Connect</button>
-              <button className="btn ghost-cd small"><i className="fa-solid fa-triangle-exclamation"/> Report Fraud</button>
-              <button className="btn ghost-cd small"><i className="fa-solid fa-pen"/> Suggest Edit</button>
+              <button type="button" className="btn small-cd"><i className="fa-solid fa-link"/> Connect</button>
+              <button type="button" className="btn ghost-cd small" onClick={handleReportFraud}><i className="fa-solid fa-triangle-exclamation"/> Report Fraud</button>
+              <button type="button" className="btn ghost-cd small" onClick={handleSuggestEdit}><i className="fa-solid fa-pen"/> Suggest Edit</button>
             </div>
             {/* mobile-only icons in the first row: visible on small screens */}
             <div className="icons-mobile">
@@ -606,11 +903,15 @@ export default function CarrierDashboard() {
                     className={`nav-item ${activeNav === it.key ? 'active' : ''}`}
                     key={it.key}
                     onClick={() => { 
-                      setActiveNav(it.key);
-                      if (it.key === 'marketplace') {
-                        setActiveMarketplaceSection('loads');
+                      if (it.key === 'logout') {
+                        handleLogout();
+                      } else {
+                        setActiveNav(it.key);
+                        if (it.key === 'marketplace') {
+                          setActiveMarketplaceSection('loads');
+                        }
+                        if (isSidebarOpen) setIsSidebarOpen(false);
                       }
-                      if (isSidebarOpen) setIsSidebarOpen(false); 
                     }}
                     role="button"
                     tabIndex={0}
@@ -637,9 +938,9 @@ export default function CarrierDashboard() {
         </div>
         {/* action buttons in the mobile drawer */}
         <div className="sidebar-actions">
-          <button className="btn small-cd"><i className="fa-solid fa-link"/> Connect</button>
-          <button className="btn ghost-cd small"><i className="fa-solid fa-triangle-exclamation"/> Report Fraud</button>
-          <button className="btn ghost-cd small subtle"><i className="fa-solid fa-pen"/> Suggest Edit</button>
+          <button type="button" className="btn small-cd"><i className="fa-solid fa-link"/> Connect</button>
+          <button type="button" className="btn ghost-cd small" onClick={handleReportFraud}><i className="fa-solid fa-triangle-exclamation"/> Report Fraud</button>
+          <button type="button" className="btn ghost-cd small subtle" onClick={handleSuggestEdit}><i className="fa-solid fa-pen"/> Suggest Edit</button>
         </div>
         <button className="sidebar-close" aria-label="Close sidebar" onClick={() => setIsSidebarOpen(false)}>
           <i className="fa-solid fa-xmark" />
@@ -652,6 +953,100 @@ export default function CarrierDashboard() {
         <ContentView activeNav={activeNav} />
       </main>
       </div>
+
+      {/* Report Fraud Modal */}
+      {showReportFraudModal && (
+        <div className="modal-overlay" onClick={() => !isSubmitting && setShowReportFraudModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2><i className="fa-solid fa-triangle-exclamation" style={{ marginRight: '8px', color: '#dc2626' }}></i>Report Fraud</h2>
+              <button type="button" className="modal-close" onClick={() => !isSubmitting && setShowReportFraudModal(false)} disabled={isSubmitting}>
+                <i className="fa-solid fa-xmark" />
+              </button>
+            </div>
+            <div className="modal-body">
+              <div className="form-group">
+                <label htmlFor="fraud-subject">Subject (Optional)</label>
+                <input
+                  type="text"
+                  id="fraud-subject"
+                  value={reportFraudData.subject}
+                  onChange={(e) => setReportFraudData({ ...reportFraudData, subject: e.target.value })}
+                  placeholder="Brief description of the issue"
+                  disabled={isSubmitting}
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="fraud-message">Message <span style={{ color: '#dc2626' }}>*</span></label>
+                <textarea
+                  id="fraud-message"
+                  value={reportFraudData.message}
+                  onChange={(e) => setReportFraudData({ ...reportFraudData, message: e.target.value })}
+                  placeholder="Please provide details about the fraud or suspicious activity..."
+                  rows={6}
+                  required
+                  disabled={isSubmitting}
+                />
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button type="button" className="btn ghost-cd" onClick={() => setShowReportFraudModal(false)} disabled={isSubmitting}>
+                Cancel
+              </button>
+              <button type="button" className="btn primary" onClick={handleSubmitReportFraud} disabled={isSubmitting || !reportFraudData.message.trim()}>
+                {isSubmitting ? 'Submitting...' : 'Submit Report'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Suggest Edit Modal */}
+      {showSuggestEditModal && (
+        <div className="modal-overlay" onClick={() => !isSubmitting && setShowSuggestEditModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2><i className="fa-solid fa-pen" style={{ marginRight: '8px', color: '#2563eb' }}></i>Suggest Edit</h2>
+              <button type="button" className="modal-close" onClick={() => !isSubmitting && setShowSuggestEditModal(false)} disabled={isSubmitting}>
+                <i className="fa-solid fa-xmark" />
+              </button>
+            </div>
+            <div className="modal-body">
+              <div className="form-group">
+                <label htmlFor="edit-subject">Subject (Optional)</label>
+                <input
+                  type="text"
+                  id="edit-subject"
+                  value={suggestEditData.subject}
+                  onChange={(e) => setSuggestEditData({ ...suggestEditData, subject: e.target.value })}
+                  placeholder="Brief description of your suggestion"
+                  disabled={isSubmitting}
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="edit-message">Suggestion <span style={{ color: '#dc2626' }}>*</span></label>
+                <textarea
+                  id="edit-message"
+                  value={suggestEditData.message}
+                  onChange={(e) => setSuggestEditData({ ...suggestEditData, message: e.target.value })}
+                  placeholder="Please describe your suggestion or edit..."
+                  rows={6}
+                  required
+                  disabled={isSubmitting}
+                />
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button type="button" className="btn ghost-cd" onClick={() => setShowSuggestEditModal(false)} disabled={isSubmitting}>
+                Cancel
+              </button>
+              <button type="button" className="btn primary" onClick={handleSubmitSuggestEdit} disabled={isSubmitting || !suggestEditData.message.trim()}>
+                {isSubmitting ? 'Submitting...' : 'Submit Suggestion'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

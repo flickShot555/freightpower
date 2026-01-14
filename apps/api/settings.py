@@ -14,10 +14,26 @@ class Settings(BaseSettings):
     DATA_DIR: str = Field(default=os.getenv("DATA_DIR", "./data"))
     APP_HOST: str = Field(default=os.getenv("APP_HOST", "0.0.0.0"))
     APP_PORT: int = Field(default=int(os.getenv("APP_PORT", "8000")))
+    API_BASE_URL: str = Field(default=os.getenv("API_BASE_URL", "http://localhost:8000"))
     FMCSA_BASE_URL: str = Field(default=os.getenv("FMCSA_BASE_URL", "https://mobile.fmcsa.dot.gov/qc/services"))
     FMCSA_API_KEY: str = Field(default=os.getenv("FMCSA_API_KEY", ""))
     FMCSA_WEB_KEY: str = Field(default=os.getenv("FMCSA_WEB_KEY", ""))
     ALERT_WEBHOOK_URL: str = Field(default=os.getenv("ALERT_WEBHOOK_URL", ""))
+    
+    # Email settings
+    SMTP_SERVER: str = Field(default=os.getenv("SMTP_SERVER", "smtp.gmail.com"))
+    SMTP_PORT: int = Field(default=int(os.getenv("SMTP_PORT", "587")))
+    SMTP_USERNAME: str = Field(default=os.getenv("SMTP_USERNAME", ""))
+    SMTP_PASSWORD: str = Field(default=os.getenv("SMTP_PASSWORD", ""))
+    EMAIL_FROM: str = Field(default=os.getenv("EMAIL_FROM", "noreply@freightpower.ai"))
+    ADMIN_EMAIL: str = Field(default=os.getenv("ADMIN_EMAIL", "freightpowerai@gmail.com"))  # Email for fraud reports and edit suggestions
+    
+    # HERE Maps API settings
+    HERE_API_KEY_BACKEND: str = Field(default=os.getenv("HERE_API_KEY_BACKEND", "FMFVzQgeOW8PvMnWkWHj"))
+    HERE_API_KEY_FRONTEND: str = Field(default=os.getenv("HERE_API_KEY_FRONTEND", "kjjMfJtDGJMWfi63U4RO"))
+    
+    # Geoapify Places API settings (for development)
+    GEOAPIFY_API_KEY: str = Field(default=os.getenv("GEOAPIFY_API_KEY", ""))
 
     class Config:
         env_file = ".env"

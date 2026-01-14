@@ -108,22 +108,29 @@ async def get_coach_status(
 async def get_onboarding_data(
     user: Dict[str, Any] = Depends(get_current_user)
 ) -> Dict[str, Any]:
-    """Get current user's onboarding profile data including DOT/MC numbers."""
+    """Get current user's onboarding profile data including DOT/MC numbers and availability status."""
     return {
         "data": {
             "email": user.get("email"),
-            "fullName": user.get("name"),
+            "fullName": user.get("name") or user.get("full_name"),
             "firstName": user.get("first_name"),
             "lastName": user.get("last_name"),
             "companyName": user.get("company_name"),
             "dotNumber": user.get("dot_number"),
             "mcNumber": user.get("mc_number"),
             "phone": user.get("phone"),
+            "address": user.get("address"),
             "role": user.get("role", "carrier"),
+            "profile_picture_url": user.get("profile_picture_url"),
+            "emergency_contact_name": user.get("emergency_contact_name"),
+            "emergency_contact_relationship": user.get("emergency_contact_relationship"),
+            "emergency_contact_phone": user.get("emergency_contact_phone"),
             "onboarding_completed": user.get("onboarding_completed", False),
             "onboarding_step": user.get("onboarding_step", "WELCOME"),
             "onboarding_score": user.get("onboarding_score", 0),
-        }
+        },
+        "is_available": user.get("is_available", False),
+        "marketplace_views_count": user.get("marketplace_views_count", 0)
     }
 
 
@@ -352,6 +359,54 @@ async def update_profile_with_data(
         raise HTTPException(
             status_code=500, 
             detail=f"Failed to update profile: {str(e)}"
+        )
+
+
+@router.post("/update")
+async def update_onboarding_data(
+    payload: dict,
+    user: Dict[str, Any] = Depends(get_current_user)
+) -> Dict[str, Any]:
+    """
+    Update onboarding data - overwrites specified fields.
+    Used by Account Settings to save profile changes.
+    """
+    try:
+        uid = user['uid']
+        onboarding_ref = db.collection("onboarding").document(uid)
+        
+        # Get existing document
+        onboarding_doc = onboarding_ref.get()
+        
+        if not onboarding_doc.exists:
+            # Create new document if doesn't exist
+            onboarding_ref.set({
+                **payload,
+                "user_id": uid,
+                "created_at": firestore.SERVER_TIMESTAMP,
+                "updated_at": firestore.SERVER_TIMESTAMP
+            })
+        else:
+            # Update existing document
+            update_data = {
+                **payload,
+                "updated_at": firestore.SERVER_TIMESTAMP
+            }
+            onboarding_ref.update(update_data)
+        
+        print(f"✅ Onboarding data updated for user {uid}")
+        
+        return {
+            "success": True,
+            "message": "Onboarding data updated successfully"
+        }
+    except Exception as e:
+        print(f"Error updating onboarding data: {e}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(
+            status_code=500, 
+            detail=f"Failed to update onboarding data: {str(e)}"
         )
 
 

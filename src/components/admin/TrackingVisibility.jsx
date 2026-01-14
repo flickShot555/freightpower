@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import '../../styles/admin/TrackingVisibility.css';
+import HereMap from '../common/HereMap';
 
 export default function TrackingVisibility() {
   const [activeTab, setActiveTab] = useState('all');
@@ -67,7 +68,13 @@ export default function TrackingVisibility() {
       <div className="tracking-grid">
         <div className="map-card card">
           <div className="card-row"><h3>Live Map</h3></div>
-          <div className="map-placeholder">Map area (placeholder)</div>
+          <HereMap
+            containerId="admin-tracking-map"
+            center={{ lat: 39.8283, lng: -98.5795 }}
+            zoom={4}
+            height="500px"
+            width="100%"
+          />
         </div>
 
         <aside className="feed-card card">
