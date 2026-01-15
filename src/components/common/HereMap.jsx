@@ -133,6 +133,15 @@ export default function HereMap({
         return;
       }
 
+      if (!HERE_API_KEY_FRONTEND) {
+        const msg = 'Missing HERE API key. Set VITE_HERE_API_KEY_FRONTEND in the Vite .env and restart the frontend dev server.';
+        console.error(msg);
+        if (isMounted) {
+          setLoadingError(msg);
+        }
+        return;
+      }
+
       try {
         const platform = new window.H.service.Platform({
           apikey: HERE_API_KEY_FRONTEND

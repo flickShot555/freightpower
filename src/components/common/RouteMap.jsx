@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import HereMap from './HereMap';
 import { API_URL } from '../../config';
 import { useAuth } from '../../contexts/AuthContext';
@@ -35,6 +35,28 @@ export default function RouteMap({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const containerIdRef = useRef(`route-map-${Math.random().toString(36).substr(2, 9)}`);
+  const onRouteCalculatedRef = useRef(onRouteCalculated);
+
+  useEffect(() => {
+    onRouteCalculatedRef.current = onRouteCalculated;
+  }, [onRouteCalculated]);
+
+  const waypointsKey = useMemo(() => {
+    const normalized = (Array.isArray(waypoints) ? waypoints : [])
+      .map((wp) => {
+        if (!wp) return '';
+        if (typeof wp === 'string') return wp.trim();
+        if (typeof wp === 'object') {
+          if (typeof wp.lat === 'number' && typeof wp.lng === 'number') {
+            return `${wp.lat},${wp.lng}`;
+          }
+          if (typeof wp.location === 'string') return wp.location.trim();
+        }
+        return '';
+      })
+      .filter(Boolean);
+    return normalized.join('|');
+  }, [waypoints]);
 
   useEffect(() => {
     if (!origin || !destination) {
@@ -44,6 +66,9 @@ export default function RouteMap({
     const fetchRoute = async () => {
       setLoading(true);
       setError(null);
+
+      let hasFallbackMarkers = false;
+      const abortController = new AbortController();
 
       try {
         const token = await currentUser?.getIdToken();
@@ -66,7 +91,6 @@ export default function RouteMap({
         const destCoords = parseCoords(destination);
 
         // If we have coordinates, set markers immediately (fallback)
-        let hasFallbackMarkers = false;
         if (originCoords && destCoords) {
           const fallbackMarkers = [
             {
@@ -86,16 +110,31 @@ export default function RouteMap({
           hasFallbackMarkers = true;
         }
 
+        const cleanWaypoints = (Array.isArray(waypoints) ? waypoints : [])
+          .map((wp) => {
+            if (!wp) return null;
+            if (typeof wp === 'string') return wp.trim() || null;
+            if (typeof wp === 'object') {
+              if (typeof wp.lat === 'number' && typeof wp.lng === 'number') {
+                return `${wp.lat},${wp.lng}`;
+              }
+              if (typeof wp.location === 'string') return wp.location.trim() || null;
+            }
+            return null;
+          })
+          .filter(Boolean);
+
         const response = await fetch(`${API_URL}/maps/route`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
           },
+          signal: abortController.signal,
           body: JSON.stringify({
             origin,
             destination,
-            waypoints: waypoints.length > 0 ? waypoints : undefined,
+            waypoints: cleanWaypoints.length > 0 ? cleanWaypoints : undefined,
             transport_mode: 'truck',
             truck_type: truckType,
             return_polyline: true
@@ -152,9 +191,7 @@ export default function RouteMap({
         setMarkers(newMarkers);
         setPolyline(data.polyline);
 
-        if (onRouteCalculated) {
-          onRouteCalculated(data);
-        }
+        onRouteCalculatedRef.current?.(data);
       } catch (err) {
         console.error('Error fetching route:', err);
         // Don't set error if we have fallback markers to show
@@ -168,10 +205,16 @@ export default function RouteMap({
       } finally {
         setLoading(false);
       }
+
+      return () => abortController.abort();
     };
 
-    fetchRoute();
-  }, [origin, destination, waypoints, truckType, currentUser, onRouteCalculated]);
+    const cleanupPromise = fetchRoute();
+    return () => {
+      // best-effort abort in case fetchRoute started a request
+      if (typeof cleanupPromise === 'function') cleanupPromise();
+    };
+  }, [origin, destination, truckType, currentUser, waypointsKey]);
 
   // Calculate center from route if not provided
   const mapCenter = center || (markers.length > 0 

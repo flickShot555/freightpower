@@ -52,6 +52,16 @@ export default function Marketplace({ activeSection, setActiveSection }) {
   // Map popup state
   const [hoveredLoadId, setHoveredLoadId] = useState(null)
   const [popupPosition, setPopupPosition] = useState({ x: 0, y: 0 })
+  const [hoverRouteByLoadId, setHoverRouteByLoadId] = useState({})
+
+  const getTruckTypeFromEquipmentLabel = (label) => {
+    const normalized = String(label || '').toLowerCase();
+    if (normalized.includes('reefer')) return 'reefer';
+    if (normalized.includes('flat')) return 'flatbed';
+    if (normalized.includes('step')) return 'stepdeck';
+    if (normalized.includes('power')) return 'powerOnly';
+    return 'dryVan';
+  }
 
   // Check onboarding status AND consent eligibility to gate marketplace
   useEffect(() => {
@@ -818,7 +828,12 @@ export default function Marketplace({ activeSection, setActiveSection }) {
                         >
                           <div className="map-popup-content">
                             <div className="map-popup-header">
-                              <span>{load.origin} → {load.destination}</span>
+                              <span>
+                                {load.origin} → {load.destination}
+                                {hoverRouteByLoadId?.[load.id]?.distance_miles != null && (
+                                  <> • {Number(hoverRouteByLoadId[load.id].distance_miles).toFixed(1)} mi</>
+                                )}
+                              </span>
                               <button 
                                 className="map-popup-close"
                                 onClick={() => setHoveredLoadId(null)}
@@ -829,19 +844,18 @@ export default function Marketplace({ activeSection, setActiveSection }) {
                             </div>
                             <div className="map-popup-body">
                               <RouteMap
-                                origin={
-                                  load.origin_lat && load.origin_lng 
-                                    ? `${load.origin_lat},${load.origin_lng}`
-                                    : load.origin
-                                }
-                                destination={
-                                  load.destination_lat && load.destination_lng
-                                    ? `${load.destination_lat},${load.destination_lng}`
-                                    : load.destination
-                                }
+                                origin={load.origin}
+                                destination={load.destination}
                                 waypoints={load.additional_routes?.map(r => r.location) || []}
+                                truckType={getTruckTypeFromEquipmentLabel(load.carrier)}
                                 height="300px"
                                 width="400px"
+                                onRouteCalculated={(data) => {
+                                  setHoverRouteByLoadId((prev) => ({
+                                    ...prev,
+                                    [load.id]: data
+                                  }))
+                                }}
                               />
                             </div>
                           </div>

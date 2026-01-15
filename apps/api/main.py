@@ -2160,6 +2160,18 @@ async def update_driver_availability(
                 "availability_updated_at": time.time(),
                 "updated_at": time.time()
             })
+
+        # Keep users profile in sync so availability persists across sessions/UI reloads
+        # (Most frontend profile fetches read from the users collection.)
+        try:
+            db.collection("users").document(driver_id).update({
+                "is_available": request.is_available,
+                "availability_updated_at": time.time(),
+                "updated_at": time.time()
+            })
+        except Exception as e:
+            # Non-fatal: driver availability is still persisted in drivers collection
+            print(f"Warning: failed to sync users.is_available for {driver_id}: {e}")
         
         # Also update onboarding data if exists
         onboarding_ref = db.collection("onboarding").document(driver_id)

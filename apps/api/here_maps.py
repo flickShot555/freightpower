@@ -114,7 +114,10 @@ class HereMapsClient:
             destination: Destination address or "lat,lng"
             waypoints: Optional list of waypoint addresses
             transport_mode: "truck", "car", etc.
-            truck_type: "dryVan", "reefer", "flatbed", etc.
+            truck_type: Truck type hint.
+                NOTE: The frontend currently sends equipment-style values (e.g. "dryVan", "reefer", "flatbed").
+                Those are not valid HERE Routing v8 truckType values, so they are ignored unless they match
+                a supported HERE value.
             height: Truck height in meters
             width: Truck width in meters
             length: Truck length in meters
@@ -153,60 +156,45 @@ class HereMapsClient:
                     if wp_coords:
                         waypoint_coords.append(wp_coords)
             
-            # Build routing request
-            origins = [{"lat": float(origin_coords.split(",")[0]), "lng": float(origin_coords.split(",")[1])}]
-            destinations = [{"lat": float(dest_coords.split(",")[0]), "lng": float(dest_coords.split(",")[1])}]
-            
-            # Add waypoints as intermediate destinations
-            if waypoint_coords:
-                for wp in waypoint_coords:
-                    lat, lng = wp.split(",")
-                    destinations.insert(-1, {"lat": float(lat), "lng": float(lng)})
-            
-            routing_params = {
-                "origin": origins[0],
-                "destination": destinations[-1],
-                "transportMode": transport_mode,
-                "return": "polyline,summary,actions,instructions" if return_polyline else "summary"
-            }
-            
-            # Add truck-specific parameters
+            # HERE Routing v8 is most reliable via GET query parameters.
+            # Using JSON POST bodies can lead to 400 Bad Request depending on the schema.
+            params: List[Tuple[str, str]] = [
+                ("apiKey", self.api_key),
+                ("origin", origin_coords),
+                ("destination", dest_coords),
+                ("transportMode", transport_mode),
+                ("return", "polyline,summary,actions,instructions" if return_polyline else "summary"),
+            ]
+
+            # Add intermediate via points (repeatable param)
+            for wp in waypoint_coords:
+                params.append(("via", wp))
+
+            # Truck-specific parameters (query param form)
             if transport_mode == "truck":
-                truck_options = {}
-                if truck_type:
-                    truck_options["truckType"] = truck_type
-                if height:
-                    truck_options["shippedHazardousGoods"] = ["height"] if not hazmat else ["height", "explosive"]
-                    truck_options["height"] = height
-                if width:
-                    truck_options["width"] = width
-                if length:
-                    truck_options["length"] = length
-                if weight:
-                    truck_options["weight"] = weight * 1000  # Convert tons to kg
+                normalized_truck_type = self._normalize_here_truck_type(truck_type)
+                if normalized_truck_type:
+                    params.append(("truck[truckType]", normalized_truck_type))
+                if height is not None:
+                    params.append(("truck[height]", str(height)))
+                if width is not None:
+                    params.append(("truck[width]", str(width)))
+                if length is not None:
+                    params.append(("truck[length]", str(length)))
+                if weight is not None:
+                    # Keep existing convention: weight is provided in tons; HERE expects kg.
+                    params.append(("truck[weight]", str(weight * 1000)))
                 if hazmat:
-                    truck_options["shippedHazardousGoods"] = ["explosive"]
-                
-                if truck_options:
-                    routing_params["truck"] = truck_options
-            
-            # Add waypoints if present
-            if waypoint_coords:
-                routing_params["via"] = [{"lat": float(wp.split(",")[0]), "lng": float(wp.split(",")[1])} 
-                                       for wp in waypoint_coords]
-            
-            # Make API request
-            headers = {
-                "Content-Type": "application/json"
-            }
-            response = requests.post(
-                self.ROUTING_URL,
-                json=routing_params,
-                headers=headers,
-                params={"apiKey": self.api_key},
-                timeout=30
-            )
-            response.raise_for_status()
+                    params.append(("truck[shippedHazardousGoods]", "explosive"))
+
+            response = requests.get(self.ROUTING_URL, params=params, timeout=30)
+            try:
+                response.raise_for_status()
+            except requests.exceptions.HTTPError as e:
+                # Surface HERE's response body for easier debugging
+                print(f"HERE routing error status={response.status_code}: {response.text}")
+                raise e
+
             data = response.json()
             
             if not data.get("routes"):
@@ -253,6 +241,37 @@ class HereMapsClient:
                 "polyline": None,
                 "error": str(e)
             }
+
+    @staticmethod
+    def _normalize_here_truck_type(truck_type: Optional[str]) -> Optional[str]:
+        """Normalize truck type to HERE Routing v8 supported values.
+
+        The product uses equipment strings like "dryVan"/"reefer"/"flatbed" in multiple places.
+        Those are not vehicle truckType values for HERE routing; sending them can trigger 400s.
+        """
+        if not truck_type:
+            return None
+
+        raw = str(truck_type).strip()
+        if not raw:
+            return None
+
+        # Known HERE Routing v8 values (keep list tight; unknown values are ignored)
+        allowed = {"straightTruck", "tractorTruck"}
+        if raw in allowed:
+            return raw
+
+        key = raw.lower().replace("-", "").replace("_", "").replace(" ", "")
+        aliases = {
+            "straight": "straightTruck",
+            "straighttruck": "straightTruck",
+            "boxtruck": "straightTruck",
+            "tractor": "tractorTruck",
+            "tractortrailer": "tractorTruck",
+            "tractortruck": "tractorTruck",
+            "semi": "tractorTruck",
+        }
+        return aliases.get(key)
     
     def calculate_distance(
         self,

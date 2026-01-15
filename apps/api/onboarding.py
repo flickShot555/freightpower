@@ -109,6 +109,27 @@ async def get_onboarding_data(
     user: Dict[str, Any] = Depends(get_current_user)
 ) -> Dict[str, Any]:
     """Get current user's onboarding profile data including DOT/MC numbers and availability status."""
+    # Availability + marketplace views are stored on the driver document.
+    # The auth dependency returns the users profile, so we merge in driver fields here
+    # to keep the UI state persistent across reloads.
+    is_available = user.get("is_available", False)
+    marketplace_views_count = user.get("marketplace_views_count", 0)
+
+    try:
+        if user.get("role") == "driver":
+            driver_id = user.get("uid")
+            if driver_id:
+                driver_doc = db.collection("drivers").document(driver_id).get()
+                if driver_doc.exists:
+                    driver_data = driver_doc.to_dict() or {}
+                    is_available = driver_data.get("is_available", is_available)
+                    marketplace_views_count = driver_data.get(
+                        "marketplace_views_count", marketplace_views_count
+                    )
+    except Exception as e:
+        # Non-fatal: fall back to users values
+        print(f"Warning: failed to load driver availability from drivers doc: {e}")
+
     return {
         "data": {
             "email": user.get("email"),
@@ -129,8 +150,8 @@ async def get_onboarding_data(
             "onboarding_step": user.get("onboarding_step", "WELCOME"),
             "onboarding_score": user.get("onboarding_score", 0),
         },
-        "is_available": user.get("is_available", False),
-        "marketplace_views_count": user.get("marketplace_views_count", 0)
+        "is_available": is_available,
+        "marketplace_views_count": marketplace_views_count
     }
 
 
