@@ -32,14 +32,12 @@ __pycache__/
 .venv/
 venv/
 
-# Env files (keep examples committed)
+# Env files (do NOT commit)
 .env
 .env.*
-!.env.example
-apps/.env
-apps/.env.*
-!apps/.env.example
+.env.example
+.env.eample
 
-# Credentials / service accounts
-apps/serviceAccountkey.json
+# Credentials / service accounts (do NOT commit)
+serviceAccountKey.json
 serviceAccountkey.json
