@@ -10,6 +10,7 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+.vite/
 *.local
 
 # Editor directories and files
@@ -35,9 +36,28 @@ venv/
 # Env files (do NOT commit)
 .env
 .env.*
-.env.example
-.env.eample
+!.env.example
 
 # Credentials / service accounts (do NOT commit)
 serviceAccountKey.json
 serviceAccountkey.json
+**/serviceAccountKey*.json
+**/*serviceAccount*.json
+*.pem
+*.p12
+*.pfx
+*.key
+*.crt
+
+# Firebase local tools
+.firebase/
+
+# Runtime/generated data (keep seed JSONs)
+data/documents/
+data/kb/
+apps/data/kb/
+
+# Coverage / tooling caches
+coverage/
+.coverage
+.cache/

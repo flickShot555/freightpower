@@ -1,5 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { signOut } from 'firebase/auth';
+import { getIdToken } from 'firebase/auth';
+import { auth } from '../../firebase';
+import { API_URL } from '../../config';
 import '../../styles/admin/AdminDashboard.css';
 import TrackingVisibility from '../super_admin/TrackingVisibility';
 import AdminAnalytics from '../super_admin/AdminAnalytics';
@@ -21,6 +25,7 @@ import HiringOnboarding from '../super_admin/HiringOnboarding';
 import MarketingPromotion from '../super_admin/MarketingPromotion';
 import SupportHub from '../super_admin/SupportHub';
 import SystemSettings from '../super_admin/SystemSettings';
+import AdminApprovals from '../super_admin/AdminApprovals';
 import logo from '/src/assets/logo.png';
 import resp_logo from '/src/assets/logo_1.png';
 
@@ -32,6 +37,7 @@ export default function SuperAdminDashboard(){
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSidebarDark, setIsSidebarDark] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState('');
 
   const navGroups = [
     {
@@ -46,6 +52,7 @@ export default function SuperAdminDashboard(){
       title: 'MANAGEMENT',
       items: [
         { key: 'users', label: 'Users & Roles', icon: 'fa-solid fa-users' },
+        { key: 'admin-approvals', label: 'Admin Approvals', icon: 'fa-solid fa-user-check' },
         { key: 'carriers', label: 'Carriers', icon: 'fa-solid fa-truck' },
         { key: 'shippers', label: 'Shippers / Brokers', icon: 'fa-solid fa-people-group' },
         { key: 'drivers', label: 'Drivers', icon: 'fa-solid fa-person' },
@@ -87,6 +94,47 @@ export default function SuperAdminDashboard(){
     setActiveNav(validNavKeys.has(next) ? next : 'dashboard');
   }, [section, validNavKeys]);
 
+  // Controlled access: verify session + role with backend.
+  useEffect(() => {
+    const run = async () => {
+      try {
+        const user = auth.currentUser;
+        if (!user) {
+          navigate('/super-admin/login', { replace: true });
+          return;
+        }
+
+        const idToken = await getIdToken(user);
+        const resp = await fetch(`${API_URL}/auth/super-admin/profile`, {
+          headers: { Authorization: `Bearer ${idToken}` },
+        });
+
+        const data = await resp.json().catch(() => ({}));
+        if (!resp.ok) {
+          await signOut(auth);
+          navigate('/super-admin/login', { replace: true, state: { reason: data?.detail || 'Unauthorized' } });
+          return;
+        }
+
+        if (data?.photo_url) setAvatarUrl(data.photo_url);
+      } catch (e) {
+        console.warn('SuperAdminDashboard auto-provision failed:', e);
+        try {
+          await signOut(auth);
+        } catch (_) {
+          // ignore
+        }
+        navigate('/super-admin/login', { replace: true });
+      }
+    };
+    run();
+  }, [navigate]);
+
+  const handleLogout = async () => {
+    await signOut(auth);
+    navigate('/super-admin/login', { replace: true });
+  };
+
   return (
     <div className={`fp-dashboard-root ${isDarkMode ? 'dark-root' : ''}`}>
       <div className="fp-topbar">
@@ -123,14 +171,39 @@ export default function SuperAdminDashboard(){
               <i className="fa-regular fa-comments" style={{fontSize:18}} aria-hidden="true" />
             </div>
 
-            <div className="profile" style={{display:'flex',alignItems:'center',gap:8}}>
-              <img src="https://randomuser.me/api/portraits/men/75.jpg" alt="avatar" className="avatar-img"/>
+            <div
+              className="profile"
+              style={{display:'flex',alignItems:'center',gap:8, cursor:'pointer'}}
+              onClick={() => navigate('/super-admin/profile')}
+              role="button"
+              tabIndex={0}
+              aria-label="Open profile"
+            >
+              <img src={avatarUrl || "https://www.gravatar.com/avatar/?d=mp"} alt="avatar" className="avatar-img"/>
               <div className="profile-labels" style={{textAlign:'right'}}>
                 <div style={{fontWeight:700}}>Platform Admin</div>
                 <div className="muted" style={{fontSize:12}}>Super Admin</div>
                 <i className="fa-solid fa-caret-down" />
               </div>
             </div>
+
+            <button
+              className="btn small ghost-cd"
+              onClick={() => navigate('/super-admin/admin-approvals')}
+              style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+            >
+              <i className="fa-solid fa-user-check" aria-hidden="true" />
+              Admin Approvals
+            </button>
+
+            <button
+              className="btn small ghost-cd"
+              onClick={handleLogout}
+              style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+            >
+              <i className="fa-solid fa-right-from-bracket" aria-hidden="true" />
+              Log out
+            </button>
           </div>
         </div>
       </div>
@@ -258,6 +331,9 @@ export default function SuperAdminDashboard(){
           </section>
           <div className='sa-buttons-btm'>
             <button className='btn small-cd'><i className='fas fa-user-plus'></i>Add User</button>
+            <button className='btn small ghost-cd' onClick={() => navigate('/super-admin/admin-approvals')}>
+              <i className='fas fa-user-check'></i>Admin Approvals
+            </button>
             <button className='btn small ghost-cd'><i className='fas fa-file-export'></i>Export Report</button>
             <button className='btn small ghost-cd'><i className='fas fa-bullhorn'></i>Send Announcement</button>
             <button className='btn small ghost-cd'><i className='fas fa-shield-halved'></i>Open Compliance</button>
@@ -268,6 +344,7 @@ export default function SuperAdminDashboard(){
           {activeNav === 'tracking' && <TrackingVisibility /> }
           {activeNav === 'analytics' && <AdminAnalytics /> }
           {activeNav === 'users' && <UsersRoles /> }
+          {activeNav === 'admin-approvals' && <AdminApprovals /> }
             {activeNav === 'carriers' && <Carriers /> }
             {activeNav === 'drivers' && <Drivers /> }
             {activeNav === 'shippers' && <Shippers /> }

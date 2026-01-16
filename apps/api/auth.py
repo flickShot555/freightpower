@@ -1,5 +1,5 @@
 # File: apps/api/auth.py
-from fastapi import APIRouter, HTTPException, Header, Depends, Body, status, UploadFile, File
+from fastapi import APIRouter, HTTPException, Header, Depends, Body, status, UploadFile, File, Request
 from firebase_admin import auth as firebase_auth
 import firebase_admin
 import time
@@ -7,6 +7,8 @@ import json
 import uuid
 from typing import Optional, Dict, Any
 from functools import wraps
+import httpx
+from pydantic import BaseModel, EmailStr
 
 # Use relative imports
 from .database import db, log_action
@@ -17,6 +19,516 @@ from .models import (
 from .settings import settings
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
+
+
+class AdminRequestSignupRequest(BaseModel):
+    email: EmailStr
+    password: str
+    name: str
+    phone: Optional[str] = None
+
+
+class PasswordLoginRequest(BaseModel):
+    email: EmailStr
+    password: str
+
+
+class CustomTokenResponse(BaseModel):
+    ok: bool = True
+    custom_token: str
+    uid: str
+    role: str
+
+
+class SuperAdminProfile(BaseModel):
+    uid: str
+    name: str
+    email: EmailStr
+    photo_url: Optional[str] = None
+
+
+class SuperAdminProfileUpdate(BaseModel):
+    name: Optional[str] = None
+    email: Optional[EmailStr] = None
+    new_password: Optional[str] = None
+    photo_url: Optional[str] = None
+
+
+def _super_admin_allowlist() -> set[str]:
+    raw = settings.SUPER_ADMIN_EMAILS or ""
+    emails = {e.strip().lower() for e in raw.split(",") if e.strip()}
+    if settings.ADMIN_EMAIL:
+        emails.add(settings.ADMIN_EMAIL.strip().lower())
+    return emails
+
+
+async def _firebase_verify_password(email: str, password: str) -> Dict[str, Any]:
+    """Verifies email/password using Firebase Identity Toolkit."""
+    api_key = settings.FIREBASE_WEB_API_KEY
+    if not api_key:
+        raise HTTPException(status_code=500, detail="FIREBASE_WEB_API_KEY is not configured")
+
+    url = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={api_key}"
+    payload = {"email": email, "password": password, "returnSecureToken": True}
+    async with httpx.AsyncClient(timeout=15) as client:
+        resp = await client.post(url, json=payload)
+    if resp.status_code != 200:
+        # Normalize Firebase errors
+        try:
+            data = resp.json()
+            msg = data.get("error", {}).get("message", "INVALID_LOGIN")
+        except Exception:
+            msg = "INVALID_LOGIN"
+        raise HTTPException(status_code=401, detail=f"Invalid email or password ({msg})")
+
+    return resp.json()
+
+
+def _ensure_super_admin_firestore(uid: str, email: str):
+    now = time.time()
+    db.collection("users").document(uid).set(
+        {
+            "uid": uid,
+            "email": email,
+            "name": "Super Admin",
+            "phone": None,
+            "role": "super_admin",
+            "company_name": None,
+            "is_verified": True,
+            "email_verified": True,
+            "phone_verified": False,
+            "mfa_enabled": False,
+            "failed_login_attempts": 0,
+            "is_active": True,
+            "is_locked": False,
+            "onboarding_completed": True,
+            "onboarding_step": "COMPLETED",
+            "onboarding_score": 0,
+            "onboarding_data": None,
+            "language": "en",
+            "timezone": "UTC",
+            "notification_preferences": {},
+            "created_at": now,
+            "updated_at": now,
+            "last_login_at": None,
+        },
+        merge=True,
+    )
+
+    # Separate super admin profile collection
+    db.collection("super_admins").document(uid).set(
+        {
+            "uid": uid,
+            "name": "Super Admin",
+            "email": email,
+            "photo_url": None,
+            "updated_at": now,
+            "created_at": now,
+        },
+        merge=True,
+    )
+
+
+def _local_or_token_allowed(request: Request, x_admin_bootstrap_token: Optional[str]) -> None:
+    """Allow only localhost when token is not set; otherwise require token."""
+    if settings.ADMIN_BOOTSTRAP_TOKEN:
+        if x_admin_bootstrap_token != settings.ADMIN_BOOTSTRAP_TOKEN:
+            raise HTTPException(status_code=403, detail="Invalid bootstrap token")
+        return
+
+    client_host = request.client.host if request.client else ""
+    if client_host not in {"127.0.0.1", "::1"}:
+        raise HTTPException(
+            status_code=403,
+            detail="Bootstrap disabled (set ADMIN_BOOTSTRAP_TOKEN to enable non-local provisioning)",
+        )
+
+
+# ============================================================================
+# Super Admin Bootstrap (development-friendly)
+# ============================================================================
+
+@router.post("/bootstrap-super-admin")
+async def bootstrap_super_admin(
+    request: Request,
+    x_admin_bootstrap_token: Optional[str] = Header(None, alias="X-Admin-Bootstrap-Token"),
+):
+    """Bootstraps the hardcoded super-admin account in Firebase Auth + Firestore.
+
+    Security model:
+    - If settings.ADMIN_BOOTSTRAP_TOKEN is set, it must match X-Admin-Bootstrap-Token.
+    - If not set (common in local dev), only allow requests from localhost.
+
+    This endpoint exists to prevent confusing login failures when the super-admin user
+    hasn't been manually created in Firebase Auth/Firestore yet.
+    """
+    _local_or_token_allowed(request, x_admin_bootstrap_token)
+
+    email = settings.ADMIN_EMAIL or "freightpowerai@gmail.com"
+    password = "123456"
+    display_name = "Super Admin"
+
+    try:
+        try:
+            user_record = firebase_auth.get_user_by_email(email)
+            # Ensure the password matches the hardcoded value.
+            firebase_auth.update_user(user_record.uid, password=password, display_name=display_name)
+        except firebase_auth.UserNotFoundError:
+            user_record = firebase_auth.create_user(
+                email=email,
+                password=password,
+                display_name=display_name,
+            )
+
+        _ensure_super_admin_firestore(user_record.uid, email)
+
+        log_action(user_record.uid, "SUPER_ADMIN_BOOTSTRAP", "Super admin account bootstrapped")
+
+        return {"ok": True, "uid": user_record.uid, "email": email}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Bootstrap failed: {str(e)}")
+
+
+@router.post("/super-admin/bootstrap-two")
+async def bootstrap_two_super_admins(
+    request: Request,
+    x_admin_bootstrap_token: Optional[str] = Header(None, alias="X-Admin-Bootstrap-Token"),
+):
+    """Create two distinct super-admin accounts (Farhan and AbdulWadud).
+
+    Notes:
+    - Intended for initial setup.
+    - Uses a temporary password; users can later change email/password in Profile.
+    """
+    _local_or_token_allowed(request, x_admin_bootstrap_token)
+
+    temp_password = "123456"
+
+    seeds = [
+        {
+            "name": "Farhan",
+            "email": "freightpowerai@gmail.com",
+        },
+        {
+            "name": "AbdulWadud",
+            "email": "abdulwadudkhattak@gmail.com",
+        },
+    ]
+
+    created: list[dict] = []
+    for seed in seeds:
+        email = seed["email"].strip().lower()
+        name = seed["name"].strip()
+        try:
+            try:
+                user_record = firebase_auth.get_user_by_email(email)
+                firebase_auth.update_user(user_record.uid, display_name=name, password=temp_password)
+            except firebase_auth.UserNotFoundError:
+                user_record = firebase_auth.create_user(
+                    email=email,
+                    password=temp_password,
+                    display_name=name,
+                )
+
+            now = time.time()
+            db.collection("users").document(user_record.uid).set(
+                {
+                    "uid": user_record.uid,
+                    "email": email,
+                    "name": name,
+                    "role": "super_admin",
+                    "is_verified": True,
+                    "email_verified": True,
+                    "onboarding_completed": True,
+                    "onboarding_step": "COMPLETED",
+                    "created_at": now,
+                    "updated_at": now,
+                },
+                merge=True,
+            )
+            db.collection("super_admins").document(user_record.uid).set(
+                {
+                    "uid": user_record.uid,
+                    "name": name,
+                    "email": email,
+                    "photo_url": None,
+                    "created_at": now,
+                    "updated_at": now,
+                },
+                merge=True,
+            )
+
+            try:
+                firebase_auth.set_custom_user_claims(user_record.uid, {"role": "super_admin"})
+            except Exception:
+                pass
+
+            created.append({"uid": user_record.uid, "email": email, "name": name})
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Bootstrap failed for {email}: {str(e)}")
+
+    return {
+        "ok": True,
+        "temp_password": temp_password,
+        "accounts": created,
+        "note": "Login with the temp_password then change it in Super Admin Profile.",
+    }
+
+
+@router.post("/super-admin/login", response_model=CustomTokenResponse)
+async def super_admin_login(payload: PasswordLoginRequest):
+    """Backend-driven super admin login (supports multiple super admins)."""
+    email = payload.email.strip().lower()
+    auth_res = await _firebase_verify_password(email, payload.password)
+    uid = auth_res.get("localId")
+    if not uid:
+        raise HTTPException(status_code=401, detail="Invalid login")
+
+    allowlisted = email in _super_admin_allowlist()
+
+    user_doc = db.collection("users").document(uid).get()
+    user_data = user_doc.to_dict() if user_doc.exists else {}
+    role = str((user_data or {}).get("role", "")).lower()
+
+    # Controlled provisioning: only allowlisted emails can become super_admin.
+    if (not user_doc.exists) or role != "super_admin":
+        if not allowlisted:
+            raise HTTPException(status_code=403, detail="Not provisioned as super admin")
+
+        # Provision as super admin (first-time setup or recovery)
+        now = time.time()
+        db.collection("users").document(uid).set(
+            {
+                "uid": uid,
+                "email": email,
+                "name": user_data.get("name") or "Super Admin",
+                "role": "super_admin",
+                "is_verified": True,
+                "email_verified": True,
+                "onboarding_completed": True,
+                "onboarding_step": "COMPLETED",
+                "created_at": now,
+                "updated_at": now,
+            },
+            merge=True,
+        )
+
+        db.collection("super_admins").document(uid).set(
+            {
+                "uid": uid,
+                "name": user_data.get("name") or "Super Admin",
+                "email": email,
+                "photo_url": None,
+                "created_at": now,
+                "updated_at": now,
+            },
+            merge=True,
+        )
+
+        try:
+            firebase_auth.set_custom_user_claims(uid, {"role": "super_admin"})
+        except Exception:
+            pass
+
+        user_doc = db.collection("users").document(uid).get()
+        user_data = user_doc.to_dict() or {}
+
+    # Auto-create/merge super_admins profile doc on login
+    now = time.time()
+    db.collection("super_admins").document(uid).set(
+        {
+            "uid": uid,
+            "name": user_data.get("name") or "Super Admin",
+            "email": (user_data.get("email") or email).strip().lower(),
+            "photo_url": user_data.get("photo_url") if user_data.get("photo_url") else None,
+            "updated_at": now,
+        },
+        merge=True,
+    )
+
+    token = firebase_auth.create_custom_token(uid)
+    token_str = token.decode("utf-8") if isinstance(token, (bytes, bytearray)) else str(token)
+    return CustomTokenResponse(custom_token=token_str, uid=uid, role="super_admin")
+
+
+class SuperAdminBootstrapRequest(BaseModel):
+    email: EmailStr
+    password: str = "123456"
+    name: Optional[str] = None
+
+
+@router.post("/super-admin/bootstrap")
+async def bootstrap_allowlisted_super_admin(
+    payload: SuperAdminBootstrapRequest,
+    request: Request,
+    x_admin_bootstrap_token: Optional[str] = Header(None, alias="X-Admin-Bootstrap-Token"),
+):
+    """Create/update a super-admin user for an allowlisted email (setup endpoint)."""
+    _local_or_token_allowed(request, x_admin_bootstrap_token)
+
+    email = payload.email.strip().lower()
+    if email not in _super_admin_allowlist():
+        raise HTTPException(status_code=403, detail="Email not allowlisted for super admin")
+
+    display_name = (payload.name or "Super Admin").strip()
+    password = payload.password
+    try:
+        try:
+            user_record = firebase_auth.get_user_by_email(email)
+            firebase_auth.update_user(user_record.uid, display_name=display_name, password=password)
+        except firebase_auth.UserNotFoundError:
+            user_record = firebase_auth.create_user(email=email, password=password, display_name=display_name)
+
+        now = time.time()
+        db.collection("users").document(user_record.uid).set(
+            {
+                "uid": user_record.uid,
+                "email": email,
+                "name": display_name,
+                "role": "super_admin",
+                "is_verified": True,
+                "email_verified": True,
+                "onboarding_completed": True,
+                "onboarding_step": "COMPLETED",
+                "created_at": now,
+                "updated_at": now,
+            },
+            merge=True,
+        )
+        db.collection("super_admins").document(user_record.uid).set(
+            {
+                "uid": user_record.uid,
+                "name": display_name,
+                "email": email,
+                "photo_url": None,
+                "created_at": now,
+                "updated_at": now,
+            },
+            merge=True,
+        )
+
+        try:
+            firebase_auth.set_custom_user_claims(user_record.uid, {"role": "super_admin"})
+        except Exception:
+            pass
+
+        return {"ok": True, "uid": user_record.uid, "email": email}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Bootstrap failed: {str(e)}")
+
+
+@router.post("/admin/request-signup")
+async def admin_request_signup(payload: AdminRequestSignupRequest):
+    """Backend-driven admin signup request.
+
+    Creates Firebase Auth user, writes users/{uid} with admin_approved=false, and writes admin_requests/{uid}.
+    This bypasses client-side Firestore rules so the request is reliably created.
+    """
+    email = payload.email.strip().lower()
+    try:
+        user_record = firebase_auth.create_user(
+            email=email,
+            password=payload.password,
+            display_name=payload.name.strip() if payload.name else None,
+            phone_number=payload.phone if payload.phone else None,
+        )
+    except firebase_auth.EmailAlreadyExistsError:
+        raise HTTPException(status_code=400, detail="Email already registered")
+
+    now = time.time()
+    db.collection("users").document(user_record.uid).set(
+        {
+            "uid": user_record.uid,
+            "email": email,
+            "name": payload.name.strip(),
+            "phone": payload.phone or None,
+            "role": "admin",
+            "admin_approved": False,
+            "is_verified": True,
+            "email_verified": False,
+            "phone_verified": False,
+            "mfa_enabled": False,
+            "failed_login_attempts": 0,
+            "is_active": True,
+            "is_locked": False,
+            "created_at": now,
+            "updated_at": now,
+            "last_login_at": None,
+        },
+        merge=True,
+    )
+
+    db.collection("admin_requests").document(user_record.uid).set(
+        {
+            "uid": user_record.uid,
+            "email": email,
+            "name": payload.name.strip(),
+            "requested_role": "admin",
+            "status": "pending",
+            "created_at": now,
+            "updated_at": now,
+        },
+        merge=True,
+    )
+
+    log_action(user_record.uid, "ADMIN_REQUEST_SIGNUP", "Admin signup request created")
+    return {"ok": True, "uid": user_record.uid}
+
+
+@router.post("/admin/login", response_model=CustomTokenResponse)
+async def admin_login(payload: PasswordLoginRequest):
+    """Backend-driven admin login.
+
+    Verifies email/password via Firebase Identity Toolkit, then checks admin_approved.
+    If approved, issues a Firebase custom token.
+    """
+    auth_res = await _firebase_verify_password(payload.email.strip(), payload.password)
+    uid = auth_res.get("localId")
+    if not uid:
+        raise HTTPException(status_code=401, detail="Invalid login")
+
+    user_doc = db.collection("users").document(uid).get()
+    if not user_doc.exists:
+        # Create a pending request record as a safety net
+        db.collection("admin_requests").document(uid).set(
+            {
+                "uid": uid,
+                "email": payload.email.strip().lower(),
+                "name": "",
+                "requested_role": "admin",
+                "status": "pending",
+                "created_at": time.time(),
+                "updated_at": time.time(),
+            },
+            merge=True,
+        )
+        raise HTTPException(status_code=403, detail="Pending approval")
+
+    user_data = user_doc.to_dict()
+    if str(user_data.get("role", "")).lower() != "admin" or user_data.get("admin_approved") is not True:
+        # Ensure request exists
+        db.collection("admin_requests").document(uid).set(
+            {
+                "uid": uid,
+                "email": (user_data.get("email") or payload.email).strip().lower(),
+                "name": user_data.get("name") or "",
+                "requested_role": "admin",
+                "status": "pending",
+                "updated_at": time.time(),
+            },
+            merge=True,
+        )
+        raise HTTPException(status_code=403, detail="Pending approval")
+
+    token = firebase_auth.create_custom_token(uid)
+    token_str = token.decode("utf-8") if isinstance(token, (bytes, bytearray)) else str(token)
+    db.collection("users").document(uid).update({"last_login_at": time.time(), "failed_login_attempts": 0})
+    log_action(uid, "ADMIN_LOGIN", "Admin logged in")
+    return CustomTokenResponse(custom_token=token_str, uid=uid, role="admin")
 
 
 # ============================================================================
@@ -117,6 +629,173 @@ def require_super_admin(user: Dict[str, Any] = Depends(get_current_user)):
     if user_role != "super_admin":
         raise HTTPException(status_code=403, detail="Super admin access required")
     return user
+
+
+@router.get("/super-admin/profile", response_model=SuperAdminProfile)
+async def get_super_admin_profile(user: Dict[str, Any] = Depends(require_super_admin)):
+    uid = user.get("uid")
+    profile_doc = db.collection("super_admins").document(uid).get()
+    if profile_doc.exists:
+        d = profile_doc.to_dict() or {}
+        return SuperAdminProfile(
+            uid=uid,
+            name=d.get("name") or user.get("name") or "Super Admin",
+            email=d.get("email") or user.get("email"),
+            photo_url=d.get("photo_url"),
+        )
+
+    # Fallback: create minimal profile
+    now = time.time()
+    db.collection("super_admins").document(uid).set(
+        {
+            "uid": uid,
+            "name": user.get("name") or "Super Admin",
+            "email": user.get("email"),
+            "photo_url": None,
+            "created_at": now,
+            "updated_at": now,
+        },
+        merge=True,
+    )
+    return SuperAdminProfile(uid=uid, name=user.get("name") or "Super Admin", email=user.get("email"), photo_url=None)
+
+
+@router.patch("/super-admin/profile")
+async def update_super_admin_profile(
+    payload: SuperAdminProfileUpdate,
+    user: Dict[str, Any] = Depends(require_super_admin),
+):
+    uid = user.get("uid")
+    now = time.time()
+
+    updates_user: dict = {"updated_at": now}
+    updates_profile: dict = {"updated_at": now}
+
+    if payload.name is not None:
+        updates_user["name"] = payload.name
+        updates_profile["name"] = payload.name
+
+    if payload.photo_url is not None:
+        updates_profile["photo_url"] = payload.photo_url
+
+    # Email/password live in Firebase Auth; update via Admin SDK
+    if payload.email is not None:
+        firebase_auth.update_user(uid, email=str(payload.email).strip().lower())
+        updates_user["email"] = str(payload.email).strip().lower()
+        updates_profile["email"] = str(payload.email).strip().lower()
+
+    if payload.new_password is not None:
+        firebase_auth.update_user(uid, password=payload.new_password)
+
+    if len(updates_user) > 1:
+        db.collection("users").document(uid).set(updates_user, merge=True)
+
+    db.collection("super_admins").document(uid).set(updates_profile, merge=True)
+
+    log_action(uid, "SUPER_ADMIN_PROFILE_UPDATE", "Super admin profile updated")
+    return {"ok": True}
+
+
+@router.get("/admin-requests")
+async def list_admin_requests(
+    status: str = "pending",
+    user: Dict[str, Any] = Depends(require_super_admin),
+):
+    """List admin requests (super admin only)."""
+    q = db.collection("admin_requests")
+    if status:
+        q = q.where("status", "==", status)
+    # Sort newest first when the field exists
+    try:
+        q = q.order_by("created_at", direction=firestore.Query.DESCENDING)
+    except Exception:
+        pass
+
+    rows: list[dict] = []
+    for doc_snap in q.stream():
+        d = doc_snap.to_dict() or {}
+        d["id"] = doc_snap.id
+        rows.append(d)
+
+    return {"ok": True, "requests": rows}
+
+
+@router.post("/admin-requests/{request_id}/approve")
+async def approve_admin_request(
+    request_id: str,
+    user: Dict[str, Any] = Depends(require_super_admin),
+):
+    """Approve an admin request (super admin only)."""
+    approver_uid = user.get("uid")
+    now = time.time()
+
+    req_ref = db.collection("admin_requests").document(request_id)
+    req_doc = req_ref.get()
+    if not req_doc.exists:
+        raise HTTPException(status_code=404, detail="Admin request not found")
+
+    req_data = req_doc.to_dict() or {}
+    target_uid = req_data.get("uid") or request_id
+
+    req_ref.set(
+        {
+            "status": "approved",
+            "approved_by": approver_uid,
+            "approved_at": now,
+            "updated_at": now,
+        },
+        merge=True,
+    )
+
+    db.collection("users").document(target_uid).set(
+        {
+            "role": "admin",
+            "admin_approved": True,
+            "admin_approved_at": now,
+            "updated_at": now,
+        },
+        merge=True,
+    )
+
+    # Optional: set a custom claim for rules that use request.auth.token.role
+    try:
+        firebase_auth.set_custom_user_claims(target_uid, {"role": "admin", "admin_approved": True})
+    except Exception:
+        pass
+
+    log_action(approver_uid, "ADMIN_APPROVED", f"Approved admin request for {target_uid}")
+    return {"ok": True, "uid": target_uid}
+
+
+@router.post("/admin-requests/{request_id}/reject")
+async def reject_admin_request(
+    request_id: str,
+    user: Dict[str, Any] = Depends(require_super_admin),
+):
+    """Reject an admin request (super admin only)."""
+    approver_uid = user.get("uid")
+    now = time.time()
+
+    req_ref = db.collection("admin_requests").document(request_id)
+    req_doc = req_ref.get()
+    if not req_doc.exists:
+        raise HTTPException(status_code=404, detail="Admin request not found")
+
+    req_data = req_doc.to_dict() or {}
+    target_uid = req_data.get("uid") or request_id
+
+    req_ref.set(
+        {
+            "status": "rejected",
+            "rejected_by": approver_uid,
+            "rejected_at": now,
+            "updated_at": now,
+        },
+        merge=True,
+    )
+
+    log_action(approver_uid, "ADMIN_REJECTED", f"Rejected admin request for {target_uid}")
+    return {"ok": True, "uid": target_uid}
 
 
 # ============================================================================
@@ -264,33 +943,33 @@ async def login(request: LoginRequest):
     Returns access token with user profile.
     """
     try:
-        # Get user by email from Firestore
-        users_query = db.collection("users").where("email", "==", request.email).limit(1)
-        docs = users_query.stream()
-        user_doc = next(docs, None)
-        
-        if not user_doc:
+        # Verify password via Firebase Identity Toolkit
+        auth_res = await _firebase_verify_password(request.email.strip(), request.password)
+        uid = auth_res.get("localId")
+        if not uid:
             raise HTTPException(status_code=401, detail="Invalid email or password")
-        
+
+        user_doc = db.collection("users").document(uid).get()
+        if not user_doc.exists:
+            raise HTTPException(status_code=404, detail="User profile not found")
+
         user_data = user_doc.to_dict()
         
         # Check if user is locked
         if user_data.get("is_locked"):
             raise HTTPException(status_code=403, detail="Account is locked. Contact support.")
         
-        # Verify password via Firebase (creates custom token for session)
         try:
-            # Sign in with password using Firebase REST API would require additional setup
-            # For now, we'll create a custom token
-            custom_token = firebase_auth.create_custom_token(user_data["uid"])
+            # Create a custom token for the frontend to exchange.
+            custom_token = firebase_auth.create_custom_token(uid)
             
             # Update last login
-            db.collection("users").document(user_data["uid"]).update({
+            db.collection("users").document(uid).update({
                 "last_login_at": time.time(),
                 "failed_login_attempts": 0
             })
             
-            log_action(user_data["uid"], "LOGIN", "User logged in")
+            log_action(uid, "LOGIN", "User logged in")
             
             return TokenResponse(
                 access_token=custom_token.decode('utf-8') if isinstance(custom_token, bytes) else custom_token,
@@ -298,7 +977,7 @@ async def login(request: LoginRequest):
                 token_type="bearer",
                 expires_in=3600,
                 user={
-                    "uid": user_data["uid"],
+                    "uid": uid,
                     "email": user_data["email"],
                     "name": user_data["name"],
                     "role": user_data.get("role", "carrier"),

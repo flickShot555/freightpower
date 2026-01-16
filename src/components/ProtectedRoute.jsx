@@ -77,7 +77,22 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
 
   // Not authenticated - redirect to login
   if (!user) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    const path = String(location?.pathname || '').toLowerCase();
+    const allowed = (allowedRoles || []).map((r) => String(r).toLowerCase());
+
+    // Prefer explicit role intent when this guard is role-scoped.
+    if (allowed.includes('super_admin')) {
+      return <Navigate to="/super-admin/login" state={{ from: location }} replace />;
+    }
+    if (allowed.includes('admin')) {
+      return <Navigate to="/admin/login" state={{ from: location }} replace />;
+    }
+
+    // Fallback: infer from URL segment (works with basenames/subpaths too).
+    const isAdminPath = /(^|\/)admin(\/|$)/.test(path);
+    const isSuperAdminPath = /(^|\/)super-admin(\/|$)/.test(path);
+    const loginRoute = isSuperAdminPath ? '/super-admin/login' : isAdminPath ? '/admin/login' : '/login';
+    return <Navigate to={loginRoute} state={{ from: location }} replace />;
   }
 
   // Email not verified - redirect to verification
@@ -91,10 +106,25 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
     }} replace />;
   }
 
+  // If a role-protected route is requested but the Firestore profile is missing,
+  // do not render protected content.
+  if (allowedRoles.length > 0 && !userData) {
+    const allowed = (allowedRoles || []).map((r) => String(r).toLowerCase());
+    const to = allowed.includes('super_admin') ? '/super-admin/login'
+      : allowed.includes('admin') ? '/admin/login'
+        : '/login';
+    return <Navigate to={to} state={{ missingProfile: true, from: location }} replace />;
+  }
+
   // Role-based access control (if allowedRoles specified)
   if (allowedRoles.length > 0 && userData) {
     const userRole = userData.role?.toLowerCase();
     const allowed = allowedRoles.map(r => r.toLowerCase());
+
+    // Extra gate: admin accounts require super-admin approval before access.
+    if (userRole === 'admin' && allowed.includes('admin') && userData?.admin_approved !== true) {
+      return <Navigate to="/admin/login" state={{ pendingApproval: true }} replace />;
+    }
     
     if (!allowed.includes(userRole)) {
       // Redirect to appropriate dashboard based on actual role

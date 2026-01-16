@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
+import { signInWithCustomToken, signOut } from 'firebase/auth'
+import { auth } from '../firebase'
+import Toast from './common/Toast'
+import { API_URL } from '../config'
 import '../styles/carrier/CarrierSignup.css'
 import '../styles/carrier/CarrierLogin.css'
 import carrier_ob_1 from '../assets/carrier_ob_1.png'
@@ -12,23 +16,58 @@ export default function AdminLogin(){
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [remember, setRemember] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [toast, setToast] = useState(null)
   const images = [carrier_ob_1, carrier_ob_2, carrier_ob_3]
   const [currentImg, setCurrentImg] = useState(0)
   const navigate = useNavigate()
+  const location = useLocation()
+
+  useEffect(() => {
+    if (location?.state?.pendingApproval || location?.state?.pending) {
+      setToast({ type: 'error', message: 'Pending approval' })
+    }
+  }, [location])
 
   useEffect(()=>{
     const t = setInterval(()=> setCurrentImg((p)=> (p+1)%images.length), 2500)
     return ()=> clearInterval(t)
   },[])
 
-  const handleSubmit = (e)=>{
+  const handleSubmit = async (e)=>{
     e.preventDefault()
-    // TODO: implement admin auth flow; for now navigate to admin verification
-    navigate('/admin-verify', { state: { role: 'admin' } })
+    setToast(null)
+    setLoading(true)
+    try {
+      const resp = await fetch(`${API_URL}/auth/admin/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim(), password }),
+      })
+
+      const data = await resp.json().catch(() => ({}))
+      if (!resp.ok) {
+        const detail = data?.detail || 'Login failed'
+        if (String(detail).toLowerCase().includes('pending')) {
+          setToast({ type: 'error', message: 'Pending approval' })
+          return
+        }
+        throw new Error(detail)
+      }
+
+      await signInWithCustomToken(auth, data.custom_token)
+      navigate('/admin/dashboard')
+    } catch (err) {
+      console.error(err)
+      setToast({ type: 'error', message: err?.message || 'Login failed. Check email/password.' })
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
     <div className="carrier-signup-container carrier-login-page">
+      <Toast message={toast?.message} type={toast?.type} onClose={() => setToast(null)} />
       <div className="carrier-signup-left">
         <img src={pattern_bg_signup} alt="Pattern" className="carrier-signup-pattern-bg" />
         <div className="carrier-signup-form-bg">
@@ -67,7 +106,7 @@ export default function AdminLogin(){
               </div>
 
               <div className="carrier-signup-login-actions">
-                <button type="submit" className="carrier-signup-btn">Sign In to Admin Panel</button>
+                <button type="submit" className="carrier-signup-btn" disabled={loading}>{loading ? 'Signing in…' : 'Sign In to Admin Panel'}</button>
               </div>
 
               <div className="divider"><span>or</span></div>
@@ -80,7 +119,7 @@ export default function AdminLogin(){
               <div className="carrier-signup-login-text small muted" style={{marginTop:8}}>Authorized personnel only.</div>
 
               <div className="carrier-signup-login-text">
-                Don't have an account? <a href="/admin-signup">Sign Up</a>
+                Don't have an account? <a href="/admin/signup">Sign Up</a>
               </div>
             </div>
           </form>

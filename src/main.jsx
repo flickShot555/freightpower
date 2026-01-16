@@ -10,3 +10,12 @@ createRoot(document.getElementById('root')).render(
   </AuthProvider>,
 
 )
+
+// PWA: register service worker in production builds.
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js').catch((err) => {
+      console.warn('Service worker registration failed:', err);
+    });
+  });
+}

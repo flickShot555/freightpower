@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     APP_HOST: str = Field(default=os.getenv("APP_HOST", "0.0.0.0"))
     APP_PORT: int = Field(default=int(os.getenv("APP_PORT", "8000")))
     API_BASE_URL: str = Field(default=os.getenv("API_BASE_URL", "http://localhost:8000"))
+    FRONTEND_BASE_URL: str = Field(default=os.getenv("FRONTEND_BASE_URL", "http://localhost:5173"))
     FMCSA_BASE_URL: str = Field(default=os.getenv("FMCSA_BASE_URL", "https://mobile.fmcsa.dot.gov/qc/services"))
     FMCSA_API_KEY: str = Field(default=os.getenv("FMCSA_API_KEY", ""))
     FMCSA_WEB_KEY: str = Field(default=os.getenv("FMCSA_WEB_KEY", ""))
@@ -28,9 +29,19 @@ class Settings(BaseSettings):
     EMAIL_FROM: str = Field(default=os.getenv("EMAIL_FROM", "noreply@freightpower.ai"))
     ADMIN_EMAIL: str = Field(default=os.getenv("ADMIN_EMAIL", "freightpowerai@gmail.com"))  # Email for fraud reports and edit suggestions
 
+    # Comma-separated allowlist of super admin emails.
+    # Only allowlisted emails can be provisioned/access super-admin endpoints.
+    SUPER_ADMIN_EMAILS: str = Field(
+        default=os.getenv("SUPER_ADMIN_EMAILS", "freightpowerai@gmail.com,abdulwadudkhattak@gmail.com")
+    )
+
     # Privileged account provisioning
     # If set, creating users with role=admin/super_admin via /auth/signup requires header: X-Admin-Bootstrap-Token
     ADMIN_BOOTSTRAP_TOKEN: str = Field(default=os.getenv("ADMIN_BOOTSTRAP_TOKEN", ""))
+
+    # Firebase Identity Toolkit (email/password verification)
+    # Public API key; required for backend-driven password login.
+    FIREBASE_WEB_API_KEY: str = Field(default=os.getenv("FIREBASE_WEB_API_KEY", "AIzaSyClzYECMNer89EjBs_h12hb5tDIghUslMM"))
     
     # HERE Maps API settings
     HERE_API_KEY_BACKEND: str = Field(default=os.getenv("HERE_API_KEY_BACKEND", "FMFVzQgeOW8PvMnWkWHj"))

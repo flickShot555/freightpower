@@ -13,6 +13,8 @@ import DriverDashboard from './components/driver/DriverDashboard'
 import ShipperDashboard from './components/shipper/ShipperDashboard'
 import AdminDashboard from './components/admin/AdminDashboard'
 import SuperAdminDashboard from './components/super_admin/SuperAdminDashboard'
+import SuperAdminLogin from './components/super_admin/SuperAdminLogin'
+import SuperAdminProfile from './components/super_admin/SuperAdminProfile'
 import CarrierOnboarding from './components/onboarding/CarrierOnboarding'
 import DriverOnboarding from './components/onboarding/DriverOnboarding'
 import ShipperOnboarding from './components/onboarding/ShipperOnboarding'
@@ -65,6 +67,15 @@ function InnerRoutes({ chatOpen, chatMinimized, setChatOpen, setChatMinimized })
         {/* Admin auth (canonical paths) */}
         <Route path="/admin/signup" element={<AdminSignup />} />
         <Route path="/admin/login" element={<AdminLogin />} />
+
+        {/* Super admin auth (canonical paths) */}
+        <Route path="/super-admin/login" element={<SuperAdminLogin />} />
+
+        <Route path="/super-admin/profile" element={
+          <ProtectedRoute allowedRoles={['super_admin']}>
+            <SuperAdminProfile />
+          </ProtectedRoute>
+        } />
 
         {/* Back-compat admin auth paths */}
         <Route path="/admin-signup" element={<Navigate to="/admin/signup" replace />} />

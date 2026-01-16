@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { signOut } from 'firebase/auth'
+import { auth } from '../firebase'
+import Toast from './common/Toast'
+import { API_URL } from '../config'
 import '../styles/carrier/CarrierSignup.css'
 import pattern_bg_signup from '../assets/pattern_bg_signup.svg'
 import carrier_ob_1 from '../assets/carrier_ob_1.png'
@@ -9,6 +13,12 @@ import carrier_ob_3 from '../assets/carrier_ob_3.jpg'
 export default function AdminSignup(){
   const [showPassword, setShowPassword] = useState(false)
   const [acceptedAdmin, setAcceptedAdmin] = useState(false)
+  const [fullName, setFullName] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [toast, setToast] = useState(null)
   const navigate = useNavigate()
   const images = [carrier_ob_1, carrier_ob_2, carrier_ob_3]
   const [currentImg, setCurrentImg] = useState(0)
@@ -18,14 +28,55 @@ export default function AdminSignup(){
     return ()=> clearInterval(t)
   }, [])
 
-  const handleSubmit = (e)=>{
+  const handleSubmit = async (e)=>{
     e.preventDefault()
-    // After creating admin account, navigate to admin verification screen
-    navigate('/admin-verify', { state: { role: 'admin' } })
+    setToast(null)
+
+    if (!acceptedAdmin) {
+      setToast({ type: 'error', message: 'You must acknowledge admin access terms.' })
+      return
+    }
+    if (!fullName.trim() || !email.trim() || !password) {
+      setToast({ type: 'error', message: 'Please fill all required fields.' })
+      return
+    }
+    if (password !== confirmPassword) {
+      setToast({ type: 'error', message: 'Passwords do not match.' })
+      return
+    }
+
+    setLoading(true)
+    try {
+      const resp = await fetch(`${API_URL}/auth/admin/request-signup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: email.trim(),
+          password,
+          name: fullName.trim(),
+        }),
+      })
+
+      const data = await resp.json().catch(() => ({}))
+      if (!resp.ok) {
+        throw new Error(data?.detail || 'Admin signup failed')
+      }
+
+      // Ensure no active session for pending admins
+      try { await signOut(auth) } catch {}
+
+      navigate('/admin/login', { state: { pendingApproval: true } })
+    } catch (err) {
+      console.error(err)
+      setToast({ type: 'error', message: err?.message || 'Admin signup failed.' })
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
     <div className="carrier-signup-container carrier-login-page">
+      <Toast message={toast?.message} type={toast?.type} onClose={() => setToast(null)} />
       <div className="carrier-signup-left">
         <img src={pattern_bg_signup} alt="Pattern" className="carrier-signup-pattern-bg"/>
         <div className="carrier-signup-form-bg">
@@ -37,7 +88,7 @@ export default function AdminSignup(){
               <label>Full Name</label>
               <div className="input-icon-wrap">
                 <i className="fa-solid fa-user" aria-hidden="true" />
-                <input type="text" placeholder="Enter your full name" />
+                <input type="text" value={fullName} onChange={(e)=>setFullName(e.target.value)} placeholder="Enter your full name" required />
               </div>
             </div>
 
@@ -45,7 +96,7 @@ export default function AdminSignup(){
               <label>Official Email Address</label>
               <div className="input-icon-wrap">
                 <i className="fa-solid fa-envelope" aria-hidden="true" />
-                <input type="email" placeholder="admin@company.com" />
+                <input type="email" value={email} onChange={(e)=>setEmail(e.target.value)} placeholder="admin@company.com" required />
               </div>
             </div>
 
@@ -63,7 +114,7 @@ export default function AdminSignup(){
               <label>Password</label>
               <div className="input-icon-wrap">
                 <i className="fa-solid fa-lock" aria-hidden="true" />
-                <input id="admin-password" type={showPassword ? 'text' : 'password'} placeholder="Create a secure password" />
+                <input id="admin-password" type={showPassword ? 'text' : 'password'} value={password} onChange={(e)=>setPassword(e.target.value)} placeholder="Create a secure password" required />
                 <button
                   type="button"
                   className="password-toggle"
@@ -79,7 +130,7 @@ export default function AdminSignup(){
               <label>Confirm Password</label>
               <div className="input-icon-wrap">
                 <i className="fa-solid fa-lock" aria-hidden="true" />
-                <input id="admin-password-confirm" type={showPassword ? 'text' : 'password'} placeholder="Confirm your password" />
+                <input id="admin-password-confirm" type={showPassword ? 'text' : 'password'} value={confirmPassword} onChange={(e)=>setConfirmPassword(e.target.value)} placeholder="Confirm your password" required />
                 <button
                   type="button"
                   className="password-toggle"
@@ -100,7 +151,7 @@ export default function AdminSignup(){
 
             <div className="carrier-signup-bottom-actions">
               <div className="carrier-signup-login-actions">
-                <button type="submit" className="carrier-signup-btn">Create Admin Account</button>
+                <button type="submit" className="carrier-signup-btn" disabled={loading}>{loading ? 'Submitting…' : 'Create Admin Account'}</button>
               </div>
 
               <div className="divider"></div>
@@ -111,7 +162,7 @@ export default function AdminSignup(){
               </button>
 
               <div className="carrier-signup-login-text">
-                Already have an account? <a href="/admin-login">Sign In</a>
+                Already have an account? <a href="/admin/login">Sign In</a>
               </div>
             </div>
           </form>

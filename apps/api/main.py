@@ -1,13 +1,14 @@
 # File: apps/api/main.py
-from fastapi import FastAPI, UploadFile, File, HTTPException, Header, Depends, Form
+from fastapi import FastAPI, UploadFile, File, HTTPException, Header, Depends, Form, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse, FileResponse
 from pydantic import BaseModel, root_validator
 from typing import Dict, Any, List, Optional, Tuple
 import uuid
 import json
 import time
 import os
+from pathlib import Path
 
 # --- Local Imports ---
 from .settings import settings
@@ -167,6 +168,29 @@ class SuggestEditRequest(BaseModel):
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+
+# --- Friendly redirects to SPA routes ---
+# Dashboards are frontend routes. These redirects help when someone hits the API
+# server URL directly (e.g., http://localhost:8000/super-admin/dashboard).
+@app.get("/admin/dashboard")
+def redirect_admin_dashboard():
+    return RedirectResponse(url=f"{settings.FRONTEND_BASE_URL}/admin/dashboard", status_code=302)
+
+
+@app.get("/super-admin/dashboard")
+def redirect_super_admin_dashboard():
+    return RedirectResponse(url=f"{settings.FRONTEND_BASE_URL}/super-admin/dashboard", status_code=302)
+
+
+@app.get("/admin/login")
+def redirect_admin_login():
+    return RedirectResponse(url=f"{settings.FRONTEND_BASE_URL}/admin/login", status_code=302)
+
+
+@app.get("/super-admin/login")
+def redirect_super_admin_login():
+    return RedirectResponse(url=f"{settings.FRONTEND_BASE_URL}/super-admin/login", status_code=302)
 
 # --- List Documents Endpoint (for Dashboard) ---
 @app.get("/documents")
@@ -5590,3 +5614,32 @@ def startup_events():
 @app.on_event("shutdown")
 def shutdown_events():
     scheduler.shutdown()
+
+
+# --- SPA fallback (serve built React app) ---
+# When you run `npm run build`, Vite writes to `dist/`. This handler serves:
+# - real files from dist (e.g. /assets/*, /manifest.json, /service-worker.js)
+# - otherwise dist/index.html for client-side routes like /admin
+_DIST_DIR = Path(__file__).resolve().parents[2] / "dist"
+_DIST_INDEX = _DIST_DIR / "index.html"
+
+
+@app.get("/{full_path:path}", include_in_schema=False)
+async def spa_fallback(full_path: str, request: Request):
+    # If frontend isn't built, don't pretend it exists.
+    if not _DIST_INDEX.exists():
+        raise HTTPException(status_code=404, detail="Frontend build not found. Run `npm run build` to create dist/.")
+
+    # Serve actual files when present.
+    if full_path:
+        candidate = (_DIST_DIR / full_path)
+        try:
+            candidate = candidate.resolve()
+        except Exception:
+            candidate = None
+
+        if candidate and str(candidate).startswith(str(_DIST_DIR.resolve())) and candidate.exists() and candidate.is_file():
+            return FileResponse(candidate)
+
+    # SPA route fallback
+    return FileResponse(_DIST_INDEX)
