@@ -27,6 +27,10 @@ class Settings(BaseSettings):
     SMTP_PASSWORD: str = Field(default=os.getenv("SMTP_PASSWORD", ""))
     EMAIL_FROM: str = Field(default=os.getenv("EMAIL_FROM", "noreply@freightpower.ai"))
     ADMIN_EMAIL: str = Field(default=os.getenv("ADMIN_EMAIL", "freightpowerai@gmail.com"))  # Email for fraud reports and edit suggestions
+
+    # Privileged account provisioning
+    # If set, creating users with role=admin/super_admin via /auth/signup requires header: X-Admin-Bootstrap-Token
+    ADMIN_BOOTSTRAP_TOKEN: str = Field(default=os.getenv("ADMIN_BOOTSTRAP_TOKEN", ""))
     
     # HERE Maps API settings
     HERE_API_KEY_BACKEND: str = Field(default=os.getenv("HERE_API_KEY_BACKEND", "FMFVzQgeOW8PvMnWkWHj"))

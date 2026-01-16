@@ -14,6 +14,7 @@ from .models import (
     UserSignup, Role, SignupResponse, LoginRequest, 
     TokenResponse, RefreshTokenRequest, UserProfile, ProfileUpdate
 )
+from .settings import settings
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -123,12 +124,24 @@ def require_super_admin(user: Dict[str, Any] = Depends(get_current_user)):
 # ============================================================================
 
 @router.post("/signup", response_model=SignupResponse, status_code=status.HTTP_201_CREATED)
-async def signup(user: UserSignup):
+async def signup(
+    user: UserSignup,
+    x_admin_bootstrap_token: Optional[str] = Header(None, alias="X-Admin-Bootstrap-Token"),
+):
     """
     Creates a user in Firebase Auth with proper Firestore schema.
     Stores role and all user information for RBAC.
     """
     try:
+        # Prevent public creation of privileged roles.
+        # Admin/SuperAdmin accounts must be provisioned out-of-band or via a controlled bootstrap token.
+        if user.role in [Role.ADMIN, Role.SUPER_ADMIN]:
+            if not settings.ADMIN_BOOTSTRAP_TOKEN or x_admin_bootstrap_token != settings.ADMIN_BOOTSTRAP_TOKEN:
+                raise HTTPException(
+                    status_code=403,
+                    detail="Privileged roles cannot be created via public signup"
+                )
+
         # 1. Create user in Firebase Authentication
         user_record = firebase_auth.create_user(
             email=user.email,

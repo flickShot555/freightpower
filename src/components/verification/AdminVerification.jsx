@@ -9,8 +9,10 @@ const AdminVerification = () => {
 
   const goToDashboardForRole = (r) => {
     switch (r) {
+      case 'super_admin':
+        return '/super-admin/dashboard';
       case 'admin':
-        return '/admin-dashboard';
+        return '/admin/dashboard';
       case 'driver':
         return '/driver-dashboard';
       case 'shipper':

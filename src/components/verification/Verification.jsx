@@ -88,7 +88,8 @@ const Verification = () => {
       // 3. Route to Dashboard
       console.log("Verification Success! Routing to dashboard...");
       switch (role) {
-        case 'admin': navigate('/admin-dashboard'); break;
+        case 'super_admin': navigate('/super-admin/dashboard'); break;
+        case 'admin': navigate('/admin/dashboard'); break;
         case 'driver': navigate('/driver-dashboard'); break;
         case 'shipper': navigate('/shipper-dashboard'); break;
         default: navigate('/carrier-dashboard');

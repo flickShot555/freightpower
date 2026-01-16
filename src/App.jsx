@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom'
 import LandingPage from './components/landing_page/LandingPage'
 import HelpCenter from './components/landing_page/HelpCenter'
 import RoleSelection from './components/landing_page/RoleSelection'
@@ -62,8 +62,13 @@ function InnerRoutes({ chatOpen, chatMinimized, setChatOpen, setChatMinimized })
         <Route path="/select-role" element={<RoleSelection />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/admin-signup" element={<AdminSignup />} />
-        <Route path="/admin-login" element={<AdminLogin />} />
+        {/* Admin auth (canonical paths) */}
+        <Route path="/admin/signup" element={<AdminSignup />} />
+        <Route path="/admin/login" element={<AdminLogin />} />
+
+        {/* Back-compat admin auth paths */}
+        <Route path="/admin-signup" element={<Navigate to="/admin/signup" replace />} />
+        <Route path="/admin-login" element={<Navigate to="/admin/login" replace />} />
         
         {/* 🛑 NEW ROUTE ADDED HERE 🛑 */}
         <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -90,7 +95,9 @@ function InnerRoutes({ chatOpen, chatMinimized, setChatOpen, setChatMinimized })
           </ProtectedRoute>
         } />
         <Route path="/verify" element={<Verification />} />
-        <Route path="/admin-verify" element={<AdminVerification />} />
+        {/* Admin verification (canonical + back-compat) */}
+        <Route path="/admin/verify" element={<AdminVerification />} />
+        <Route path="/admin-verify" element={<Navigate to="/admin/verify" replace />} />
 
         {/* Protected Dashboard Routes - Require authentication */}
         <Route path="/carrier-dashboard" element={
@@ -103,16 +110,25 @@ function InnerRoutes({ chatOpen, chatMinimized, setChatOpen, setChatMinimized })
             <DriverDashboard />
           </ProtectedRoute>
         } />
-        <Route path="/admin-dashboard" element={
+        {/* Admin dashboard routing */}
+        <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
+        <Route path="/admin/:section" element={
           <ProtectedRoute allowedRoles={['admin']}>
             <AdminDashboard />
           </ProtectedRoute>
         } />
-        <Route path="/super-admin-dashboard" element={
-          <ProtectedRoute allowedRoles={['super_admin', 'admin']}>
+
+        {/* Super admin dashboard routing (strict: super_admin only) */}
+        <Route path="/super-admin" element={<Navigate to="/super-admin/dashboard" replace />} />
+        <Route path="/super-admin/:section" element={
+          <ProtectedRoute allowedRoles={['super_admin']}>
             <SuperAdminDashboard />
           </ProtectedRoute>
         } />
+
+        {/* Back-compat dashboard paths */}
+        <Route path="/admin-dashboard" element={<Navigate to="/admin/dashboard" replace />} />
+        <Route path="/super-admin-dashboard" element={<Navigate to="/super-admin/dashboard" replace />} />
         <Route path="/shipper-dashboard" element={
           <ProtectedRoute allowedRoles={['shipper']}>
             <ShipperDashboard />

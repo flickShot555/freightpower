@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import '../../styles/carrier/CarrierDashboard.css';
 import '../../styles/admin/AdminDashboard.css';
 import TrackingVisibility from './TrackingVisibility';
@@ -23,6 +24,9 @@ import logo from '/src/assets/logo.png';
 import resp_logo from '/src/assets/logo_1.png';
 
 export default function AdminDashboard() {
+  const navigate = useNavigate();
+  const { section } = useParams();
+
   const [activeNav, setActiveNav] = useState('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSidebarDark, setIsSidebarDark] = useState(false);
@@ -69,6 +73,17 @@ export default function AdminDashboard() {
       ]
     }
   ];
+
+  const validNavKeys = useMemo(() => {
+    const keys = new Set();
+    navGroups.forEach((g) => g.items.forEach((it) => keys.add(it.key)));
+    return keys;
+  }, []);
+
+  useEffect(() => {
+    const next = (section || 'dashboard').toLowerCase();
+    setActiveNav(validNavKeys.has(next) ? next : 'dashboard');
+  }, [section, validNavKeys]);
 
   return (
     <div className={`fp-dashboard-root ${isDarkMode ? 'dark-root' : ''}`}>
@@ -138,7 +153,11 @@ export default function AdminDashboard() {
                     <li
                       className={`nav-item ${activeNav === it.key ? 'active' : ''}`}
                       key={it.key}
-                      onClick={() => { setActiveNav(it.key); if (isSidebarOpen) setIsSidebarOpen(false); }}
+                      onClick={() => {
+                        setActiveNav(it.key);
+                        navigate(`/admin/${it.key}`);
+                        if (isSidebarOpen) setIsSidebarOpen(false);
+                      }}
                       role="button"
                       tabIndex={0}
                     >

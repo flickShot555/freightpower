@@ -66,7 +66,8 @@ const Login = () => {
       const role = userData.role || 'carrier';
 
       // 4. Role-Based Redirect
-      if (role === 'admin') navigate('/admin-dashboard');
+      if (role === 'super_admin') navigate('/super-admin/dashboard');
+      else if (role === 'admin') navigate('/admin/dashboard');
       else if (role === 'driver') navigate('/driver-dashboard');
       else if (role === 'shipper') navigate('/shipper-dashboard');
       else navigate('/carrier-dashboard');

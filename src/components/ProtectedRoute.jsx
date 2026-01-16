@@ -102,8 +102,8 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
         'carrier': '/carrier-dashboard',
         'driver': '/driver-dashboard',
         'shipper': '/shipper-dashboard',
-        'admin': '/admin-dashboard',
-        'super_admin': '/super-admin-dashboard'
+        'admin': '/admin/dashboard',
+        'super_admin': '/super-admin/dashboard'
       };
       
       const correctDashboard = roleRedirects[userRole] || '/carrier-dashboard';
