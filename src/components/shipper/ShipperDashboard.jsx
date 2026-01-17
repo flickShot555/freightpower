@@ -5,6 +5,7 @@ import { API_URL } from '../../config';
 import TrackingVisibility from './TrackingVisibility';
 import DocumentVault from './DocumentVault';
 import Finance from './Finance';
+import Messaging from './Messaging';
 import '../../styles/carrier/CarrierDashboard.css';
 import '../../styles/shipper/ShipperDashboard.css';
 import MyCarriers from './MyCarriers';
@@ -175,6 +176,7 @@ export default function ShipperDashboard() {
         { key: 'my-loads', label: 'My Loads', icon: 'fa-solid fa-truck' },
         { key: 'my-carriers', label: 'My Carriers', icon: 'fa-solid fa-people-group' },
         { key: 'marketplace', label: 'Marketplace', icon: 'fa-solid fa-store' },
+        { key: 'messaging', label: 'Messaging', icon: 'fa-solid fa-comments' },
         { key: 'carrier-bids', label: 'Carrier Bids', icon: 'fa-solid fa-hand-holding-dollar' },
         { key: 'tracking', label: 'Tracking & Visibility', icon: 'fa-solid fa-location-crosshairs' },
         { key: 'doc-vault', label: 'Document Vault', icon: 'fa-solid fa-folder' },
@@ -489,6 +491,7 @@ export default function ShipperDashboard() {
     if (activeNav === 'settings') return <Settings />;
     if (activeNav === 'help') return <AiHub />;
     if (activeNav === 'analytics') return <ShipperAnalytics />;
+    if (activeNav === 'messaging') return <Messaging />;
     if (activeNav === 'profile') return (
       <div>
         <header className="fp-header">

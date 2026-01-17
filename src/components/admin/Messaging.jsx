@@ -1,21 +1,37 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import '../../styles/carrier/Messaging.css';
+import { getJson, postJson } from '../../api/http';
 
-const mockChats = [
-  { id: 1, name: 'Metro Logistics', avatar: 'ML', lastMessage: 'Insurance Document Update Required', lastTime: '2 min ago', unread: 1, type: 'Carrier', messages: [
-      { from: 'them', text: 'Hi, I need to update our insurance certificate. The current one expires in 3 days. Can you help me with the process?', time: 'Today 2:15 PM' },
-      { from: 'ai', text: 'Carrier requesting assistance with insurance certificate renewal. Current certificate expires in 3 days. Standard compliance update required.', time: 'Today 2:15 PM' },
-      { from: 'me', text: "I'll help you with that. Please upload your new insurance certificate through the compliance portal. I'll review it within 2 hours.", time: 'Today 2:18 PM' }
-    ], contact: { name: 'Metro Logistics', role: 'Carrier', phone: '', email: '' }, load: { id: '#1452', note: 'Insurance Update' }, sharedFiles: [] },
-  { id: 2, name: 'Apex Freight Solutions', avatar: 'AF', lastMessage: 'Load #1452 Rate Confirmation', lastTime: '5 min ago', unread: 0, type: 'Broker', messages: [{ from: 'them', text: 'Confirming the updated rate for delivery to...', time: '5 min ago' }] },
-  { id: 3, name: 'Mike Rodriguez', avatar: 'MR', lastMessage: 'Delivery Confirmation - Load #1448', lastTime: '12 min ago', unread: 0, type: 'Driver', messages: [{ from: 'them', text: 'Package delivered successfully. POD attached.', time: '12 min ago' }] }
+const CHANNELS = [
+  { id: 'all', label: 'All Users' },
+  { id: 'carrier', label: 'Carriers' },
+  { id: 'driver', label: 'Drivers' },
+  { id: 'shipper', label: 'Shippers' },
+  { id: 'broker', label: 'Brokers' },
 ];
 
+function initials(value) {
+  const s = String(value || '').trim();
+  if (!s) return '?';
+  const parts = s.split(/\s+/).slice(0, 2);
+  return parts.map(p => p[0]?.toUpperCase()).join('') || '?';
+}
+
+function fmtTime(ts) {
+  if (!ts) return '';
+  const d = new Date(ts * 1000);
+  return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
 export default function AdminMessaging() {
-  const [chats] = useState(mockChats);
-  const [selectedChat, setSelectedChat] = useState(chats[0]);
+  const [selectedChannel, setSelectedChannel] = useState(CHANNELS[0]);
+  const [messages, setMessages] = useState([]);
   const [search, setSearch] = useState('');
   const [message, setMessage] = useState('');
+  const [title, setTitle] = useState('');
+  const [targetRole, setTargetRole] = useState('all');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' && window.innerWidth <= 900);
   const [showChatMobile, setShowChatMobile] = useState(false);
 
@@ -30,22 +46,65 @@ export default function AdminMessaging() {
     if (!isMobile) setShowChatMobile(false);
   }, [isMobile]);
 
-  const handleSelectChat = (chat) => {
-    setSelectedChat(chat);
+  async function loadChannel(channelId) {
+    const data = await getJson(`/messaging/notifications/channels/${channelId}/messages?limit=100`);
+    setMessages(data.messages || []);
+  }
+
+  const handleSelectChat = async (channel) => {
+    setSelectedChannel(channel);
     if (isMobile) setShowChatMobile(true);
+    setError('');
+    try {
+      setLoading(true);
+      await loadChannel(channel.id);
+    } catch (e) {
+      setError(e?.message || 'Failed to load channel');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleBack = () => setShowChatMobile(false);
 
-  const filtered = chats.filter(c => c.name.toLowerCase().includes(search.toLowerCase()) || c.lastMessage.toLowerCase().includes(search.toLowerCase()));
+  const filteredChannels = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return CHANNELS.filter(c => !q || c.label.toLowerCase().includes(q) || c.id.toLowerCase().includes(q));
+  }, [search]);
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!message.trim()) return;
-    const updated = { ...selectedChat };
-    updated.messages = [...updated.messages, { from: 'me', text: message, time: 'Now' }];
-    setSelectedChat(updated);
-    setMessage('');
+    setError('');
+    try {
+      setLoading(true);
+      await postJson('/messaging/admin/notifications/send', {
+        text: message.trim(),
+        title: title.trim() || null,
+        target_role: targetRole,
+      });
+      setMessage('');
+      setTitle('');
+      // Refresh currently opened channel if it matches
+      await loadChannel(selectedChannel?.id || 'all');
+    } catch (e) {
+      setError(e?.message || 'Failed to send');
+    } finally {
+      setLoading(false);
+    }
   };
+
+  useEffect(() => {
+    (async () => {
+      try {
+        setLoading(true);
+        await loadChannel('all');
+      } catch (e) {
+        setError(e?.message || 'Failed to load');
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
 
   return (
     <>
@@ -63,26 +122,19 @@ export default function AdminMessaging() {
           <div className="sidebar-header">
             <div className="sidebar-search">
               <i className="fa-solid fa-search" />
-              <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search conversations..." />
-            </div>
-            <div className="filter-buttons" style={{marginTop:8}}>
-              <button className={`chat-filter-btn active`}>All</button>
-              <button className={`chat-filter-btn`}>Direct</button>
-              <button className={`chat-filter-btn`}>Compliance</button>
-              <button className={`chat-filter-btn`}>Finance</button>
+              <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search channels..." />
             </div>
           </div>
               <div className="chats-list">
-            {filtered.map(chat => (
-              <div key={chat.id} className={`chat-item ${selectedChat && selectedChat.id === chat.id ? 'active' : ''}`} onClick={() => handleSelectChat(chat)}>
-                <div className="chat-avatar">{chat.avatar}</div>
+            {filteredChannels.map(ch => (
+              <div key={ch.id} className={`chat-item ${selectedChannel && selectedChannel.id === ch.id ? 'active' : ''}`} onClick={() => handleSelectChat(ch)}>
+                <div className="chat-avatar">{initials(ch.label)}</div>
                 <div className="chat-info">
-                  <div className="chat-title">{chat.name} <span className="chat-tag">{chat.type}</span></div>
-                  <div className="chat-last">{chat.lastMessage}</div>
+                  <div className="chat-title">{ch.label}</div>
+                  <div className="chat-last">One-way notifications</div>
                 </div>
                 <div className="chat-meta">
-                  <span className="chat-time">{chat.lastTime}</span>
-                  {chat.unread > 0 && <span className="chat-unread">{chat.unread}</span>}
+                  <span className="chat-time"></span>
                 </div>
               </div>
             ))}
@@ -91,7 +143,7 @@ export default function AdminMessaging() {
         )}
 
         {/* Center: messages */}
-        {((!isMobile && selectedChat) || (isMobile && showChatMobile && selectedChat)) && (
+        {((!isMobile && selectedChannel) || (isMobile && showChatMobile && selectedChannel)) && (
           <main className="main-chat">
           <div className="chat-header">
             {isMobile && (
@@ -100,42 +152,58 @@ export default function AdminMessaging() {
               </button>
             )}
             <div className="header-info">
-              <div className="header-avatar">{selectedChat.avatar}</div>
+              <div className="header-avatar">{initials(selectedChannel.label)}</div>
               <div>
-                <div className="header-title">{selectedChat.name} <span className="muted">{selectedChat.load?.id} · {selectedChat.load?.note}</span></div>
-                <div className="header-sub muted">{selectedChat.contact?.role || selectedChat.type}</div>
+                <div className="header-title">{selectedChannel.label}</div>
+                <div className="header-sub muted">Broadcast notifications (one-way)</div>
               </div>
             </div>
           </div>
 
           <div className="messages-area">
-            {selectedChat.messages.map((m, i) => (
-              <div key={i} className={`message-row${m.from === 'me' ? ' sent' : m.from === 'ai' ? ' ai' : ''}`}>
-                <div className="message-bubble">{m.text}</div>
-                <div className="message-meta">{m.time}</div>
+            {error && <div style={{ padding: 12, color: '#b91c1c' }}>{error}</div>}
+            {loading && <div style={{ padding: 12, opacity: 0.8 }}>Loading…</div>}
+            {!loading && messages.length === 0 && <div style={{ padding: 12, opacity: 0.8 }}>No notifications yet.</div>}
+            {messages.map((m) => (
+              <div key={m.id} className={'message-row sent'}>
+                <div className="message-bubble">
+                  {m.title ? <div style={{ fontWeight: 700, marginBottom: 4 }}>{m.title}</div> : null}
+                  {m.text}
+                </div>
+                <div className="message-meta">{fmtTime(m.created_at)}</div>
               </div>
             ))}
           </div>
 
           <div className="message-input-area">
-            <input className="message-input" value={message} onChange={e => setMessage(e.target.value)} placeholder="Type your message..." onKeyDown={e => e.key === 'Enter' && handleSend()} />
-            <button className="send-btn" onClick={handleSend}><i className="fa-solid fa-paper-plane" /></button>
+            <select
+              value={targetRole}
+              onChange={(e) => setTargetRole(e.target.value)}
+              style={{ padding: '10px 12px', borderRadius: 10, border: '1px solid #e5e7eb', background: '#fff' }}
+            >
+              {CHANNELS.map(c => (
+                <option key={c.id} value={c.id}>{c.label}</option>
+              ))}
+            </select>
+            <input
+              className="message-input"
+              value={title}
+              onChange={e => setTitle(e.target.value)}
+              placeholder="Optional title"
+              style={{ maxWidth: 220 }}
+            />
+            <input
+              className="message-input"
+              value={message}
+              onChange={e => setMessage(e.target.value)}
+              placeholder="Type a notification..."
+              onKeyDown={e => e.key === 'Enter' && handleSend()}
+            />
+            <button className="send-btn" onClick={handleSend} disabled={loading}><i className="fa-solid fa-paper-plane" /></button>
           </div>
           </main>
         )}
       </div>
-
-      <div className="ai-summary">
-              <div className="ai-summary-left">
-                <span className="aai-icon"><i className="fa fa-info-circle" aria-hidden="true"></i></span>
-                <div className="aai-text"><strong>AI Summary:</strong> 163 new messages today. Average response time: 3 minutes. 3 unresolved system tickets. AI Recommends notifying 2 carriers about expiring complaince</div>
-              </div>
-              <div className="aai-actions">
-                <button className="btn small ghost-cd"><i className="fa fa-brain" aria-hidden="true"></i> Apply Suggestion</button>
-                <button className="btn small ghost-cd"><i className="fa fa-chart-line" aria-hidden="true"></i> View Reports</button>
-                <button className="btn small ghost-cd"><i className="fa fa-bell" aria-hidden="true"></i> Send Reminder</button>
-              </div>
-            </div>
     </>
   );
 }

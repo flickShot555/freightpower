@@ -1,6 +1,7 @@
 # File: apps/api/auth.py
 from fastapi import APIRouter, HTTPException, Header, Depends, Body, status, UploadFile, File, Request
 from firebase_admin import auth as firebase_auth
+from firebase_admin import firestore
 import firebase_admin
 import time
 import json
@@ -11,7 +12,8 @@ import httpx
 from pydantic import BaseModel, EmailStr
 
 # Use relative imports
-from .database import db, log_action
+from .database import db, log_action, record_profile_update
+from .fmcsa import FmcsaClient
 from .models import (
     UserSignup, Role, SignupResponse, LoginRequest, 
     TokenResponse, RefreshTokenRequest, UserProfile, ProfileUpdate
@@ -19,6 +21,26 @@ from .models import (
 from .settings import settings
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
+
+
+def _normalize_identifier(value: Any) -> str | None:
+    if value is None:
+        return None
+    s = str(value).strip()
+    if not s:
+        return None
+    digits = "".join(ch for ch in s if ch.isdigit())
+    return digits or s
+
+
+def _summarize_fmcsa_verification(verification: Dict[str, Any]) -> Dict[str, Any]:
+    return {
+        "result": verification.get("result"),
+        "reasons": verification.get("reasons", []),
+        "usdot": verification.get("usdot"),
+        "mc_number": verification.get("mc_number"),
+        "fetched_at": verification.get("fetched_at"),
+    }
 
 
 class AdminRequestSignupRequest(BaseModel):
@@ -1079,14 +1101,95 @@ async def update_profile(
 ):
     """Update user profile information."""
     uid = user['uid']
+    user_ref = db.collection("users").document(uid)
+    before = (user_ref.get().to_dict() or {})
     update_data = update.dict(exclude_unset=True)
     
     if update_data:
+        # Normalize DOT/MC inputs
+        if "dot_number" in update_data:
+            update_data["dot_number"] = _normalize_identifier(update_data.get("dot_number"))
+        if "mc_number" in update_data:
+            update_data["mc_number"] = _normalize_identifier(update_data.get("mc_number"))
+
+        fmcsa_summary: Dict[str, Any] | None = None
+        # FMCSA verification gate for carriers when DOT/MC is being set/changed.
+        if (user.get("role") == "carrier") and ("dot_number" in update_data or "mc_number" in update_data):
+            dot_number = update_data.get("dot_number") or before.get("dot_number")
+            mc_number = update_data.get("mc_number") or before.get("mc_number")
+            dot_number = _normalize_identifier(dot_number)
+            mc_number = _normalize_identifier(mc_number)
+            if not dot_number and not mc_number:
+                raise HTTPException(status_code=400, detail="Provide at least a DOT or MC number")
+            try:
+                client = FmcsaClient()
+                verification = client.verify(usdot=dot_number, mc_number=mc_number)
+            except ValueError as exc:
+                raise HTTPException(status_code=400, detail=str(exc))
+            except Exception as exc:
+                raise HTTPException(status_code=502, detail=f"FMCSA verification failed: {str(exc)}")
+
+            if verification.get("result") == "Blocked":
+                raise HTTPException(status_code=403, detail="FMCSA verification blocked this carrier")
+
+            fmcsa_summary = _summarize_fmcsa_verification(verification)
+            update_data["fmcsa_verification"] = fmcsa_summary
+            update_data["fmcsa_verified"] = verification.get("result") == "Verified"
+            update_data["fmcsa_last_checked_at"] = time.time()
+            if verification.get("usdot"):
+                update_data["dot_number"] = _normalize_identifier(verification.get("usdot"))
+            if verification.get("mc_number"):
+                update_data.setdefault("mc_number", _normalize_identifier(verification.get("mc_number")))
+
         update_data['updated_at'] = time.time()
-        db.collection("users").document(uid).update(update_data)
+        user_ref.update(update_data)
+
+        changed: Dict[str, Any] = {}
+        for k, after_v in update_data.items():
+            if k == "updated_at":
+                continue
+            before_v = before.get(k)
+            if before_v != after_v:
+                changed[k] = {"before": before_v, "after": after_v}
+        if changed:
+            record_profile_update(
+                user_id=uid,
+                changes=changed,
+                source="auth.profile.update",
+                actor_id=uid,
+                actor_role=user.get("role"),
+                fmcsa_verification=fmcsa_summary,
+            )
+
         log_action(uid, "PROFILE_UPDATE", f"Updated fields: {list(update_data.keys())}")
     
     return {"status": "success", "message": "Profile updated"}
+
+
+    @router.get("/profile/updates")
+    async def list_profile_updates(user: Dict[str, Any] = Depends(get_current_user)):
+        """Return recent profile update history for the current user."""
+        uid = user.get("uid")
+        if not uid:
+            raise HTTPException(status_code=401, detail="Unauthorized")
+
+        try:
+            snaps = (
+                db.collection("users")
+                .document(uid)
+                .collection("profile_updates")
+                .order_by("timestamp", direction=firestore.Query.DESCENDING)
+                .limit(50)
+                .stream()
+            )
+            items = []
+            for s in snaps:
+                d = s.to_dict() or {}
+                d["id"] = s.id
+                items.append(d)
+            return {"items": items}
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Failed to load profile updates: {str(e)}")
 
 
 @router.post("/profile/picture")

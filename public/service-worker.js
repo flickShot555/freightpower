@@ -9,7 +9,7 @@ const CACHE_NAME = 'freightpower-pwa-v1';
 // Vite's hashed assets are not known here without a build step, so we focus on
 // index + manifest + icons. Runtime caching handles same-origin requests.
 const PRECACHE_URLS = [
-  '/',
+  
   '/admin/dashboard',
   '/super-admin/dashboard',
   '/index.html',

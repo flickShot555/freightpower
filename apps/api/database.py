@@ -1,6 +1,7 @@
 import firebase_admin
 from firebase_admin import credentials, firestore, storage
 import os
+from typing import Any, Dict
 
 # Initialize Firebase only once
 if not firebase_admin._apps:
@@ -31,3 +32,31 @@ def log_action(user_id: str, action: str, details: str, ip: str = None):
         })
     except Exception as e:
         print(f"Audit log error: {e}")
+
+
+def record_profile_update(
+    user_id: str,
+    changes: Dict[str, Any],
+    source: str,
+    actor_id: str | None = None,
+    actor_role: str | None = None,
+    fmcsa_verification: Dict[str, Any] | None = None,
+):
+    """Record a per-user profile update event.
+
+    Stored under: users/{uid}/profile_updates (subcollection)
+    """
+    try:
+        payload: Dict[str, Any] = {
+            "source": source,
+            "changes": changes,
+            "actor_id": actor_id or user_id,
+            "actor_role": actor_role,
+            "timestamp": firestore.SERVER_TIMESTAMP,
+        }
+        if fmcsa_verification is not None:
+            payload["fmcsa_verification"] = fmcsa_verification
+
+        db.collection("users").document(user_id).collection("profile_updates").add(payload)
+    except Exception as e:
+        print(f"Profile update history error: {e}")

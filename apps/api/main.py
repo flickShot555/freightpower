@@ -36,6 +36,7 @@ from .notify import send_webhook
 from .auth import router as auth_router, get_current_user
 from .database import db, log_action, bucket  # Added bucket import
 from .here_maps import get_here_client
+from .messaging import router as messaging_router
 from firebase_admin import auth as firebase_auth
 from firebase_admin import firestore
 import smtplib
@@ -68,7 +69,16 @@ app = FastAPI(title="FreightPower AI API", version="1.0.0")
 # --- CORS Middleware ---
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000"],
+    # Dev-friendly CORS: allow Vite default/alternate ports and LAN access when using `vite --host`.
+    allow_origins=[
+        "http://localhost:5173",
+        "http://localhost:5174",
+        "http://127.0.0.1:5173",
+        "http://127.0.0.1:5174",
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+    ],
+    allow_origin_regex=r"https?://(localhost|127\.0\.0\.1|192\.168\.[0-9]+\.[0-9]+)(:(5173|5174|3000))?$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -5603,6 +5613,7 @@ async def generate_snapshot(
 # Register Routers at the end to keep clean separation
 app.include_router(auth_router)
 app.include_router(onboarding_router) 
+app.include_router(messaging_router)
 
 @app.on_event("startup")
 def startup_events():

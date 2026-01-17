@@ -1,11 +1,17 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import '../../styles/carrier/Settings.css';
+import { useAuth } from '../../contexts/AuthContext';
+import { API_URL } from '../../config';
 
 export default function Settings() {
+  const { currentUser } = useAuth();
   const [activeTab, setActiveTab] = useState('company-profile');
   const [userSearchTerm, setUserSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('All Status');
   const [loginFilter, setLoginFilter] = useState('Last Login');
+  const [loadingProfile, setLoadingProfile] = useState(true);
+  const [savingProfile, setSavingProfile] = useState(false);
+  const [message, setMessage] = useState({ type: '', text: '' });
   const [formData, setFormData] = useState({
     // Company Profile
     companyName: 'TransLogistics Inc.',
@@ -30,6 +36,44 @@ export default function Settings() {
     safetyContact: 'safety@translogistics.com',
     billingContact: 'billing@translogistics.com'
   });
+
+  useEffect(() => {
+    const run = async () => {
+      if (!currentUser) {
+        setLoadingProfile(false);
+        return;
+      }
+      try {
+        setLoadingProfile(true);
+        const token = await currentUser.getIdToken();
+        const resp = await fetch(`${API_URL}/onboarding/data`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+        const data = await resp.json().catch(() => ({}));
+        if (!resp.ok) throw new Error(data?.detail || 'Failed to load profile');
+
+        const d = data?.data || {};
+        setFormData(prev => ({
+          ...prev,
+          companyName: d.companyName || prev.companyName || '',
+          phoneNumber: d.phone || prev.phoneNumber || '',
+          address: d.address || prev.address || '',
+          email: d.email || prev.email || '',
+          dotNumber: d.dotNumber || prev.dotNumber || '',
+          mcNumber: d.mcNumber || prev.mcNumber || '',
+        }));
+      } catch (e) {
+        console.error(e);
+        setMessage({ type: 'error', text: e?.message || 'Failed to load profile' });
+      } finally {
+        setLoadingProfile(false);
+      }
+    };
+    run();
+  }, [currentUser]);
 
   // User Management Data
   const users = [
@@ -215,9 +259,63 @@ export default function Settings() {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleSaveChanges = () => {
-    console.log('Saving changes...', formData);
-    // Implementation for saving changes
+  const handleSaveChanges = async () => {
+    if (!currentUser) return;
+    try {
+      setSavingProfile(true);
+      setMessage({ type: '', text: '' });
+      const token = await currentUser.getIdToken();
+
+      const payload = {
+        companyName: formData.companyName,
+        dotNumber: formData.dotNumber,
+        mcNumber: formData.mcNumber,
+        phone: formData.phoneNumber,
+        address: formData.address,
+      };
+
+      const resp = await fetch(`${API_URL}/onboarding/update-profile`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+      const data = await resp.json().catch(() => ({}));
+      if (!resp.ok) throw new Error(data?.detail || 'Failed to save changes');
+
+      setMessage({ type: 'success', text: 'Company profile saved successfully.' });
+      setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+
+      // Re-load canonical data so all fields are in sync
+      setLoadingProfile(true);
+      const refetch = await fetch(`${API_URL}/onboarding/data`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      const refetchData = await refetch.json().catch(() => ({}));
+      if (refetch.ok) {
+        const d = refetchData?.data || {};
+        setFormData(prev => ({
+          ...prev,
+          companyName: d.companyName || prev.companyName || '',
+          phoneNumber: d.phone || prev.phoneNumber || '',
+          address: d.address || prev.address || '',
+          email: d.email || prev.email || '',
+          dotNumber: d.dotNumber || prev.dotNumber || '',
+          mcNumber: d.mcNumber || prev.mcNumber || '',
+        }));
+      }
+    } catch (e) {
+      console.error(e);
+      setMessage({ type: 'error', text: e?.message || 'Failed to save changes' });
+    } finally {
+      setSavingProfile(false);
+      setLoadingProfile(false);
+    }
   };
 
   const handleUploadLogo = () => {
@@ -253,9 +351,39 @@ export default function Settings() {
       <div className="settings-content">
         {activeTab === 'company-profile' && (
           <div className="tab-panel">
-            <div className="settings-grid">
-              {/* Left Column */}
-              <div className="settings-left-column">
+            {message.text && (
+              <div
+                className={`profile-message ${message.type}`}
+                style={{
+                  padding: '12px 16px',
+                  marginBottom: '14px',
+                  borderRadius: '8px',
+                  backgroundColor: message.type === 'success' ? '#d1fae5' : '#fee2e2',
+                  color: message.type === 'success' ? '#065f46' : '#991b1b',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                }}
+              >
+                <i
+                  className={`fa-solid ${
+                    message.type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'
+                  }`}
+                ></i>
+                {message.text}
+              </div>
+            )}
+
+            {loadingProfile ? (
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 220 }}>
+                <i className="fas fa-spinner fa-spin" style={{ fontSize: '1.6rem', color: '#3b82f6' }}></i>
+                <span style={{ marginLeft: 10 }}>Loading company profile...</span>
+              </div>
+            ) : (
+              <>
+              <div className="settings-grid">
+                {/* Left Column */}
+                <div className="settings-left-column">
                 {/* Basic Information */}
                 <div className="settings-section">
                   <h3 className="section-title">Basic Information</h3>
@@ -418,14 +546,16 @@ export default function Settings() {
                   </div>
                 </div>
               </div>
-            </div>
+              </div>
 
             {/* Save Button */}
             <div className="settings-actions">
-              <button className="btn small-cd" onClick={handleSaveChanges}>
-                Save Changes
+              <button className="btn small-cd" onClick={handleSaveChanges} disabled={savingProfile}>
+                {savingProfile ? 'Saving…' : 'Save Changes'}
               </button>
             </div>
+              </>
+            )}
           </div>
         )}
 

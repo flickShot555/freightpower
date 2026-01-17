@@ -6,13 +6,37 @@ import json
 import time
 from datetime import datetime, timedelta
 
+from firebase_admin import firestore
+
 from .auth import get_current_user
-from .database import db, log_action
+from .database import db, log_action, record_profile_update
+from .fmcsa import FmcsaClient
 from .models import (
     OnboardingDataRequest, ChatbotAccountCreationRequest, OnboardingStatusResponse
 )
 
 router = APIRouter(prefix="/onboarding", tags=["Onboarding"])
+
+
+def _normalize_identifier(value: Any) -> str | None:
+    if value is None:
+        return None
+    s = str(value).strip()
+    if not s:
+        return None
+    # Keep digits only for DOT/MC.
+    digits = "".join(ch for ch in s if ch.isdigit())
+    return digits or s
+
+
+def _summarize_fmcsa_verification(verification: Dict[str, Any]) -> Dict[str, Any]:
+    return {
+        "result": verification.get("result"),
+        "reasons": verification.get("reasons", []),
+        "usdot": verification.get("usdot"),
+        "mc_number": verification.get("mc_number"),
+        "fetched_at": verification.get("fetched_at"),
+    }
 
 
 def calculate_document_status(expiry_date_str: str) -> str:
@@ -345,6 +369,8 @@ async def update_profile_with_data(
     try:
         uid = user['uid']
         user_ref = db.collection("users").document(uid)
+
+        before = (user_ref.get().to_dict() or {})
         
         # Build update from provided data
         update_data = {"updated_at": time.time()}
@@ -363,10 +389,63 @@ async def update_profile_with_data(
         
         for frontend_field, db_field in field_mapping.items():
             if frontend_field in data and data[frontend_field]:
-                update_data[db_field] = data[frontend_field]
+                if db_field in {"dot_number", "mc_number"}:
+                    update_data[db_field] = _normalize_identifier(data[frontend_field])
+                else:
+                    update_data[db_field] = data[frontend_field]
+
+        fmcsa_summary: Dict[str, Any] | None = None
+        # FMCSA verification gate for carriers when DOT/MC is being set/changed.
+        if (user.get("role") == "carrier") and (
+            "dotNumber" in data or "mcNumber" in data or "dot_number" in update_data or "mc_number" in update_data
+        ):
+            dot_number = update_data.get("dot_number") or before.get("dot_number")
+            mc_number = update_data.get("mc_number") or before.get("mc_number")
+            dot_number = _normalize_identifier(dot_number)
+            mc_number = _normalize_identifier(mc_number)
+            if not dot_number and not mc_number:
+                raise HTTPException(status_code=400, detail="Provide at least a DOT or MC number")
+            try:
+                client = FmcsaClient()
+                verification = client.verify(usdot=dot_number, mc_number=mc_number)
+            except ValueError as exc:
+                raise HTTPException(status_code=400, detail=str(exc))
+            except Exception as exc:
+                raise HTTPException(status_code=502, detail=f"FMCSA verification failed: {str(exc)}")
+
+            if verification.get("result") == "Blocked":
+                raise HTTPException(status_code=403, detail="FMCSA verification blocked this carrier")
+
+            fmcsa_summary = _summarize_fmcsa_verification(verification)
+            update_data["fmcsa_verification"] = fmcsa_summary
+            update_data["fmcsa_verified"] = verification.get("result") == "Verified"
+            update_data["fmcsa_last_checked_at"] = time.time()
+            # Prefer the resolved DOT from FMCSA if available.
+            if verification.get("usdot"):
+                update_data["dot_number"] = _normalize_identifier(verification.get("usdot"))
+            if verification.get("mc_number"):
+                update_data.setdefault("mc_number", _normalize_identifier(verification.get("mc_number")))
         
         # Update user document
         user_ref.update(update_data)
+
+        # Per-user change history
+        changed: Dict[str, Any] = {}
+        for k, after_v in update_data.items():
+            if k == "updated_at":
+                continue
+            before_v = before.get(k)
+            if before_v != after_v:
+                changed[k] = {"before": before_v, "after": after_v}
+        if changed:
+            record_profile_update(
+                user_id=uid,
+                changes=changed,
+                source="onboarding.update-profile",
+                actor_id=uid,
+                actor_role=user.get("role"),
+                fmcsa_verification=fmcsa_summary,
+            )
         
         log_action(uid, "PROFILE_UPDATE", f"Updated fields: {list(update_data.keys())}")
         

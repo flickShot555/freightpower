@@ -10,6 +10,7 @@ import HiringOnboarding from './HiringOnboarding';
 import AccountSettings from './AccountSettings';
 import AiHub from './AiHub';
 import ConsentESignature from './ConsentESignature';
+import Messaging from './Messaging';
 import HereMap from '../common/HereMap';
 // OnboardingCoach removed - compliance data now shown in Compliance & Safety page
 import '../../styles/driver/DriverDashboard.css';
@@ -154,6 +155,7 @@ export default function DriverDashboard() {
     {
       title: 'SUPPORT',
       items: [
+        { key: 'messaging', label: 'Messaging', icon: 'fa-solid fa-envelope' },
         { key: 'settings', label: 'Account & Settings', icon: 'fa-solid fa-gear' },
         { key: 'help', label: 'AI Hub', icon: 'fa-solid fa-robot' },
         { key: 'logout', label: 'Logout', icon: 'fa-solid fa-right-from-bracket' }
@@ -1588,6 +1590,8 @@ export default function DriverDashboard() {
         return <HiringOnboarding />;
       case 'esign':
         return <ConsentESignature />;
+      case 'messaging':
+        return <Messaging />;
       case 'settings':
         return <AccountSettings onProfileUpdate={() => {
           // Refresh profile data when settings are updated
