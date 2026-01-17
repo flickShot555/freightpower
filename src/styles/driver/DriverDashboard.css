@@ -740,6 +740,21 @@ input:not(:checked) + .dd-toggle-slider:before {
   object-fit: cover;
 }
 
+/* Unread badge for sidebar nav items (e.g., Messaging) */
+.nav-unread-badge{
+  margin-left:auto;
+  background:#dc2626;
+  color:#fff;
+  border-radius:999px;
+  padding:2px 8px;
+  font-size:12px;
+  font-weight:800;
+  line-height:16px;
+  min-width:22px;
+  text-align:center;
+}
+.dark-root .nav-unread-badge{background:#ef4444}
+
 /* Content Row */
 .dd-content-row {
   display: flex;

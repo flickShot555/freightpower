@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import smtplib
 import time
 import uuid
 from typing import Any, Dict, List, Optional
@@ -9,6 +10,9 @@ from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
+
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
 from firebase_admin import firestore
 from firebase_admin import auth as firebase_auth
@@ -66,6 +70,14 @@ def _now() -> float:
     return time.time()
 
 
+def _conversation_read_doc_id(thread_id: str, uid: str) -> str:
+    return f"{thread_id}_{uid}"
+
+
+def _channel_read_doc_id(channel_id: str, uid: str) -> str:
+    return f"{channel_id}_{uid}"
+
+
 def _normalize_uid(value: Any) -> str:
     s = str(value or "").strip()
     if not s:
@@ -86,6 +98,30 @@ def _get_driver_doc(driver_id: str) -> Dict[str, Any]:
     if not snap.exists:
         raise HTTPException(status_code=404, detail="Driver not found")
     return snap.to_dict() or {}
+
+
+def _get_driver_identity(driver_id: str) -> Dict[str, Any]:
+    """Return best-effort driver identity (name/photo) across drivers + users docs."""
+    ddoc = _get_driver_doc(driver_id)
+    # Many profiles store photo/name on users/{uid}; drivers/{uid} can be operational data only.
+    udoc = _get_user_doc(driver_id)
+
+    name = (
+        ddoc.get("name")
+        or ddoc.get("display_name")
+        or udoc.get("display_name")
+        or udoc.get("name")
+        or udoc.get("email")
+        or ddoc.get("email")
+        or "Driver"
+    )
+    photo = (
+        ddoc.get("profile_picture_url")
+        or ddoc.get("photo_url")
+        or ddoc.get("avatar_url")
+        or _photo_url_for_user_doc(udoc)
+    )
+    return {"name": name, "photo_url": photo}
 
 
 def _driver_carrier_id(driver_id: str) -> Optional[str]:
@@ -182,6 +218,65 @@ def _photo_url_for_user_doc(d: Dict[str, Any]) -> Optional[str]:
     return d.get("profile_picture_url") or d.get("photo_url") or d.get("avatar_url")
 
 
+def _email_for_uid(uid: str) -> Optional[str]:
+    udoc = _get_user_doc(uid)
+    email = (udoc.get("email") or "").strip()
+    if email:
+        return email
+    # Drivers sometimes store email on drivers/{uid}
+    try:
+        ddoc = db.collection("drivers").document(uid).get()
+        if ddoc.exists:
+            d = ddoc.to_dict() or {}
+            email2 = (d.get("email") or "").strip()
+            if email2:
+                return email2
+    except Exception:
+        pass
+    return None
+
+
+def _sender_display_name(user: Dict[str, Any]) -> str:
+    uid = user.get("uid")
+    role = user.get("role")
+    if not uid:
+        return "User"
+    try:
+        if role == "driver":
+            return _get_driver_identity(uid).get("name") or "Driver"
+        udoc = _get_user_doc(uid)
+        return _display_name_for_user_doc(udoc)
+    except Exception:
+        return user.get("display_name") or user.get("name") or user.get("email") or "User"
+
+
+def _send_email(to_email: str, subject: str, body: str, is_html: bool = False) -> bool:
+    """Send an email using SMTP. If SMTP is not configured, logs the email."""
+    try:
+        if not settings.SMTP_USERNAME or not settings.SMTP_PASSWORD:
+            print(f"[DEV] Email would be sent to {to_email}")
+            print(f"[DEV] Subject: {subject}")
+            print(f"[DEV] Body: {body}")
+            return True
+
+        msg = MIMEMultipart()
+        msg["From"] = settings.EMAIL_FROM
+        msg["To"] = to_email
+        msg["Subject"] = subject
+
+        msg.attach(MIMEText(body, "html" if is_html else "plain"))
+
+        server = smtplib.SMTP(settings.SMTP_SERVER, settings.SMTP_PORT)
+        server.starttls()
+        server.login(settings.SMTP_USERNAME, settings.SMTP_PASSWORD)
+        server.sendmail(settings.EMAIL_FROM, to_email, msg.as_string())
+        server.quit()
+        return True
+    except Exception as e:
+        print(f"Error sending email: {e}")
+        return False
+
+
 def _ensure_shipper_carrier_relationship(shipper_id: str, carrier_id: str) -> None:
     q = (
         db.collection("shipper_carrier_relationships")
@@ -213,9 +308,9 @@ def _thread_view_for_user(user: Dict[str, Any], thread: Dict[str, Any]) -> Dict[
 
         if other_id:
             if other_role == "driver":
-                ddoc = _get_driver_doc(other_id)
-                t["other_display_name"] = ddoc.get("name") or ddoc.get("display_name") or ddoc.get("email") or "Driver"
-                t["other_photo_url"] = ddoc.get("profile_picture_url") or ddoc.get("photo_url") or ddoc.get("avatar_url")
+                ident = _get_driver_identity(other_id)
+                t["other_display_name"] = ident.get("name")
+                t["other_photo_url"] = ident.get("photo_url")
             else:
                 udoc = _get_user_doc(other_id)
                 t["other_display_name"] = _display_name_for_user_doc(udoc)
@@ -322,7 +417,7 @@ async def _get_user_from_query_token(token: str) -> Dict[str, Any]:
 # -----------------------------
 
 @router.get("/threads")
-async def list_threads(user: Dict[str, Any] = Depends(get_current_user)):
+async def list_threads(limit: int = 200, user: Dict[str, Any] = Depends(get_current_user)):
     uid = user.get("uid")
     if not uid:
         raise HTTPException(status_code=401, detail="Unauthorized")
@@ -331,15 +426,240 @@ async def list_threads(user: Dict[str, Any] = Depends(get_current_user)):
     if role not in {"carrier", "driver", "shipper"}:
         return {"threads": []}
 
-    threads: List[Dict[str, Any]] = []
-    q = db.collection("conversations").where("member_uids", "array_contains", uid)
-    for snap in q.stream():
+    limit = max(1, min(int(limit or 200), 500))
+
+    # Prefer a server-side order_by for performance. If an index is missing, fall back.
+    try:
+        q = (
+            db.collection("conversations")
+            .where("member_uids", "array_contains", uid)
+            .order_by("updated_at", direction=firestore.Query.DESCENDING)
+            .limit(limit)
+        )
+        snaps = list(q.stream())
+    except Exception:
+        q = db.collection("conversations").where("member_uids", "array_contains", uid).limit(limit)
+        snaps = list(q.stream())
+
+    raw: List[Dict[str, Any]] = []
+    for snap in snaps:
         d = snap.to_dict() or {}
         d["id"] = snap.id
-        threads.append(_thread_view_for_user(user, d))
+        raw.append(d)
+
+    # Batch-load identities to avoid N+1 Firestore reads.
+    driver_ids: List[str] = []
+    user_ids: List[str] = []
+    for t in raw:
+        kind = t.get("kind")
+        if kind == "carrier_driver_direct":
+            if role == "carrier":
+                dids = t.get("driver_ids") or []
+                other_id = dids[0] if dids else None
+                if other_id:
+                    driver_ids.append(other_id)
+            else:
+                other_id = t.get("carrier_id")
+                if other_id:
+                    user_ids.append(other_id)
+        elif kind == "shipper_carrier_direct":
+            shipper_id = t.get("shipper_id")
+            carrier_id = t.get("carrier_id")
+            other_id = carrier_id if uid == shipper_id else shipper_id
+            if other_id:
+                user_ids.append(other_id)
+
+    driver_ids = list({x for x in driver_ids if x})
+    # Drivers also often store name/photo in users/{uid}
+    user_ids = list({x for x in (user_ids + driver_ids) if x})
+
+    driver_docs: Dict[str, Dict[str, Any]] = {}
+    user_docs: Dict[str, Dict[str, Any]] = {}
+    if driver_ids:
+        try:
+            driver_refs = [db.collection("drivers").document(did) for did in driver_ids]
+            driver_docs = {s.id: (s.to_dict() or {}) for s in db.get_all(driver_refs) if s.exists}
+        except Exception:
+            driver_docs = {}
+    if user_ids:
+        try:
+            user_refs = [db.collection("users").document(uid2) for uid2 in user_ids]
+            user_docs = {s.id: (s.to_dict() or {}) for s in db.get_all(user_refs) if s.exists}
+        except Exception:
+            user_docs = {}
+
+    def _identity_for_driver(did: str) -> Dict[str, Any]:
+        ddoc = driver_docs.get(did) or {}
+        udoc = user_docs.get(did) or {}
+        name = (
+            ddoc.get("name")
+            or ddoc.get("display_name")
+            or udoc.get("display_name")
+            or udoc.get("name")
+            or udoc.get("email")
+            or ddoc.get("email")
+            or "Driver"
+        )
+        photo = (
+            ddoc.get("profile_picture_url")
+            or ddoc.get("photo_url")
+            or ddoc.get("avatar_url")
+            or _photo_url_for_user_doc(udoc)
+        )
+        return {"name": name, "photo_url": photo}
+
+    threads: List[Dict[str, Any]] = []
+    for t0 in raw:
+        t = dict(t0)
+        kind = t.get("kind")
+
+        if kind == "carrier_driver_direct":
+            dids = t.get("driver_ids") or []
+            if role == "carrier":
+                other_id = dids[0] if dids else None
+                if other_id:
+                    ident = _identity_for_driver(other_id)
+                    t["other_display_name"] = ident.get("name")
+                    t["other_photo_url"] = ident.get("photo_url")
+            else:
+                other_id = t.get("carrier_id")
+                if other_id:
+                    udoc = user_docs.get(other_id) or {}
+                    t["other_display_name"] = _display_name_for_user_doc(udoc)
+                    t["other_photo_url"] = _photo_url_for_user_doc(udoc)
+
+            t["display_title"] = t.get("other_display_name") or t.get("title")
+            threads.append(t)
+            continue
+
+        if kind == "shipper_carrier_direct":
+            shipper_id = t.get("shipper_id")
+            carrier_id = t.get("carrier_id")
+            other_id = carrier_id if uid == shipper_id else shipper_id
+            if other_id:
+                udoc = user_docs.get(other_id) or {}
+                t["other_display_name"] = _display_name_for_user_doc(udoc)
+                t["other_photo_url"] = _photo_url_for_user_doc(udoc)
+            t["display_title"] = t.get("other_display_name") or t.get("title")
+            threads.append(t)
+            continue
+
+        # Group threads: keep title as-is
+        t["display_title"] = t.get("title")
+        threads.append(t)
 
     threads.sort(key=lambda x: x.get("updated_at", 0), reverse=True)
     return {"threads": threads}
+
+
+@router.get("/unread/summary")
+async def unread_summary(user: Dict[str, Any] = Depends(get_current_user)):
+    """Return unread state for messaging threads + admin notification channels.
+
+    This is used for:
+    - dashboard nav badge (total_unread)
+    - per-chat unread markers (threads[channel_id].has_unread)
+    """
+    uid = user.get("uid")
+    if not uid:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+
+    role = user.get("role")
+    if role not in {"carrier", "driver", "shipper"}:
+        return {"total_unread": 0, "threads": {}, "channels": {}}
+
+    # Threads (membership-based). Use an ordered+limited query to avoid scanning huge sets.
+    try:
+        thread_snaps = list(
+            db.collection("conversations")
+            .where("member_uids", "array_contains", uid)
+            .order_by("updated_at", direction=firestore.Query.DESCENDING)
+            .limit(500)
+            .stream()
+        )
+    except Exception:
+        thread_snaps = list(
+            db.collection("conversations")
+            .where("member_uids", "array_contains", uid)
+            .limit(500)
+            .stream()
+        )
+    read_refs = [db.collection("conversation_reads").document(_conversation_read_doc_id(s.id, uid)) for s in thread_snaps]
+    read_docs = {d.id: (d.to_dict() or {}) for d in db.get_all(read_refs)} if read_refs else {}
+
+    threads_out: Dict[str, Dict[str, Any]] = {}
+    unread_threads = 0
+    for snap in thread_snaps:
+        t = snap.to_dict() or {}
+        thread_id = snap.id
+
+        last_at = float(t.get("last_message_at") or 0.0)
+        last_sender = (t.get("last_message") or {}).get("sender_id")
+        read_id = _conversation_read_doc_id(thread_id, uid)
+        last_read_at = float((read_docs.get(read_id) or {}).get("last_read_at") or 0.0)
+
+        has_unread = bool(last_at and last_at > last_read_at and last_sender and last_sender != uid)
+        if has_unread:
+            unread_threads += 1
+        threads_out[thread_id] = {"has_unread": has_unread, "last_message_at": last_at, "last_read_at": last_read_at}
+
+    # Admin channels (role-based)
+    channel_ids = ["all", role]
+    channel_read_refs = [db.collection("admin_channel_reads").document(_channel_read_doc_id(cid, uid)) for cid in channel_ids]
+    channel_read_docs = {d.id: (d.to_dict() or {}) for d in db.get_all(channel_read_refs)} if channel_read_refs else {}
+
+    channels_out: Dict[str, Dict[str, Any]] = {}
+    unread_channels = 0
+    for cid in channel_ids:
+        # Use cached metadata when present; fall back to querying last message.
+        ch = db.collection("admin_channels").document(cid).get()
+        chd = ch.to_dict() or {}
+        last_at = float(chd.get("last_message_at") or 0.0)
+        if not last_at:
+            q = (
+                db.collection("admin_channels")
+                .document(cid)
+                .collection("messages")
+                .order_by("created_at", direction=firestore.Query.DESCENDING)
+                .limit(1)
+            )
+            for ms in q.stream():
+                md = ms.to_dict() or {}
+                last_at = float(md.get("created_at") or 0.0)
+
+        read_id = _channel_read_doc_id(cid, uid)
+        last_read_at = float((channel_read_docs.get(read_id) or {}).get("last_read_at") or 0.0)
+        has_unread = bool(last_at and last_at > last_read_at)
+        if has_unread:
+            unread_channels += 1
+        channels_out[cid] = {"has_unread": has_unread, "last_message_at": last_at, "last_read_at": last_read_at}
+
+    return {
+        "total_unread": int(unread_threads + unread_channels),
+        "threads": threads_out,
+        "channels": channels_out,
+    }
+
+
+@router.post("/threads/{thread_id}/read")
+async def mark_thread_read(thread_id: str, user: Dict[str, Any] = Depends(get_current_user)):
+    uid = user.get("uid")
+    if not uid:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    thread = _get_thread(thread_id)
+    _assert_member(uid, thread)
+
+    now = _now()
+    db.collection("conversation_reads").document(_conversation_read_doc_id(thread_id, uid)).set(
+        {
+            "thread_id": thread_id,
+            "uid": uid,
+            "last_read_at": now,
+            "updated_at": now,
+        },
+        merge=True,
+    )
+    return {"ok": True, "thread_id": thread_id, "last_read_at": now}
 
 
 @router.get("/carrier/drivers")
@@ -352,7 +672,15 @@ async def list_carrier_drivers(user: Dict[str, Any] = Depends(get_current_user))
     q = db.collection("drivers").where("carrier_id", "==", uid)
     for snap in q.stream():
         d = snap.to_dict() or {}
-        d["id"] = snap.id
+        driver_id = snap.id
+        d["id"] = driver_id
+        try:
+            ident = _get_driver_identity(driver_id)
+            d.setdefault("name", ident.get("name"))
+            d["profile_picture_url"] = ident.get("photo_url")
+        except Exception:
+            # Keep minimal driver record if profile lookup fails
+            pass
         rows.append(d)
 
     rows.sort(key=lambda x: (x.get("name") or "").lower())
@@ -689,6 +1017,28 @@ async def send_message(
     )
 
     log_action(uid, "MESSAGE_SENT", f"Sent message in thread {thread_id}")
+
+    # Optional email notifications
+    if getattr(settings, "ENABLE_MESSAGE_EMAIL_NOTIFICATIONS", False):
+        try:
+            members = thread.get("member_uids") or []
+            recipients = [m for m in members if m and m != uid]
+            sender_name = _sender_display_name(user)
+            thread_label = thread.get("title") or "Conversation"
+            subject = f"New message from {sender_name}"
+            body = f"{sender_name} sent a new message in {thread_label}:\n\n{msg['text']}\n"
+
+            async def _send(to_uid: str):
+                email = _email_for_uid(to_uid)
+                if not email:
+                    return False
+                return await asyncio.to_thread(_send_email, email, subject, body, False)
+
+            await asyncio.gather(*[_send(r) for r in recipients])
+        except Exception as e:
+            # Never fail sending a chat message due to email issues
+            print(f"Email notification error: {e}")
+
     return {"ok": True, "message": {**msg, "id": msg_ref.id}}
 
 
@@ -752,7 +1102,43 @@ async def list_notification_channels(user: Dict[str, Any] = Depends(get_current_
 
     channels: List[Dict[str, Any]] = []
     for cid in channel_ids:
-        channels.append(_ensure_admin_channel(cid, cid))
+        ch = _ensure_admin_channel(cid, cid)
+        # Backfill last_message metadata if missing (keeps frontend fast).
+        if not ch.get("last_message_at"):
+            try:
+                q = (
+                    db.collection("admin_channels")
+                    .document(cid)
+                    .collection("messages")
+                    .order_by("created_at", direction=firestore.Query.DESCENDING)
+                    .limit(1)
+                )
+                last = None
+                for s in q.stream():
+                    last = s.to_dict() or {}
+                if last and last.get("created_at"):
+                    db.collection("admin_channels").document(cid).set(
+                        {
+                            "last_message_at": float(last.get("created_at") or 0.0),
+                            "last_message": {
+                                "text": last.get("text"),
+                                "title": last.get("title"),
+                                "sender_role": last.get("sender_role"),
+                            },
+                            "updated_at": float(last.get("created_at") or _now()),
+                        },
+                        merge=True,
+                    )
+                    # Keep response consistent
+                    ch["last_message_at"] = float(last.get("created_at") or 0.0)
+                    ch["last_message"] = {
+                        "text": last.get("text"),
+                        "title": last.get("title"),
+                        "sender_role": last.get("sender_role"),
+                    }
+            except Exception:
+                pass
+        channels.append(ch)
 
     return {"channels": channels}
 
@@ -782,6 +1168,29 @@ async def list_channel_messages(channel_id: str, limit: int = 50, user: Dict[str
     return {"messages": items}
 
 
+@router.post("/notifications/channels/{channel_id}/read")
+async def mark_channel_read(channel_id: str, user: Dict[str, Any] = Depends(get_current_user)):
+    uid = user.get("uid")
+    if not uid:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+
+    role = user.get("role") or "carrier"
+    if channel_id not in {"all", role} and user.get("role") not in {"admin", "super_admin"}:
+        raise HTTPException(status_code=403, detail="Not allowed")
+
+    now = _now()
+    db.collection("admin_channel_reads").document(_channel_read_doc_id(channel_id, uid)).set(
+        {
+            "channel_id": channel_id,
+            "uid": uid,
+            "last_read_at": now,
+            "updated_at": now,
+        },
+        merge=True,
+    )
+    return {"ok": True, "channel_id": channel_id, "last_read_at": now}
+
+
 @router.post("/admin/notifications/send")
 async def admin_send_notification(
     payload: AdminChannelMessageRequest,
@@ -808,7 +1217,14 @@ async def admin_send_notification(
     ref.set(msg)
 
     # Update channel updated_at
-    db.collection("admin_channels").document(channel_id).set({"updated_at": now}, merge=True)
+    db.collection("admin_channels").document(channel_id).set(
+        {
+            "updated_at": now,
+            "last_message_at": now,
+            "last_message": {"text": msg["text"], "title": msg.get("title"), "sender_role": msg.get("sender_role")},
+        },
+        merge=True,
+    )
 
     push_result = {"attempted": 0, "success": 0, "failure": 0}
     if getattr(settings, "ENABLE_FCM", False):

@@ -19,9 +19,12 @@ export default function Messaging() {
   const [threads, setThreads] = useState([]);
   const [selectedThread, setSelectedThread] = useState(null);
   const [messages, setMessages] = useState([]);
+  const [adminThreads, setAdminThreads] = useState([]);
+  const [unreadSummary, setUnreadSummary] = useState({ total_unread: 0, threads: {}, channels: {} });
   const [search, setSearch] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(true);
+  const [threadLoading, setThreadLoading] = useState(false);
   const [error, setError] = useState('');
   const streamRef = React.useRef(null);
 
@@ -38,14 +41,78 @@ export default function Messaging() {
     setThreads(data.threads || []);
   }
 
+  async function refreshUnread() {
+    const data = await getJson('/messaging/unread/summary');
+    setUnreadSummary(data || { total_unread: 0, threads: {}, channels: {} });
+    try {
+      const total = Number(data?.total_unread || 0);
+      window.dispatchEvent(new CustomEvent('messaging:unread', { detail: { total_unread: total } }));
+    } catch {
+      // ignore
+    }
+  }
+
+  async function refreshAdminThreads() {
+    const channels = await getJson('/messaging/notifications/channels');
+    const items = (channels.channels || []).map((ch) => {
+      const last = ch.last_message || null;
+      const lastText = last
+        ? (last.title ? `${last.title}: ${last.text || ''}` : (last.text || ''))
+        : '';
+      return {
+        id: `admin:${ch.id}`,
+        kind: 'admin_channel',
+        channel_id: ch.id,
+        title: ch.name || ch.id,
+        display_title: ch.name || ch.id,
+        last_message: last ? { text: lastText } : null,
+        last_message_at: ch.last_message_at || null,
+        pinned: true,
+      };
+    });
+    items.sort((a, b) => (b.last_message_at || 0) - (a.last_message_at || 0));
+    setAdminThreads(items);
+  }
+
   async function selectThread(thread) {
     if (streamRef.current) {
-      try { streamRef.current.close(); } catch (_) {}
+      try { streamRef.current.close(); } catch { /* ignore */ }
       streamRef.current = null;
     }
     setSelectedThread(thread);
-    const data = await getJson(`/messaging/threads/${thread.id}/messages?limit=100`);
-    setMessages(data.messages || []);
+    setThreadLoading(true);
+    setMessages([]);
+
+    if (thread.kind === 'admin_channel') {
+      try {
+        const data = await getJson(`/messaging/notifications/channels/${thread.channel_id}/messages?limit=200`);
+        setMessages(data.messages || []);
+      } finally {
+        setThreadLoading(false);
+      }
+      try {
+        await postJson(`/messaging/notifications/channels/${thread.channel_id}/read`, {});
+        refreshUnread().catch(() => {});
+      } catch {
+        // ignore
+      }
+      return;
+    }
+
+    let data;
+    try {
+      data = await getJson(`/messaging/threads/${thread.id}/messages?limit=100`);
+      setMessages(data.messages || []);
+    } finally {
+      setThreadLoading(false);
+    }
+
+    try {
+      await postJson(`/messaging/threads/${thread.id}/read`, {});
+      refreshUnread().catch(() => {});
+    } catch {
+      // ignore
+    }
 
     try {
       const lastTs = (data.messages || []).length ? (data.messages[data.messages.length - 1].created_at || 0) : 0;
@@ -61,12 +128,13 @@ export default function Messaging() {
               return next;
             });
             refreshThreads().catch(() => {});
+            postJson(`/messaging/threads/${thread.id}/read`, {}).then(() => refreshUnread().catch(() => {})).catch(() => {});
           }
-        } catch (_) {
+        } catch {
           // ignore
         }
       };
-    } catch (_) {
+    } catch {
       // ignore; fallback to manual refresh
     }
   }
@@ -80,6 +148,15 @@ export default function Messaging() {
     });
   }, [threads, search]);
 
+  const filteredAdminThreads = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return (adminThreads || []).filter(t => {
+      const title = String(t.display_title || t.title || '').toLowerCase();
+      const last = String(t.last_message?.text || '').toLowerCase();
+      return !q || title.includes(q) || last.includes(q);
+    });
+  }, [adminThreads, search]);
+
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -88,28 +165,56 @@ export default function Messaging() {
         setError('');
         // Ensure driver has their carrier direct thread available
         await postJson('/messaging/driver/threads/my-carrier', {});
-        await refreshThreads();
+        // Fast initial render: list first.
+        const results = await Promise.allSettled([refreshThreads(), refreshAdminThreads()]);
+        const firstErr = results.find(r => r.status === 'rejected')?.reason;
+        if (firstErr && !cancelled) setError(firstErr?.message || 'Failed to load messaging');
       } catch (e) {
         if (!cancelled) setError(e?.message || 'Failed to load messaging');
       } finally {
         if (!cancelled) setLoading(false);
       }
+
+      // Non-blocking background unread fetch
+      refreshUnread().catch(() => {});
     })();
     return () => {
       cancelled = true;
       if (streamRef.current) {
-        try { streamRef.current.close(); } catch (_) {}
+        try { streamRef.current.close(); } catch { /* ignore */ }
         streamRef.current = null;
       }
     };
   }, []);
 
+  // Poll admin notifications so broadcasts show up without hard refresh
+  useEffect(() => {
+    let alive = true;
+    const id = setInterval(() => {
+      if (!alive) return;
+      refreshAdminThreads().catch(() => {});
+      refreshUnread().catch(() => {});
+      if (selectedThread?.kind === 'admin_channel') {
+        getJson(`/messaging/notifications/channels/${selectedThread.channel_id}/messages?limit=200`)
+          .then((data) => { if (alive) setMessages(data.messages || []); })
+          .catch(() => {});
+      }
+    }, 15000);
+    return () => {
+      alive = false;
+      clearInterval(id);
+    };
+  }, [selectedThread]);
+
   const handleSend = async () => {
     if (!message.trim() || !selectedThread) return;
+    if (selectedThread.kind === 'admin_channel') return;
     const text = message.trim();
     setMessage('');
     await postJson(`/messaging/threads/${selectedThread.id}/messages`, { text });
+    postJson(`/messaging/threads/${selectedThread.id}/read`, {}).catch(() => {});
     await refreshThreads();
+    refreshUnread().catch(() => {});
     await selectThread({ ...selectedThread });
   };
 
@@ -141,7 +246,7 @@ export default function Messaging() {
                       setError('');
                       setLoading(true);
                       await postJson('/messaging/driver/threads/my-carrier', {});
-                      await refreshThreads();
+                      await Promise.all([refreshThreads(), refreshAdminThreads()]);
                     } catch (e) {
                       setError(e?.message || 'Refresh failed');
                     } finally {
@@ -167,6 +272,38 @@ export default function Messaging() {
             <div className="chats-list">
               {error && <div style={{ padding: 12, color: '#b91c1c' }}>{error}</div>}
               {loading && <div style={{ padding: 12, opacity: 0.8 }}>Loading…</div>}
+
+              {!loading && filteredAdminThreads.length > 0 && (
+                <div style={{ padding: '8px 20px 4px', fontSize: 12, fontWeight: 800, color: '#64748b' }}>
+                  Admin Notifications
+                </div>
+              )}
+              {filteredAdminThreads.map((t) => (
+                <div
+                  key={t.id}
+                  className={`chat-item${selectedThread && selectedThread.id === t.id ? ' active' : ''}`}
+                  onClick={() => handleSelectChat(t)}
+                >
+                  <div className="chat-avatar" style={{ background: '#fee2e2' }}>
+                    <div style={{ position: 'relative', width: 36, height: 36 }}>
+                      <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        {initials('Admin')}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="chat-info">
+                    <div className="chat-title">{t.display_title || 'Admin'}</div>
+                    <div className="chat-last">{t.last_message?.text || 'One-way notifications'}</div>
+                  </div>
+                  <div className="chat-meta">
+                    <span className="chat-time">{fmtTime(t.last_message_at)}</span>
+                    {unreadSummary?.channels?.[t.channel_id]?.has_unread && (!selectedThread || selectedThread.id !== t.id) && (
+                      <span className="chat-unread">●</span>
+                    )}
+                  </div>
+                </div>
+              ))}
+
               {!loading && filteredThreads.length === 0 && (
                 <div style={{ padding: 12, opacity: 0.8 }}>No conversations yet.</div>
               )}
@@ -178,16 +315,19 @@ export default function Messaging() {
                   onClick={() => handleSelectChat(t)}
                 >
                   <div className="chat-avatar">
-                    {t.other_photo_url ? (
-                      <img
-                        src={t.other_photo_url}
-                        alt="avatar"
-                        style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover' }}
-                        onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                      />
-                    ) : (
-                      initials(t.display_title || t.other_display_name || t.title)
-                    )}
+                    <div style={{ position: 'relative', width: 36, height: 36 }}>
+                      <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        {initials(t.display_title || t.other_display_name || t.title)}
+                      </div>
+                      {t.other_photo_url && (
+                        <img
+                          src={t.other_photo_url}
+                          alt="avatar"
+                          style={{ position: 'absolute', inset: 0, width: 36, height: 36, borderRadius: '50%', objectFit: 'cover' }}
+                          onError={(e) => { e.currentTarget.remove(); }}
+                        />
+                      )}
+                    </div>
                   </div>
                   <div className="chat-info">
                     <div className="chat-title">{t.display_title || t.other_display_name || t.title || 'Conversation'}</div>
@@ -195,6 +335,9 @@ export default function Messaging() {
                   </div>
                   <div className="chat-meta">
                     <span className="chat-time">{fmtTime(t.last_message_at)}</span>
+                    {unreadSummary?.threads?.[t.id]?.has_unread && (!selectedThread || selectedThread.id !== t.id) && (
+                      <span className="chat-unread">●</span>
+                    )}
                   </div>
                 </div>
               ))}
@@ -212,16 +355,19 @@ export default function Messaging() {
               )}
               <div className="header-info">
                 <div className="header-avatar">
-                  {selectedThread.other_photo_url ? (
-                    <img
-                      src={selectedThread.other_photo_url}
-                      alt="avatar"
-                      style={{ width: 44, height: 44, borderRadius: '50%', objectFit: 'cover' }}
-                      onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                    />
-                  ) : (
-                    initials(selectedThread.display_title || selectedThread.other_display_name || selectedThread.title)
-                  )}
+                  <div style={{ position: 'relative', width: 44, height: 44 }}>
+                    <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      {initials(selectedThread.display_title || selectedThread.other_display_name || selectedThread.title)}
+                    </div>
+                    {selectedThread.other_photo_url && (
+                      <img
+                        src={selectedThread.other_photo_url}
+                        alt="avatar"
+                        style={{ position: 'absolute', inset: 0, width: 44, height: 44, borderRadius: '50%', objectFit: 'cover' }}
+                        onError={(e) => { e.currentTarget.remove(); }}
+                      />
+                    )}
+                  </div>
                 </div>
                 <div>
                   <div className="header-title">{selectedThread.display_title || selectedThread.other_display_name || selectedThread.title || 'Conversation'}</div>
@@ -233,26 +379,55 @@ export default function Messaging() {
             </div>
 
             <div className="messages-area">
+              {threadLoading && (
+                <div style={{ padding: 16, opacity: 0.85, fontWeight: 700, color: '#64748b' }}>
+                  Loading conversation…
+                </div>
+              )}
+              {!threadLoading && messages.length === 0 && (
+                <div style={{ padding: 16, opacity: 0.8 }}>
+                  No messages yet.
+                </div>
+              )}
               {messages.map((m) => (
                 <div key={m.id} className={`message-row${m.sender_role === 'driver' ? ' sent' : ''}`}>
-                  <div className="message-bubble">{m.text}</div>
+                  <div className="message-bubble">
+                    {m.title ? <div style={{ fontWeight: 800, marginBottom: 4 }}>{m.title}</div> : null}
+                    {m.text}
+                  </div>
                   <div className="message-meta">{fmtTime(m.created_at)}</div>
                 </div>
               ))}
             </div>
 
-            <div className="message-input-area">
-              <input
-                className="message-input"
-                type="text"
-                placeholder="Type your message..."
-                value={message}
-                onChange={e => setMessage(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && handleSend()}
-              />
-              <button className="send-btn" onClick={handleSend}>
-                <i className="fa-solid fa-paper-plane"></i>
-              </button>
+            {selectedThread.kind === 'admin_channel' ? (
+              <div className="message-input-area" style={{ justifyContent: 'center', opacity: 0.85 }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#64748b' }}>Admin notifications are one-way.</div>
+              </div>
+            ) : (
+              <div className="message-input-area">
+                <input
+                  className="message-input"
+                  type="text"
+                  placeholder="Type your message..."
+                  value={message}
+                  onChange={e => setMessage(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleSend()}
+                />
+                <button className="send-btn" onClick={handleSend}>
+                  <i className="fa-solid fa-paper-plane"></i>
+                </button>
+              </div>
+            )}
+          </main>
+        )}
+
+        {!selectedThread && !loading && (
+          <main className="main-chat">
+            <div className="messages-area">
+              <div style={{ padding: 18, opacity: 0.85, fontWeight: 700, color: '#64748b' }}>
+                Select a conversation to start.
+              </div>
             </div>
           </main>
         )}

@@ -1833,7 +1833,7 @@ export default function Marketplace({ activeSection, setActiveSection }) {
                   <p style={{ fontSize: '14px', color: '#666', marginBottom: '5px' }}>
                     <strong>Total Price Offered:</strong>
                   </p>
-                  <p style={{ fontSize: '14px', color: '#333', fontWeight: '600', color: '#059669' }}>
+                  <p style={{ fontSize: '14px', color: '#059669', fontWeight: '600' }}>
                     {selectedLoad.total_price ? `$${selectedLoad.total_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : 
                      selectedLoad.rate ? `$${typeof selectedLoad.rate === 'string' ? selectedLoad.rate.replace('$', '').replace(',', '') : selectedLoad.rate}` : 
                      selectedLoad.linehaul_rate ? `$${selectedLoad.linehaul_rate.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : 'Negotiable'}

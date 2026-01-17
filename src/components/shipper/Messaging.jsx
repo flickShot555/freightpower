@@ -20,9 +20,12 @@ export default function Messaging() {
   const [selectedThread, setSelectedThread] = useState(null);
   const [messages, setMessages] = useState([]);
   const [carriers, setCarriers] = useState([]);
+  const [unreadSummary, setUnreadSummary] = useState({ total_unread: 0, threads: {}, channels: {} });
+  const [newChatOpen, setNewChatOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(true);
+  const [threadLoading, setThreadLoading] = useState(false);
   const [error, setError] = useState('');
   const streamRef = React.useRef(null);
 
@@ -45,14 +48,39 @@ export default function Messaging() {
     setCarriers(data.carriers || []);
   }
 
+  async function refreshUnread() {
+    const data = await getJson('/messaging/unread/summary');
+    setUnreadSummary(data || { total_unread: 0, threads: {}, channels: {} });
+    try {
+      const total = Number(data?.total_unread || 0);
+      window.dispatchEvent(new CustomEvent('messaging:unread', { detail: { total_unread: total } }));
+    } catch {
+      // ignore
+    }
+  }
+
   async function selectThread(thread) {
     if (streamRef.current) {
-      try { streamRef.current.close(); } catch (_) {}
+      try { streamRef.current.close(); } catch { /* ignore */ }
       streamRef.current = null;
     }
     setSelectedThread(thread);
-    const data = await getJson(`/messaging/threads/${thread.id}/messages?limit=100`);
-    setMessages(data.messages || []);
+    setThreadLoading(true);
+    setMessages([]);
+    let data;
+    try {
+      data = await getJson(`/messaging/threads/${thread.id}/messages?limit=100`);
+      setMessages(data.messages || []);
+    } finally {
+      setThreadLoading(false);
+    }
+
+    try {
+      await postJson(`/messaging/threads/${thread.id}/read`, {});
+      refreshUnread().catch(() => {});
+    } catch {
+      // ignore
+    }
 
     try {
       const lastTs = (data.messages || []).length ? (data.messages[data.messages.length - 1].created_at || 0) : 0;
@@ -68,12 +96,13 @@ export default function Messaging() {
               return next;
             });
             refreshThreads().catch(() => {});
+            postJson(`/messaging/threads/${thread.id}/read`, {}).then(() => refreshUnread().catch(() => {})).catch(() => {});
           }
-        } catch (_) {
+        } catch {
           // ignore
         }
       };
-    } catch (_) {
+    } catch {
       // ignore; fallback to manual refresh
     }
   }
@@ -87,23 +116,47 @@ export default function Messaging() {
     });
   }, [threads, search]);
 
+  const availableNewCarriers = useMemo(() => {
+    const existing = new Set();
+    (threads || []).forEach(t => {
+      if (t.kind === 'shipper_carrier_direct') {
+        const id = t.carrier_id || null;
+        if (id) existing.add(id);
+      }
+    });
+    return (carriers || []).filter(c => !existing.has(c.id));
+  }, [threads, carriers]);
+
+  React.useEffect(() => {
+    if (!newChatOpen) return;
+    const onDocClick = () => setNewChatOpen(false);
+    document.addEventListener('click', onDocClick);
+    return () => document.removeEventListener('click', onDocClick);
+  }, [newChatOpen]);
+
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
         setLoading(true);
         setError('');
-        await Promise.all([refreshThreads(), refreshCarriers()]);
+        // Fast initial render: list first.
+        const results = await Promise.allSettled([refreshThreads(), refreshCarriers()]);
+        const firstErr = results.find(r => r.status === 'rejected')?.reason;
+        if (firstErr && !cancelled) setError(firstErr?.message || 'Failed to load messaging');
       } catch (e) {
         if (!cancelled) setError(e?.message || 'Failed to load messaging');
       } finally {
         if (!cancelled) setLoading(false);
       }
+
+      // Non-blocking background unread fetch
+      refreshUnread().catch(() => {});
     })();
     return () => {
       cancelled = true;
       if (streamRef.current) {
-        try { streamRef.current.close(); } catch (_) {}
+        try { streamRef.current.close(); } catch { /* ignore */ }
         streamRef.current = null;
       }
     };
@@ -114,9 +167,24 @@ export default function Messaging() {
     const text = message.trim();
     setMessage('');
     await postJson(`/messaging/threads/${selectedThread.id}/messages`, { text });
+    postJson(`/messaging/threads/${selectedThread.id}/read`, {}).catch(() => {});
     await refreshThreads();
+    refreshUnread().catch(() => {});
     await selectThread({ ...selectedThread });
   };
+
+  // Lightweight unread refresh (keeps badges current if SSE is disconnected)
+  useEffect(() => {
+    let alive = true;
+    const id = setInterval(() => {
+      if (!alive) return;
+      refreshUnread().catch(() => {});
+    }, 15000);
+    return () => {
+      alive = false;
+      clearInterval(id);
+    };
+  }, []);
 
   const handleSelectChat = (thread) => {
     selectThread(thread);
@@ -139,29 +207,89 @@ export default function Messaging() {
           <aside className="sidebar">
             <div className="sidebar-header">
               <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
-                <select
-                  style={{ flex: 1, padding: '8px 10px', borderRadius: 8 }}
-                  defaultValue=""
-                  onChange={async (e) => {
-                    const carrierId = e.target.value;
-                    if (!carrierId) return;
-                    try {
-                      const res = await postJson('/messaging/shipper/threads/direct', { carrier_id: carrierId });
-                      await refreshThreads();
-                      await selectThread(res.thread);
-                      if (window.innerWidth <= 640) setShowChatMobile(true);
-                    } catch (err) {
-                      setError(err?.message || 'Failed to start chat');
-                    } finally {
-                      e.target.value = '';
-                    }
-                  }}
-                >
-                  <option value="">Start chat with carrier…</option>
-                  {carriers.map((c) => (
-                    <option key={c.id} value={c.id}>{c.name || c.email || c.id}</option>
-                  ))}
-                </select>
+                <div style={{ position: 'relative', flex: 1 }}>
+                  <button
+                    className="chat-filter-btn"
+                    style={{ padding: '6px 10px', borderRadius: 8, width: '100%', textAlign: 'left' }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setNewChatOpen((s) => !s);
+                    }}
+                    title="Start new chat"
+                  >
+                    + New chat
+                  </button>
+
+                  {newChatOpen && (
+                    <div
+                      onClick={(e) => e.stopPropagation()}
+                      style={{
+                        position: 'absolute',
+                        top: 'calc(100% + 6px)',
+                        left: 0,
+                        right: 0,
+                        background: 'white',
+                        border: '1px solid rgba(0,0,0,0.12)',
+                        borderRadius: 10,
+                        boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+                        zIndex: 20,
+                        overflow: 'hidden',
+                        maxHeight: 300,
+                        overflowY: 'auto'
+                      }}
+                    >
+                      <div style={{ padding: '10px 12px', fontWeight: 700, fontSize: 13, borderBottom: '1px solid rgba(0,0,0,0.08)' }}>
+                        Available carriers
+                      </div>
+                      {availableNewCarriers.length === 0 ? (
+                        <div style={{ padding: 12, opacity: 0.75, fontSize: 13 }}>
+                          No carriers without chats.
+                        </div>
+                      ) : (
+                        availableNewCarriers.map((c) => (
+                          <button
+                            key={c.id}
+                            style={{
+                              width: '100%',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 10,
+                              padding: '10px 12px',
+                              border: 'none',
+                              background: 'transparent',
+                              cursor: 'pointer',
+                              textAlign: 'left'
+                            }}
+                            onClick={async () => {
+                              try {
+                                setError('');
+                                setNewChatOpen(false);
+                                const res = await postJson('/messaging/shipper/threads/direct', { carrier_id: c.id });
+                                await refreshThreads();
+                                await selectThread(res.thread);
+                                if (window.innerWidth <= 640) setShowChatMobile(true);
+                              } catch (err) {
+                                setError(err?.message || 'Failed to start chat');
+                              }
+                            }}
+                          >
+                            {c.profile_picture_url ? (
+                              <img src={c.profile_picture_url} alt="" style={{ width: 28, height: 28, borderRadius: '50%', objectFit: 'cover' }} />
+                            ) : (
+                              <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#e5e7eb', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700 }}>
+                                {initials(c.name || c.email || c.id)}
+                              </div>
+                            )}
+                            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                              <div style={{ fontSize: 13, fontWeight: 700 }}>{c.name || c.email || c.id}</div>
+                              {c.company_name && <div style={{ fontSize: 12, opacity: 0.75 }}>{c.company_name}</div>}
+                            </div>
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  )}
+                </div>
 
                 <button
                   className="chat-filter-btn"
@@ -223,6 +351,9 @@ export default function Messaging() {
                   </div>
                   <div className="chat-meta">
                     <span className="chat-time">{fmtTime(t.last_message_at)}</span>
+                    {unreadSummary?.threads?.[t.id]?.has_unread && (!selectedThread || selectedThread.id !== t.id) && (
+                      <span className="chat-unread">●</span>
+                    )}
                   </div>
                 </div>
               ))}
@@ -261,6 +392,16 @@ export default function Messaging() {
             </div>
 
             <div className="messages-area">
+              {threadLoading && (
+                <div style={{ padding: 16, opacity: 0.85, fontWeight: 700, color: '#64748b' }}>
+                  Loading conversation…
+                </div>
+              )}
+              {!threadLoading && messages.length === 0 && (
+                <div style={{ padding: 16, opacity: 0.8 }}>
+                  No messages yet.
+                </div>
+              )}
               {messages.map((m) => (
                 <div key={m.id} className={`message-row${m.sender_role === 'shipper' ? ' sent' : ''}`}>
                   <div className="message-bubble">{m.text}</div>
@@ -281,6 +422,16 @@ export default function Messaging() {
               <button className="send-btn" onClick={handleSend}>
                 <i className="fa-solid fa-paper-plane"></i>
               </button>
+            </div>
+          </main>
+        )}
+
+        {!isMobile && !selectedThread && !loading && (
+          <main className="main-chat">
+            <div className="messages-area">
+              <div style={{ padding: 18, opacity: 0.85, fontWeight: 700, color: '#64748b' }}>
+                Select a conversation to start.
+              </div>
             </div>
           </main>
         )}

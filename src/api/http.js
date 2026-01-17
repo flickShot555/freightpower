@@ -20,6 +20,7 @@ export async function openEventSource(path, params = {}) {
 
 export async function apiFetch(path, options = {}) {
   const token = await getAuthToken();
+  const timeoutMs = Number(options.timeoutMs ?? 15000);
   const headers = {
     ...(options.headers || {}),
   };
@@ -29,10 +30,30 @@ export async function apiFetch(path, options = {}) {
   }
 
   const url = path.startsWith('http') ? path : `${API_URL}${path}`;
-  const res = await fetch(url, {
-    ...options,
-    headers,
-  });
+
+  // Prevent requests from hanging forever.
+  const controller = options.signal ? null : new AbortController();
+  const signal = options.signal || controller?.signal;
+  const timeoutId = controller
+    ? setTimeout(() => controller.abort(new Error('Request timed out')), timeoutMs)
+    : null;
+
+  let res;
+  try {
+    res = await fetch(url, {
+      ...options,
+      headers,
+      signal,
+    });
+  } catch (e) {
+    if (timeoutId) clearTimeout(timeoutId);
+    const msg = e?.name === 'AbortError' ? 'Request timed out' : (e?.message || 'Network error');
+    const err = new Error(msg);
+    err.cause = e;
+    throw err;
+  } finally {
+    if (timeoutId) clearTimeout(timeoutId);
+  }
 
   const contentType = res.headers.get('content-type') || '';
   const isJson = contentType.includes('application/json');
@@ -49,14 +70,15 @@ export async function apiFetch(path, options = {}) {
   return body;
 }
 
-export function getJson(path) {
-  return apiFetch(path, { method: 'GET' });
+export function getJson(path, options = {}) {
+  return apiFetch(path, { method: 'GET', ...(options || {}) });
 }
 
-export function postJson(path, data) {
+export function postJson(path, data, options = {}) {
   return apiFetch(path, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data ?? {}),
+    ...(options || {}),
   });
 }

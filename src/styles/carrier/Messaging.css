@@ -58,6 +58,15 @@ html, body, #root {
 	border-bottom: 1px solid #e5e7eb;
 }
 
+/*
+	CarrierDashboard.css defines a global `.sidebar-header{display:none}` for the main drawer.
+	Messaging also uses `.sidebar-header` for its contacts panel header.
+	Force the messaging header to be visible within the messaging layout.
+*/
+.messaging-root .sidebar-header {
+	display: block !important;
+}
+
 .sidebar-search {
 	display: flex;
 	align-items: center;

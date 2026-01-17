@@ -32,6 +32,9 @@ export default function ShipperDashboard() {
   const [isSidebarDark, setIsSidebarDark] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
 
+  // Messaging unread badge
+  const [messagingUnread, setMessagingUnread] = useState(0);
+
   // Onboarding data state
   const [shipperProfile, setShipperProfile] = useState(null);
   const [profileLoading, setProfileLoading] = useState(true);
@@ -166,6 +169,34 @@ export default function ShipperDashboard() {
       }
     };
     fetchProfile();
+  }, [currentUser]);
+
+  // Poll messaging unread summary (used for sidebar badge)
+  useEffect(() => {
+    let alive = true;
+    if (!currentUser) return;
+
+    const tick = async () => {
+      try {
+        const token = await currentUser.getIdToken();
+        const res = await fetch(`${API_URL}/messaging/unread/summary`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!alive) return;
+        setMessagingUnread(Number(data?.total_unread || 0));
+      } catch (_) {
+        // ignore
+      }
+    };
+
+    tick();
+    const id = setInterval(tick, 15000);
+    return () => {
+      alive = false;
+      clearInterval(id);
+    };
   }, [currentUser]);
 
   const navGroups = [
@@ -598,6 +629,9 @@ export default function ShipperDashboard() {
                     >
                       <i className={`${it.icon} icon`} aria-hidden="true"></i>
                       <span className="label">{it.label}</span>
+                      {it.key === 'messaging' && messagingUnread > 0 && (
+                        <span className="nav-unread-badge">{messagingUnread > 99 ? '99+' : messagingUnread}</span>
+                      )}
                     </li>
                   ))}
                 </ul>

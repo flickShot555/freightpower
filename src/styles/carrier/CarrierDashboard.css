@@ -270,6 +270,21 @@
 .nav-item.active{background:#f3f4f6;font-weight:700;color:#0b3240}
 .dark-root .nav-item.active{color:#d1d7db;background:rgba(255,255,255,0.04)}
 
+/* Unread badge for sidebar nav items (e.g., Messaging) */
+.nav-unread-badge{
+  margin-left:auto;
+  background:#dc2626;
+  color:#fff;
+  border-radius:999px;
+  padding:2px 8px;
+  font-size:12px;
+  font-weight:800;
+  line-height:16px;
+  min-width:22px;
+  text-align:center;
+}
+.dark-root .nav-unread-badge{background:#ef4444}
+
 /* hover effect: left accent bar + bold label */
 .nav-item::before{content:'';position:absolute;left:0;top:6px;bottom:6px;width:0;border-radius:6px 0 0 6px;background:#000;transition:width .12s ease;opacity:0}
 .nav-item:hover::before{width:4px;opacity:1}
