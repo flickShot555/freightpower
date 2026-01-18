@@ -37,6 +37,7 @@ from .auth import router as auth_router, get_current_user
 from .database import db, log_action, bucket  # Added bucket import
 from .here_maps import get_here_client
 from .messaging import router as messaging_router
+from .messaging import process_pending_message_email_notifications_job
 from firebase_admin import auth as firebase_auth
 from firebase_admin import firestore
 import smtplib
@@ -5620,6 +5621,12 @@ def startup_events():
     scheduler.start()
     scheduler.add_interval_job(_refresh_fmcsa_all, minutes=60 * 24, id="fmcsa_refresh_daily")
     scheduler.add_interval_job(_digest_alerts_job, minutes=60, id="alert_digest_hourly")
+    # Delayed message email notifications (checks every minute).
+    scheduler.add_interval_job(process_pending_message_email_notifications_job, minutes=1, id="message_email_notifications")
+    print(
+        f"[Messaging] Delayed email notifications enabled={getattr(settings, 'ENABLE_MESSAGE_EMAIL_NOTIFICATIONS', False)} "
+        f"delay_s={getattr(settings, 'MESSAGE_EMAIL_DELAY_SECONDS', 300)} smtp_configured={bool(getattr(settings, 'SMTP_USERNAME', ''))}"
+    )
 
 
 @app.on_event("shutdown")

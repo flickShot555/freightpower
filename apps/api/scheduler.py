@@ -22,8 +22,27 @@ class SchedulerWrapper:
                 self._scheduler.start()
                 self._started = True
 
-    def add_interval_job(self, func: Callable[..., Any], minutes: int, id: str):
-        self._scheduler.add_job(func, "interval", minutes=minutes, id=id, replace_existing=True)
+    def add_interval_job(
+        self,
+        func: Callable[..., Any],
+        minutes: int,
+        id: str,
+        *,
+        max_instances: int = 1,
+        coalesce: bool = True,
+        misfire_grace_time: int | None = 60,
+    ):
+        # Defaults chosen to reduce log noise and avoid piling up missed runs.
+        self._scheduler.add_job(
+            func,
+            "interval",
+            minutes=minutes,
+            id=id,
+            replace_existing=True,
+            max_instances=max_instances,
+            coalesce=coalesce,
+            misfire_grace_time=misfire_grace_time,
+        )
     
     def add_cron_job(self, func: Callable[..., Any], cron_trigger: CronTrigger, id: str):
         """Add a cron-based scheduled job"""

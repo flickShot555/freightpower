@@ -34,6 +34,8 @@ export default function Messaging() {
   const [threadError, setThreadError] = useState('');
   const [error, setError] = useState('');
   const streamRef = React.useRef(null);
+  const threadsStreamRef = React.useRef(null);
+  const unreadRefreshTimerRef = React.useRef(null);
 
   // Responsive state: show chat or contacts on mobile
   const [showChatMobile, setShowChatMobile] = useState(false);
@@ -89,12 +91,18 @@ export default function Messaging() {
   }, [adminThreads, search]);
 
   async function refreshThreads() {
-    const data = await getJson('/messaging/threads?limit=200', { timeoutMs: 30000 });
-    setThreads(data.threads || []);
+    const data = await getJson('/messaging/threads?limit=200', { timeoutMs: 45000, requestLabel: 'GET /messaging/threads?limit=200' });
+    const next = data.threads || [];
+    setThreads(next);
+    try {
+      localStorage.setItem('messaging:carrier:threads', JSON.stringify({ ts: Date.now(), threads: next }));
+    } catch {
+      // ignore
+    }
   }
 
   async function refreshUnread() {
-    const data = await getJson('/messaging/unread/summary', { timeoutMs: 30000 });
+    const data = await getJson('/messaging/unread/summary', { timeoutMs: 30000, requestLabel: 'GET /messaging/unread/summary' });
     setUnreadSummary(data || { total_unread: 0, threads: {}, channels: {} });
     try {
       const total = Number(data?.total_unread || 0);
@@ -105,7 +113,7 @@ export default function Messaging() {
   }
 
   async function refreshAdminThreads() {
-    const channels = await getJson('/messaging/notifications/channels', { timeoutMs: 30000 });
+    const channels = await getJson('/messaging/notifications/channels', { timeoutMs: 30000, requestLabel: 'GET /messaging/notifications/channels' });
     const items = (channels.channels || []).map((ch) => {
       const last = ch.last_message || null;
       const lastText = last
@@ -228,10 +236,26 @@ export default function Messaging() {
       try {
         setLoading(true);
         setError('');
+        // Instant UI: try cached threads first.
+        try {
+          const cached = JSON.parse(localStorage.getItem('messaging:carrier:threads') || 'null');
+          if (cached?.threads?.length) setThreads(cached.threads);
+        } catch {
+          // ignore
+        }
         // Fast initial render: load thread lists first.
-        const first = await Promise.allSettled([refreshThreads(), refreshAdminThreads()]);
-        const firstErr = first.find(r => r.status === 'rejected')?.reason;
-        if (firstErr && !cancelled) setError(firstErr?.message || 'Failed to load messaging');
+        const attempt = async () => {
+          const first = await Promise.allSettled([refreshThreads(), refreshAdminThreads()]);
+          const firstErr = first.find(r => r.status === 'rejected')?.reason;
+          if (firstErr) throw firstErr;
+        };
+        try {
+          await attempt();
+        } catch (e1) {
+          // One retry for transient timeouts.
+          await new Promise(r => setTimeout(r, 800));
+          await attempt();
+        }
       } catch (e) {
         if (!cancelled) setError(e?.message || 'Failed to load messaging');
       } finally {
@@ -243,11 +267,68 @@ export default function Messaging() {
     })();
     return () => {
       cancelled = true;
+      if (unreadRefreshTimerRef.current) {
+        clearTimeout(unreadRefreshTimerRef.current);
+        unreadRefreshTimerRef.current = null;
+      }
       if (streamRef.current) {
         try { streamRef.current.close(); } catch { /* ignore */ }
         streamRef.current = null;
       }
+      if (threadsStreamRef.current) {
+        try { threadsStreamRef.current.close(); } catch { /* ignore */ }
+        threadsStreamRef.current = null;
+      }
     };
+  }, []);
+
+  // Real-time sidebar updates via SSE (best-effort)
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        if (threadsStreamRef.current) {
+          try { threadsStreamRef.current.close(); } catch { /* ignore */ }
+          threadsStreamRef.current = null;
+        }
+
+        const since = (threads || []).reduce((m, t) => Math.max(m, Number(t.updated_at || 0)), 0);
+        const es = await openEventSource('/messaging/threads/stream', { since, limit: 200 });
+        threadsStreamRef.current = es;
+        es.onmessage = (evt) => {
+          if (cancelled) return;
+          try {
+            const payload = JSON.parse(evt.data);
+            if (payload?.type !== 'threads' || !Array.isArray(payload.threads)) return;
+            const incoming = payload.threads;
+            setThreads((prev) => {
+              const map = new Map((prev || []).map(t => [t.id, t]));
+              incoming.forEach((t) => {
+                if (!t?.id) return;
+                map.set(t.id, { ...(map.get(t.id) || {}), ...t });
+              });
+              const out = Array.from(map.values());
+              out.sort((a, b) => Number(b.updated_at || 0) - Number(a.updated_at || 0));
+              return out;
+            });
+
+            // Debounced unread refresh (keeps badges in sync)
+            if (unreadRefreshTimerRef.current) clearTimeout(unreadRefreshTimerRef.current);
+            unreadRefreshTimerRef.current = setTimeout(() => {
+              refreshUnread().catch(() => {});
+            }, 400);
+          } catch {
+            // ignore
+          }
+        };
+      } catch {
+        // SSE best-effort; ignore.
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Poll admin notifications so broadcasts show up without hard refresh

@@ -1,9 +1,12 @@
 from pydantic_settings import BaseSettings
 from pydantic import Field
 import os
-import dotenv; 
+from pathlib import Path
+import dotenv
 
-dotenv.load_dotenv()
+# Always load apps/.env (relative to this file), regardless of where the process is started.
+_APPS_DIR = Path(__file__).resolve().parents[1]
+dotenv.load_dotenv(dotenv_path=_APPS_DIR / ".env", override=False)
 
 
 class Settings(BaseSettings):
@@ -25,7 +28,8 @@ class Settings(BaseSettings):
     SMTP_SERVER: str = Field(default=os.getenv("SMTP_SERVER", "smtp.gmail.com"))
     SMTP_PORT: int = Field(default=int(os.getenv("SMTP_PORT", "587")))
     SMTP_USERNAME: str = Field(default=os.getenv("SMTP_USERNAME", ""))
-    SMTP_PASSWORD: str = Field(default=os.getenv("SMTP_PASSWORD", ""))
+    # Gmail app passwords are often copied with spaces; SMTP login expects the raw token.
+    SMTP_PASSWORD: str = Field(default=os.getenv("SMTP_PASSWORD", "").strip().replace(" ", ""))
     EMAIL_FROM: str = Field(default=os.getenv("EMAIL_FROM", "noreply@freightpower.ai"))
     ADMIN_EMAIL: str = Field(default=os.getenv("ADMIN_EMAIL", "freightpowerai@gmail.com"))  # Email for fraud reports and edit suggestions
 
@@ -34,6 +38,10 @@ class Settings(BaseSettings):
     ENABLE_MESSAGE_EMAIL_NOTIFICATIONS: bool = Field(
         default=(os.getenv("ENABLE_MESSAGE_EMAIL_NOTIFICATIONS", "false").strip().lower() == "true")
     )
+
+    # Delay (seconds) before sending a message email notification.
+    # Email is only sent if the message remains unread at send time.
+    MESSAGE_EMAIL_DELAY_SECONDS: int = Field(default=int(os.getenv("MESSAGE_EMAIL_DELAY_SECONDS", "300")))
 
     # Comma-separated allowlist of super admin emails.
     # Only allowlisted emails can be provisioned/access super-admin endpoints.

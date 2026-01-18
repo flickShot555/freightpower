@@ -1,4 +1,4 @@
-#!C:\freight-power\frightpowernew\apps\venv\Scripts\python.exe
+#!D:\frightpowernew\frightpowernew\apps\venv\Scripts\python.exe
 
 import sys
 import json

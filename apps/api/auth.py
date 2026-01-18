@@ -3,6 +3,7 @@ from fastapi import APIRouter, HTTPException, Header, Depends, Body, status, Upl
 from firebase_admin import auth as firebase_auth
 from firebase_admin import firestore
 import firebase_admin
+import asyncio
 import time
 import json
 import uuid
@@ -21,6 +22,32 @@ from .models import (
 from .settings import settings
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
+
+
+async def _to_thread(fn, timeout_s: float = 8.0):
+    """Run blocking SDK calls off the event loop with a soft timeout."""
+    return await asyncio.wait_for(asyncio.to_thread(fn), timeout=timeout_s)
+
+
+# Simple in-memory caches to reduce repeated Admin SDK + Firestore calls.
+# These are best-effort and process-local (fine for single-instance dev).
+_TOKEN_CACHE: dict[str, tuple[float, dict]] = {}
+_USER_CACHE: dict[str, tuple[float, dict]] = {}
+
+
+def _cache_get(cache: dict, key: str):
+    item = cache.get(key)
+    if not item:
+        return None
+    expires_at, value = item
+    if expires_at < time.time():
+        cache.pop(key, None)
+        return None
+    return value
+
+
+def _cache_set(cache: dict, key: str, value: dict, ttl_s: float):
+    cache[key] = (time.time() + float(ttl_s), value)
 
 
 def _normalize_identifier(value: Any) -> str | None:
@@ -571,32 +598,46 @@ async def get_current_user(authorization: str = Header(...)) -> Dict[str, Any]:
     token = authorization.split(" ")[1]
     
     try:
-        # Verify Firebase token
-        decoded_token = firebase_auth.verify_id_token(token)
+        # Verify Firebase token (cached)
+        decoded_token = _cache_get(_TOKEN_CACHE, token)
+        if not decoded_token:
+            decoded_token = await _to_thread(lambda: firebase_auth.verify_id_token(token), timeout_s=10.0)
+            # Cache briefly; tokens are stable but we keep TTL short for safety.
+            _cache_set(_TOKEN_CACHE, token, decoded_token, ttl_s=60.0)
         uid = decoded_token.get('uid')
         
         if not uid:
             raise HTTPException(status_code=401, detail="Invalid token structure")
         
-        # Fetch Firestore user profile
+        # Fetch Firestore user profile (cached)
         user_ref = db.collection("users").document(uid)
-        user_doc = user_ref.get()
+        user_data = _cache_get(_USER_CACHE, uid)
+        user_doc = None
+        if not user_data:
+            user_doc = await _to_thread(user_ref.get, timeout_s=10.0)
         
-        if not user_doc.exists:
-            raise HTTPException(status_code=404, detail="User profile not found")
-        
-        user_data = user_doc.to_dict()
+            if not user_doc.exists:
+                raise HTTPException(status_code=404, detail="User profile not found")
+
+            user_data = user_doc.to_dict()
+            _cache_set(_USER_CACHE, uid, user_data, ttl_s=15.0)
         
         # --- AUTO-VERIFY EMAIL ---
         # If Firebase says email is verified, but DB says unverified -> Update DB
         if decoded_token.get('email_verified') and not user_data.get('is_verified'):
-            user_ref.update({
-                "is_verified": True,
-                "verified_at": time.time(),
-                "email_verified": True
-            })
+            await _to_thread(
+                lambda: user_ref.update(
+                    {
+                        "is_verified": True,
+                        "verified_at": time.time(),
+                        "email_verified": True,
+                    }
+                ),
+                timeout_s=10.0,
+            )
             user_data['is_verified'] = True
             user_data['email_verified'] = True
+            _cache_set(_USER_CACHE, uid, user_data, ttl_s=15.0)
             log_action(uid, "VERIFICATION", "User verified via Email Link")
 
         # --- ENFORCE VERIFICATION ---
@@ -609,10 +650,13 @@ async def get_current_user(authorization: str = Header(...)) -> Dict[str, Any]:
         # Ensure role exists and is valid
         if "role" not in user_data:
             user_data["role"] = "carrier"
-            user_ref.update({"role": "carrier"})
+            await _to_thread(lambda: user_ref.update({"role": "carrier"}), timeout_s=10.0)
+            _cache_set(_USER_CACHE, uid, user_data, ttl_s=15.0)
         
         return user_data
         
+    except asyncio.TimeoutError:
+        raise HTTPException(status_code=503, detail="Auth service timeout")
     except HTTPException:
         raise
     except Exception as e:

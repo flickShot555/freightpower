@@ -26,6 +26,26 @@ from .settings import settings
 router = APIRouter(prefix="/messaging", tags=["Messaging"])
 
 
+# Best-effort cache to make thread list feel instant in dev.
+# Keyed by uid, short TTL to avoid stale UI.
+_THREADS_CACHE: Dict[str, Dict[str, Any]] = {}
+_THREADS_CACHE_EXPIRES: Dict[str, float] = {}
+
+
+def _threads_cache_get(uid: str) -> Optional[Dict[str, Any]]:
+    exp = float(_THREADS_CACHE_EXPIRES.get(uid) or 0.0)
+    if exp and exp > _now():
+        return _THREADS_CACHE.get(uid)
+    _THREADS_CACHE.pop(uid, None)
+    _THREADS_CACHE_EXPIRES.pop(uid, None)
+    return None
+
+
+def _threads_cache_set(uid: str, value: Dict[str, Any], ttl_s: float = 5.0) -> None:
+    _THREADS_CACHE[uid] = value
+    _THREADS_CACHE_EXPIRES[uid] = _now() + float(ttl_s)
+
+
 # -----------------------------
 # Models
 # -----------------------------
@@ -277,6 +297,203 @@ def _send_email(to_email: str, subject: str, body: str, is_html: bool = False) -
         return False
 
 
+def _email_html_template(*, sender_name: str, thread_label: str, message_text: str, app_url: str) -> str:
+    safe_sender = (sender_name or "Someone").strip() or "Someone"
+    safe_thread = (thread_label or "Conversation").strip() or "Conversation"
+    preview = (message_text or "").strip()
+    if len(preview) > 600:
+        preview = preview[:600].rstrip() + "…"
+
+    # Minimal, email-client-friendly styling.
+    return f"""
+<!doctype html>
+<html>
+  <head>
+    <meta charset=\"utf-8\" />
+    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />
+  </head>
+  <body style=\"margin:0;padding:0;background:#f6f7fb;font-family:Arial,Helvetica,sans-serif;\">
+    <div style=\"max-width:640px;margin:0 auto;padding:24px;\">
+      <div style=\"background:#ffffff;border:1px solid #e6e8f0;border-radius:14px;overflow:hidden;\">
+        <div style=\"padding:18px 20px;background:linear-gradient(90deg,#0ea5e9,#6366f1);color:#fff;\">
+          <div style=\"font-size:16px;font-weight:700;\">New message in FreightPower</div>
+          <div style=\"font-size:13px;opacity:.92;margin-top:4px;\">From {safe_sender}</div>
+        </div>
+        <div style=\"padding:18px 20px;\">
+          <div style=\"font-size:13px;color:#475569;margin-bottom:10px;\">Conversation</div>
+          <div style=\"font-size:16px;font-weight:800;color:#0f172a;margin-bottom:14px;\">{safe_thread}</div>
+
+          <div style=\"font-size:13px;color:#475569;margin-bottom:8px;\">Message preview</div>
+          <div style=\"white-space:pre-wrap;line-height:1.45;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:12px 14px;color:#0f172a;\">{preview}</div>
+
+          <div style=\"margin-top:18px;\">
+            <a href=\"{app_url}\" style=\"display:inline-block;background:#111827;color:#fff;text-decoration:none;padding:10px 14px;border-radius:10px;font-weight:700;font-size:13px;\">Open Messaging</a>
+          </div>
+
+          <div style=\"margin-top:14px;font-size:12px;color:#64748b;\">You’re receiving this because you have an unread message. If you already read it, you can ignore this email.</div>
+        </div>
+      </div>
+      <div style=\"text-align:center;font-size:11px;color:#94a3b8;margin-top:14px;\">© FreightPower</div>
+    </div>
+  </body>
+</html>
+"""
+
+
+def _notification_doc_id(message_id: str, recipient_uid: str) -> str:
+    return f"{message_id}_{recipient_uid}"
+
+
+def queue_delayed_message_emails(
+    *,
+    thread_id: str,
+    message_id: str,
+    message_created_at: float,
+    sender_uid: str,
+    sender_role: str,
+    sender_name: str,
+    thread_label: str,
+    message_text: str,
+    recipient_uids: List[str],
+):
+    """Persist notification intents. A scheduler job will deliver later if still unread."""
+
+    if not getattr(settings, "ENABLE_MESSAGE_EMAIL_NOTIFICATIONS", False):
+        return
+
+    delay_s = int(getattr(settings, "MESSAGE_EMAIL_DELAY_SECONDS", 300) or 300)
+    send_after = float(message_created_at) + float(max(30, delay_s))
+
+    for to_uid in recipient_uids:
+        if not to_uid or to_uid == sender_uid:
+            continue
+        doc_id = _notification_doc_id(message_id, to_uid)
+        ref = db.collection("message_email_notifications").document(doc_id)
+        payload = {
+            "id": doc_id,
+            "status": "pending",
+            "thread_id": thread_id,
+            "message_id": message_id,
+            "message_created_at": float(message_created_at),
+            "send_after": float(send_after),
+            "recipient_uid": to_uid,
+            "sender_uid": sender_uid,
+            "sender_role": sender_role,
+            "sender_name": sender_name,
+            "thread_label": thread_label,
+            "message_preview": (message_text or "")[:1200],
+            "attempts": 0,
+            "created_at": _now(),
+            "updated_at": _now(),
+        }
+        # Upsert is fine; doc_id is deterministic (idempotent).
+        ref.set(payload, merge=True)
+
+
+def process_pending_message_email_notifications_job(max_batch: int = 30):
+    """Scheduled job: send email if message still unread after delay.
+
+    Runs in APScheduler thread, so keep it synchronous.
+    """
+    if not getattr(settings, "ENABLE_MESSAGE_EMAIL_NOTIFICATIONS", False):
+        return
+
+    now = _now()
+    far_future = now + (60 * 60 * 24 * 365 * 10)
+    # Query only on the time field to avoid requiring a composite index.
+    q = (
+        db.collection("message_email_notifications")
+        .where("send_after", "<=", float(now))
+        .order_by("send_after")
+        .limit(int(max_batch or 30))
+    )
+
+    try:
+        snaps = list(q.stream())
+    except Exception as e:
+        print(f"Email notification job query error: {e}")
+        return
+
+    for snap in snaps:
+        ref = snap.reference
+        d = snap.to_dict() or {}
+        status = (d.get("status") or "").strip().lower()
+        if status != "pending":
+            continue
+
+        thread_id = d.get("thread_id")
+        recipient_uid = d.get("recipient_uid")
+        msg_created_at = float(d.get("message_created_at") or 0.0)
+        if not thread_id or not recipient_uid or not msg_created_at:
+            ref.update({"status": "invalid", "send_after": float(far_future), "updated_at": _now()})
+            continue
+
+        # Check unread status using persistent read receipts.
+        try:
+            read_doc = db.collection("conversation_reads").document(_conversation_read_doc_id(thread_id, recipient_uid)).get()
+            last_read_at = float((read_doc.to_dict() or {}).get("last_read_at") or 0.0) if read_doc.exists else 0.0
+            if last_read_at and last_read_at >= msg_created_at:
+                ref.update(
+                    {
+                        "status": "cancelled",
+                        "cancelled_at": _now(),
+                        "send_after": float(far_future),
+                        "updated_at": _now(),
+                    }
+                )
+                continue
+        except Exception:
+            # If we can't verify read state, don't send.
+            ref.update({"status": "pending", "send_after": float(_now() + 60), "updated_at": _now()})
+            continue
+
+        # Determine recipient email.
+        email = None
+        try:
+            email = _email_for_uid(recipient_uid)
+        except Exception:
+            email = None
+
+        if not email:
+            ref.update({"status": "no_email", "send_after": float(far_future), "updated_at": _now()})
+            continue
+
+        sender_name = d.get("sender_name") or "Someone"
+        thread_label = d.get("thread_label") or "Conversation"
+        preview = d.get("message_preview") or ""
+
+        subject = f"New message from {sender_name}"
+
+        # Best-effort link; role-based dashboards can be improved later.
+        base = getattr(settings, "FRONTEND_BASE_URL", "") or ""
+        app_url = base.rstrip("/") + "/" if base else ""
+        html = _email_html_template(sender_name=sender_name, thread_label=thread_label, message_text=preview, app_url=app_url or "")
+
+        attempts = int(d.get("attempts") or 0)
+        try:
+            ref.update(
+                {
+                    "status": "sending",
+                    "attempts": attempts + 1,
+                    "send_after": float(_now() + 600),
+                    "updated_at": _now(),
+                }
+            )
+        except Exception:
+            # Another worker might have taken it.
+            continue
+
+        ok = _send_email(email, subject, html, True)
+        if ok:
+            ref.update({"status": "sent", "sent_at": _now(), "send_after": float(far_future), "updated_at": _now()})
+        else:
+            # Put back to pending for a limited number of retries.
+            if attempts + 1 >= 3:
+                ref.update({"status": "failed", "send_after": float(far_future), "updated_at": _now()})
+            else:
+                ref.update({"status": "pending", "send_after": float(_now() + 120), "updated_at": _now()})
+
+
 def _ensure_shipper_carrier_relationship(shipper_id: str, carrier_id: str) -> None:
     q = (
         db.collection("shipper_carrier_relationships")
@@ -362,6 +579,36 @@ def _ensure_admin_channel(channel_id: str, target_role: str) -> Dict[str, Any]:
     return d
 
 
+async def _fs_to_thread(fn, timeout_s: float = 6.0):
+    """Run a blocking Firestore call in a thread with a soft timeout.
+
+    This prevents one slow network call from stalling the whole ASGI event loop.
+    """
+    return await asyncio.wait_for(asyncio.to_thread(fn), timeout=timeout_s)
+
+
+async def _get_admin_channel_readonly(channel_id: str, target_role: str) -> Dict[str, Any]:
+    """Read admin channel metadata without creating/writing documents."""
+    ref = db.collection("admin_channels").document(channel_id)
+    try:
+        snap = await _fs_to_thread(ref.get)
+        if snap.exists:
+            d = snap.to_dict() or {}
+            d["id"] = channel_id
+            return d
+    except Exception:
+        # Fall back to a minimal response below.
+        pass
+
+    return {
+        "id": channel_id,
+        "target_role": target_role,
+        "name": f"{target_role.title()} Notifications" if target_role != "all" else "All Users",
+        "created_at": 0.0,
+        "updated_at": 0.0,
+    }
+
+
 def _send_push(tokens: List[str], title: str, body: str) -> Dict[str, Any]:
     # Web push via FCM requires frontend registration/VAPID; we attempt send and report.
     if not tokens:
@@ -428,7 +675,11 @@ async def list_threads(limit: int = 200, user: Dict[str, Any] = Depends(get_curr
 
     limit = max(1, min(int(limit or 200), 500))
 
+    # If Firestore is slow, return a short-lived cached list to keep the UI usable.
+    cached = _threads_cache_get(uid)
+
     # Prefer a server-side order_by for performance. If an index is missing, fall back.
+    # Firestore SDK calls are blocking; run them off the event loop with timeouts.
     try:
         q = (
             db.collection("conversations")
@@ -436,10 +687,13 @@ async def list_threads(limit: int = 200, user: Dict[str, Any] = Depends(get_curr
             .order_by("updated_at", direction=firestore.Query.DESCENDING)
             .limit(limit)
         )
-        snaps = list(q.stream())
+        snaps = await _fs_to_thread(lambda: list(q.stream()), timeout_s=10.0)
     except Exception:
-        q = db.collection("conversations").where("member_uids", "array_contains", uid).limit(limit)
-        snaps = list(q.stream())
+        try:
+            q = db.collection("conversations").where("member_uids", "array_contains", uid).limit(limit)
+            snaps = await _fs_to_thread(lambda: list(q.stream()), timeout_s=10.0)
+        except Exception:
+            return cached or {"threads": []}
 
     raw: List[Dict[str, Any]] = []
     for snap in snaps:
@@ -478,13 +732,19 @@ async def list_threads(limit: int = 200, user: Dict[str, Any] = Depends(get_curr
     if driver_ids:
         try:
             driver_refs = [db.collection("drivers").document(did) for did in driver_ids]
-            driver_docs = {s.id: (s.to_dict() or {}) for s in db.get_all(driver_refs) if s.exists}
+            driver_docs = await _fs_to_thread(
+                lambda: {s.id: (s.to_dict() or {}) for s in db.get_all(driver_refs) if s.exists},
+                timeout_s=10.0,
+            )
         except Exception:
             driver_docs = {}
     if user_ids:
         try:
             user_refs = [db.collection("users").document(uid2) for uid2 in user_ids]
-            user_docs = {s.id: (s.to_dict() or {}) for s in db.get_all(user_refs) if s.exists}
+            user_docs = await _fs_to_thread(
+                lambda: {s.id: (s.to_dict() or {}) for s in db.get_all(user_refs) if s.exists},
+                timeout_s=10.0,
+            )
         except Exception:
             user_docs = {}
 
@@ -549,7 +809,9 @@ async def list_threads(limit: int = 200, user: Dict[str, Any] = Depends(get_curr
         threads.append(t)
 
     threads.sort(key=lambda x: x.get("updated_at", 0), reverse=True)
-    return {"threads": threads}
+    out = {"threads": threads}
+    _threads_cache_set(uid, out, ttl_s=5.0)
+    return out
 
 
 @router.get("/unread/summary")
@@ -1018,26 +1280,29 @@ async def send_message(
 
     log_action(uid, "MESSAGE_SENT", f"Sent message in thread {thread_id}")
 
-    # Optional email notifications
+    # Optional delayed email notifications (persistent):
+    # Send an email ONLY if the message is still unread after N seconds.
     if getattr(settings, "ENABLE_MESSAGE_EMAIL_NOTIFICATIONS", False):
         try:
             members = thread.get("member_uids") or []
             recipients = [m for m in members if m and m != uid]
             sender_name = _sender_display_name(user)
             thread_label = thread.get("title") or "Conversation"
-            subject = f"New message from {sender_name}"
-            body = f"{sender_name} sent a new message in {thread_label}:\n\n{msg['text']}\n"
-
-            async def _send(to_uid: str):
-                email = _email_for_uid(to_uid)
-                if not email:
-                    return False
-                return await asyncio.to_thread(_send_email, email, subject, body, False)
-
-            await asyncio.gather(*[_send(r) for r in recipients])
+            await asyncio.to_thread(
+                queue_delayed_message_emails,
+                thread_id=thread_id,
+                message_id=msg_ref.id,
+                message_created_at=now,
+                sender_uid=uid,
+                sender_role=user.get("role"),
+                sender_name=sender_name,
+                thread_label=thread_label,
+                message_text=msg.get("text") or "",
+                recipient_uids=recipients,
+            )
         except Exception as e:
             # Never fail sending a chat message due to email issues
-            print(f"Email notification error: {e}")
+            print(f"Delayed email notification queue error: {e}")
 
     return {"ok": True, "message": {**msg, "id": msg_ref.id}}
 
@@ -1090,6 +1355,80 @@ async def stream_messages(thread_id: str, token: str, since: float = 0.0):
     return StreamingResponse(event_gen(), media_type="text/event-stream")
 
 
+@router.get("/threads/stream")
+async def stream_thread_updates(token: str, since: float = 0.0, limit: int = 200):
+    """SSE stream of thread updates for the current user.
+
+    This powers real-time updates in the left sidebar (thread list + unread markers)
+    without forcing the client to poll /messaging/threads aggressively.
+
+    Note: EventSource cannot send Authorization headers, so we accept an ID token
+    as a query param. Use only over HTTPS in production.
+    """
+
+    user = await _get_user_from_query_token(token)
+    uid = user.get("uid")
+    if not uid:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+
+    role = user.get("role")
+    if role not in {"carrier", "driver", "shipper"}:
+        raise HTTPException(status_code=403, detail="Messaging not enabled for this role")
+
+    limit = max(1, min(int(limit or 200), 500))
+    cursor = float(since or 0.0)
+
+    async def event_gen():
+        nonlocal cursor
+        last_ping = 0.0
+        while True:
+            try:
+                q = (
+                    db.collection("conversations")
+                    .where("member_uids", "array_contains", uid)
+                    .order_by("updated_at", direction=firestore.Query.DESCENDING)
+                    .limit(limit)
+                )
+                snaps = await _fs_to_thread(lambda: list(q.stream()), timeout_s=10.0)
+            except Exception:
+                try:
+                    q = db.collection("conversations").where("member_uids", "array_contains", uid).limit(limit)
+                    snaps = await _fs_to_thread(lambda: list(q.stream()), timeout_s=10.0)
+                except Exception:
+                    snaps = []
+
+            updated: List[Dict[str, Any]] = []
+            max_seen = cursor
+            for snap in snaps:
+                d = snap.to_dict() or {}
+                d["id"] = snap.id
+                upd = float(d.get("updated_at") or d.get("last_message_at") or 0.0)
+                if upd <= cursor:
+                    continue
+                max_seen = max(max_seen, upd)
+                try:
+                    updated.append(_thread_view_for_user(user, d))
+                except Exception:
+                    # best-effort; skip malformed docs
+                    continue
+
+            if updated:
+                # Send a single payload containing all updates since cursor.
+                payload = {"type": "threads", "threads": updated, "cursor": max_seen}
+                cursor = max_seen
+                yield f"data: {json.dumps(payload)}\n\n"
+
+            # Heartbeat to keep connections alive.
+            now = _now()
+            if now - last_ping > 15:
+                last_ping = now
+                yield "event: ping\ndata: {}\n\n"
+
+            await asyncio.sleep(3)
+
+    return StreamingResponse(event_gen(), media_type="text/event-stream")
+
+
 # -----------------------------
 # Admin notification channels
 # -----------------------------
@@ -1102,8 +1441,10 @@ async def list_notification_channels(user: Dict[str, Any] = Depends(get_current_
 
     channels: List[Dict[str, Any]] = []
     for cid in channel_ids:
-        ch = _ensure_admin_channel(cid, cid)
-        # Backfill last_message metadata if missing (keeps frontend fast).
+        # Read-only: never create or backfill docs in a read endpoint.
+        ch = await _get_admin_channel_readonly(cid, cid)
+
+        # If metadata is missing, fetch the latest message (best-effort) but don't write.
         if not ch.get("last_message_at"):
             try:
                 q = (
@@ -1113,23 +1454,9 @@ async def list_notification_channels(user: Dict[str, Any] = Depends(get_current_
                     .order_by("created_at", direction=firestore.Query.DESCENDING)
                     .limit(1)
                 )
-                last = None
-                for s in q.stream():
-                    last = s.to_dict() or {}
+                snaps = await _fs_to_thread(lambda: list(q.stream()))
+                last = (snaps[0].to_dict() or {}) if snaps else None
                 if last and last.get("created_at"):
-                    db.collection("admin_channels").document(cid).set(
-                        {
-                            "last_message_at": float(last.get("created_at") or 0.0),
-                            "last_message": {
-                                "text": last.get("text"),
-                                "title": last.get("title"),
-                                "sender_role": last.get("sender_role"),
-                            },
-                            "updated_at": float(last.get("created_at") or _now()),
-                        },
-                        merge=True,
-                    )
-                    # Keep response consistent
                     ch["last_message_at"] = float(last.get("created_at") or 0.0)
                     ch["last_message"] = {
                         "text": last.get("text"),
@@ -1137,6 +1464,7 @@ async def list_notification_channels(user: Dict[str, Any] = Depends(get_current_
                         "sender_role": last.get("sender_role"),
                     }
             except Exception:
+                # If Firestore is slow/unavailable, still return a minimal channel list quickly.
                 pass
         channels.append(ch)
 

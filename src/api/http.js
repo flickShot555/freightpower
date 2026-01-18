@@ -21,6 +21,7 @@ export async function openEventSource(path, params = {}) {
 export async function apiFetch(path, options = {}) {
   const token = await getAuthToken();
   const timeoutMs = Number(options.timeoutMs ?? 15000);
+  const requestLabel = options.requestLabel || `${String(options.method || 'GET').toUpperCase()} ${path}`;
   const headers = {
     ...(options.headers || {}),
   };
@@ -34,8 +35,12 @@ export async function apiFetch(path, options = {}) {
   // Prevent requests from hanging forever.
   const controller = options.signal ? null : new AbortController();
   const signal = options.signal || controller?.signal;
+  let didTimeout = false;
   const timeoutId = controller
-    ? setTimeout(() => controller.abort(new Error('Request timed out')), timeoutMs)
+    ? setTimeout(() => {
+      didTimeout = true;
+      controller.abort();
+    }, timeoutMs)
     : null;
 
   let res;
@@ -47,7 +52,9 @@ export async function apiFetch(path, options = {}) {
     });
   } catch (e) {
     if (timeoutId) clearTimeout(timeoutId);
-    const msg = e?.name === 'AbortError' ? 'Request timed out' : (e?.message || 'Network error');
+    const msg = e?.name === 'AbortError'
+      ? (didTimeout ? `Request timed out (${requestLabel})` : 'Request cancelled')
+      : (e?.message || 'Network error');
     const err = new Error(msg);
     err.cause = e;
     throw err;
