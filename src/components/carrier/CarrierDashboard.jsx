@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { API_URL } from '../../config';
 import '../../styles/carrier/CarrierDashboard.css';
 import peopleIcon from '../../assets/ai_driver.svg';
@@ -28,6 +28,7 @@ import resp_logo from '/src/assets/logo_1.png';
 export default function CarrierDashboard() {
   const { currentUser, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   
   // Dashboard stats state
   const [activeLoads, setActiveLoads] = useState({ inProgress: 0, delivered: 0, completed: 0 });
@@ -39,6 +40,7 @@ export default function CarrierDashboard() {
   const [availableDriversCount, setAvailableDriversCount] = useState(0);
   
   const [activeNav, setActiveNav] = useState('home');
+  const [initialThreadId, setInitialThreadId] = useState(null);
   const [activeMarketplaceSection, setActiveMarketplaceSection] = useState('loads');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSidebarDark, setIsSidebarDark] = useState(false);
@@ -46,6 +48,23 @@ export default function CarrierDashboard() {
 
   // Messaging unread badge
   const [messagingUnread, setMessagingUnread] = useState(0);
+
+  // Deep-link support (email links): /carrier-dashboard?nav=messaging&thread=<threadId>
+  useEffect(() => {
+    try {
+      const qs = new URLSearchParams(location.search || '');
+      const nav = (qs.get('nav') || qs.get('section') || '').trim();
+      const thread = (qs.get('thread') || qs.get('thread_id') || '').trim();
+      if (thread) {
+        setInitialThreadId(thread);
+        setActiveNav('messaging');
+        return;
+      }
+      if (nav) setActiveNav(nav);
+    } catch {
+      // ignore
+    }
+  }, [location.search]);
 
   // Onboarding data state
   const [companyProfile, setCompanyProfile] = useState(null);
@@ -759,7 +778,7 @@ export default function CarrierDashboard() {
       case 'esign':
         return <ConsentESignature />;
       case 'messaging':
-        return <Messaging />;
+        return <Messaging initialThreadId={initialThreadId} />;
       case 'alerts':
         return <AlertsNotifications />;
       case 'analytics':

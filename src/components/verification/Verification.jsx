@@ -21,6 +21,7 @@ const Verification = () => {
 
   const phone = location.state?.phone;
   const role = location.state?.role || 'carrier';
+  const from = location.state?.from;
 
   useEffect(() => {
     const initOtp = async () => {
@@ -87,6 +88,13 @@ const Verification = () => {
 
       // 3. Route to Dashboard
       console.log("Verification Success! Routing to dashboard...");
+
+      const fromPath = from?.pathname ? `${from.pathname}${from.search || ''}` : '';
+      if (fromPath && !String(fromPath).startsWith('/login')) {
+        navigate(fromPath, { replace: true });
+        return;
+      }
+
       switch (role) {
         case 'super_admin': navigate('/super-admin/dashboard'); break;
         case 'admin': navigate('/admin/dashboard'); break;

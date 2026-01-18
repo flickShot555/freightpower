@@ -56,7 +56,9 @@ export default function AdminLogin(){
       }
 
       await signInWithCustomToken(auth, data.custom_token)
-      navigate('/admin/dashboard')
+      const from = location?.state?.from
+      const fromPath = from?.pathname ? `${from.pathname}${from.search || ''}` : ''
+      navigate(fromPath || '/admin/dashboard', { replace: true })
     } catch (err) {
       console.error(err)
       setToast({ type: 'error', message: err?.message || 'Login failed. Check email/password.' })

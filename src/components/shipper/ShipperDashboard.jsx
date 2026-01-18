@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { API_URL } from '../../config';
 import TrackingVisibility from './TrackingVisibility';
 import DocumentVault from './DocumentVault';
@@ -27,13 +27,32 @@ import resp_logo from '/src/assets/logo_1.png';
 export default function ShipperDashboard() {
   const { currentUser, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [activeNav, setActiveNav] = useState('home');
+  const [initialThreadId, setInitialThreadId] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSidebarDark, setIsSidebarDark] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   // Messaging unread badge
   const [messagingUnread, setMessagingUnread] = useState(0);
+
+  // Deep-link support (email links): /shipper-dashboard?nav=messaging&thread=<threadId>
+  useEffect(() => {
+    try {
+      const qs = new URLSearchParams(location.search || '');
+      const nav = (qs.get('nav') || qs.get('section') || '').trim();
+      const thread = (qs.get('thread') || qs.get('thread_id') || '').trim();
+      if (thread) {
+        setInitialThreadId(thread);
+        setActiveNav('messaging');
+        return;
+      }
+      if (nav) setActiveNav(nav);
+    } catch {
+      // ignore
+    }
+  }, [location.search]);
 
   // Onboarding data state
   const [shipperProfile, setShipperProfile] = useState(null);
@@ -522,7 +541,7 @@ export default function ShipperDashboard() {
     if (activeNav === 'settings') return <Settings />;
     if (activeNav === 'help') return <AiHub />;
     if (activeNav === 'analytics') return <ShipperAnalytics />;
-    if (activeNav === 'messaging') return <Messaging />;
+    if (activeNav === 'messaging') return <Messaging initialThreadId={initialThreadId} />;
     if (activeNav === 'profile') return (
       <div>
         <header className="fp-header">

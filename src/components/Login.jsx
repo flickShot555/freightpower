@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
@@ -13,6 +13,7 @@ import pattern_bg_signup from '../assets/pattern_bg_signup.svg';
 const Login = () => {
   const { login } = useAuth(); 
   const navigate = useNavigate();
+  const location = useLocation();
   
   // Form State
   const [email, setEmail] = useState('');
@@ -48,7 +49,8 @@ const Login = () => {
         navigate('/verify', { 
             state: { 
                 phone: res.phone, 
-                fromLogin: true // Flag to tell verify page "This is a login MFA check"
+                fromLogin: true, // Flag to tell verify page "This is a login MFA check"
+                from: location?.state?.from || null,
             } 
         });
         return; // Stop here, don't go to dashboard yet
@@ -64,6 +66,14 @@ const Login = () => {
 
       const userData = userDoc.data();
       const role = userData.role || 'carrier';
+
+      // If user attempted to access a protected route (e.g. deep link from email), honor it.
+      const from = location?.state?.from;
+      const fromPath = from?.pathname ? `${from.pathname}${from.search || ''}` : '';
+      if (fromPath && !String(fromPath).startsWith('/login')) {
+        navigate(fromPath, { replace: true });
+        return;
+      }
 
       // 4. Role-Based Redirect
       if (role === 'super_admin') navigate('/super-admin/dashboard');

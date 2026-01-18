@@ -5,6 +5,7 @@ import json
 import smtplib
 import time
 import uuid
+from urllib.parse import urlencode
 from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -256,6 +257,34 @@ def _email_for_uid(uid: str) -> Optional[str]:
     return None
 
 
+def _role_for_uid(uid: str) -> Optional[str]:
+    """Best-effort role resolution for email deep links."""
+    try:
+        udoc = _get_user_doc(uid)
+        role = (udoc.get("role") or "").strip().lower()
+        if role:
+            return role
+    except Exception:
+        pass
+
+    # Fallback collections when users/{uid} is missing or incomplete
+    try:
+        ddoc = db.collection("drivers").document(uid).get()
+        if ddoc.exists:
+            return "driver"
+    except Exception:
+        pass
+
+    try:
+        sdoc = db.collection("shippers").document(uid).get()
+        if sdoc.exists:
+            return "shipper"
+    except Exception:
+        pass
+
+    return None
+
+
 def _sender_display_name(user: Dict[str, Any]) -> str:
     uid = user.get("uid")
     role = user.get("role")
@@ -464,9 +493,20 @@ def process_pending_message_email_notifications_job(max_batch: int = 30):
 
         subject = f"New message from {sender_name}"
 
-        # Best-effort link; role-based dashboards can be improved later.
+        # Role-aware deep link into dashboard -> Messaging, carrying the thread id.
         base = getattr(settings, "FRONTEND_BASE_URL", "") or ""
-        app_url = base.rstrip("/") + "/" if base else ""
+        role = _role_for_uid(recipient_uid) or ""
+        role_dash = {
+            "carrier": "/carrier-dashboard",
+            "driver": "/driver-dashboard",
+            "shipper": "/shipper-dashboard",
+            "admin": "/admin/dashboard",
+            "super_admin": "/super-admin/dashboard",
+        }.get(role, "/login")
+
+        # fresh=1 forces a re-login even if the browser is already signed in as another role/user.
+        qp = urlencode({"nav": "messaging", "thread": thread_id, "fresh": "1"})
+        app_url = (base.rstrip("/") + role_dash + ("?" + qp if qp else "")) if base else ""
         html = _email_html_template(sender_name=sender_name, thread_label=thread_label, message_text=preview, app_url=app_url or "")
 
         attempts = int(d.get("attempts") or 0)

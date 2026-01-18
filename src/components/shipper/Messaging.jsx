@@ -15,7 +15,7 @@ function fmtTime(ts) {
   return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
-export default function Messaging() {
+export default function Messaging({ initialThreadId = null } = {}) {
   const [threads, setThreads] = useState([]);
   const [selectedThread, setSelectedThread] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -28,6 +28,7 @@ export default function Messaging() {
   const [threadLoading, setThreadLoading] = useState(false);
   const [error, setError] = useState('');
   const streamRef = React.useRef(null);
+  const didInitSelectRef = React.useRef(false);
 
   const [showChatMobile, setShowChatMobile] = useState(false);
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth <= 900);
@@ -161,6 +162,23 @@ export default function Messaging() {
       }
     };
   }, []);
+
+  // Deep-link support: auto-open a specific thread when navigating from an email.
+  useEffect(() => {
+    if (didInitSelectRef.current) return;
+    const tid = String(initialThreadId || '').trim();
+    if (!tid) return;
+    if (selectedThread) {
+      didInitSelectRef.current = true;
+      return;
+    }
+    const match = (threads || []).find(t => t?.id === tid);
+    if (match) {
+      didInitSelectRef.current = true;
+      setShowChatMobile(true);
+      selectThread(match);
+    }
+  }, [initialThreadId, threads, selectedThread]);
 
   const handleSend = async () => {
     if (!message.trim() || !selectedThread) return;

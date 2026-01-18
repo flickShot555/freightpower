@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { getIdToken, signInWithCustomToken, signOut } from 'firebase/auth';
 import { auth } from '../../firebase';
 import Toast from '../common/Toast';
@@ -7,6 +7,7 @@ import { API_URL } from '../../config';
 
 export default function SuperAdminLogin() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -34,7 +35,9 @@ export default function SuperAdminLogin() {
       if (auth.currentUser) {
         await getIdToken(auth.currentUser, true);
       }
-      navigate('/super-admin/dashboard');
+      const from = location?.state?.from;
+      const fromPath = from?.pathname ? `${from.pathname}${from.search || ''}` : '';
+      navigate(fromPath || '/super-admin/dashboard', { replace: true });
     } catch (err) {
       console.error(err);
       setToast({

@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { auth, db } from '../firebase';
-import { onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 
 /**
@@ -21,6 +21,23 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
   const [user, setUser] = useState(null);
   const [userData, setUserData] = useState(null);
   const location = useLocation();
+
+  const { isFreshLink, sanitizedLocation } = useMemo(() => {
+    try {
+      const qs = new URLSearchParams(location?.search || '');
+      const fresh = (qs.get('fresh') || '').trim();
+      const isFresh = fresh === '1' || fresh.toLowerCase() === 'true';
+      if (!isFresh) return { isFreshLink: false, sanitizedLocation: location };
+      qs.delete('fresh');
+      const nextSearch = qs.toString();
+      return {
+        isFreshLink: true,
+        sanitizedLocation: { ...location, search: nextSearch ? `?${nextSearch}` : '' },
+      };
+    } catch {
+      return { isFreshLink: false, sanitizedLocation: location };
+    }
+  }, [location]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
@@ -82,17 +99,41 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
 
     // Prefer explicit role intent when this guard is role-scoped.
     if (allowed.includes('super_admin')) {
-      return <Navigate to="/super-admin/login" state={{ from: location }} replace />;
+      return <Navigate to="/super-admin/login" state={{ from: sanitizedLocation }} replace />;
     }
     if (allowed.includes('admin')) {
-      return <Navigate to="/admin/login" state={{ from: location }} replace />;
+      return <Navigate to="/admin/login" state={{ from: sanitizedLocation }} replace />;
     }
 
     // Fallback: infer from URL segment (works with basenames/subpaths too).
     const isAdminPath = /(^|\/)admin(\/|$)/.test(path);
     const isSuperAdminPath = /(^|\/)super-admin(\/|$)/.test(path);
     const loginRoute = isSuperAdminPath ? '/super-admin/login' : isAdminPath ? '/admin/login' : '/login';
-    return <Navigate to={loginRoute} state={{ from: location }} replace />;
+    return <Navigate to={loginRoute} state={{ from: sanitizedLocation }} replace />;
+  }
+
+  // Fresh-login deep link: force sign-out so the recipient must authenticate.
+  // This prevents cases where a user is already logged in as a different role/account.
+  if (isFreshLink) {
+    try {
+      // Fire-and-forget sign-out; auth state listener will update.
+      signOut(auth);
+    } catch {
+      // ignore
+    }
+
+    const path = String(location?.pathname || '').toLowerCase();
+    const allowed = (allowedRoles || []).map((r) => String(r).toLowerCase());
+    if (allowed.includes('super_admin')) {
+      return <Navigate to="/super-admin/login" state={{ from: sanitizedLocation }} replace />;
+    }
+    if (allowed.includes('admin')) {
+      return <Navigate to="/admin/login" state={{ from: sanitizedLocation }} replace />;
+    }
+    const isAdminPath = /(^|\/)admin(\/|$)/.test(path);
+    const isSuperAdminPath = /(^|\/)super-admin(\/|$)/.test(path);
+    const loginRoute = isSuperAdminPath ? '/super-admin/login' : isAdminPath ? '/admin/login' : '/login';
+    return <Navigate to={loginRoute} state={{ from: sanitizedLocation }} replace />;
   }
 
   // Email not verified - redirect to verification
