@@ -1,19 +1,44 @@
-import React from 'react';
-import AdminShared, { PulsePanel, CarriersTable } from './AdminShared';
+import React, { useMemo } from 'react';
+import { PulsePanel } from './AdminShared';
+import useAdminManagementUsers from '../../hooks/useAdminManagementUsers';
+import { useUserSettings } from '../../contexts/UserSettingsContext';
+import { formatDateTime } from '../../utils/dateTimeFormat';
 
 export default function Shippers(){
-  const cards = [
-    { variant:'green', label:'Verified Brokers/Shippers', value:'31', actionLabel:'View List', iconClass:'fa-check' },
-    { variant:'yellow', label:'Pending Super Admin Review', value:'5', actionLabel:'Review', iconClass:'fa-clock' },
-    { variant:'red', label:'Flagged / Escalated Issues', value:'2', actionLabel:'List', iconClass:'fa-triangle-exclamation' },
-    { variant:'blue', label:'Marketplace', value:'7', actionLabel:'Open', iconClass:'fa-store' }
-  ];
+  const { settings } = useUserSettings();
+  const { items: shippers, metrics: apiMetrics, loading, error } = useAdminManagementUsers({ role: 'shipper_broker', limit: 250, refreshMs: 5000 });
 
-  const sampleRows = [
-    {name:'Metro Freight Solutions', mc:'1180456', subAdmin:{img:'https://randomuser.me/api/portraits/men/12.jpg', name:'Yusuf Mohamed'}, status:{text:'Pending Doc Recheck', variant:'warning'}, resolution:'Waiting Approval'},
-    {name:'Prime Haul Brokerage', mc:'1132209', subAdmin:{img:'https://randomuser.me/api/portraits/men/10.jpg', name:'Ayaan Abdinur'}, status:{text:'Compliance Violation', variant:'disconnected'}, resolution:'Not Resolved'},
-    {name:'CityLink Logistics', mc:'1028341', subAdmin:{img:'https://randomuser.me/api/portraits/women/13.jpg', name:'Sara Hassan'}, status:{text:'Fixed', variant:'active'}, resolution:'Awaiting Confirm'}
-  ];
+  const cards = useMemo(() => {
+    const list = Array.isArray(shippers) ? shippers : [];
+    const verified = list.filter((u) => u?.is_verified === true && u?.is_active !== false && u?.is_locked !== true).length;
+    const pending = apiMetrics?.pending ?? list.filter((u) => u?.onboarding_completed === false || u?.is_verified === false).length;
+    const flagged = apiMetrics?.flagged ?? list.filter((u) => u?.is_active === false || u?.is_locked === true).length;
+    return [
+      { variant:'green', label:'Verified Shippers/Brokers', value: loading ? '…' : String(verified), actionLabel:'View', iconClass:'fa-check' },
+      { variant:'yellow', label:'Pending Review', value: loading ? '…' : String(pending), actionLabel:'Review', iconClass:'fa-clock' },
+      { variant:'red', label:'Flagged / Locked', value: loading ? '…' : String(flagged), actionLabel:'List', iconClass:'fa-triangle-exclamation' },
+      { variant:'blue', label:'Total', value: loading ? '…' : String(list.length), actionLabel:'View', iconClass:'fa-users' }
+    ];
+  }, [shippers, loading, apiMetrics]);
+
+  const tableRows = useMemo(() => {
+    const list = Array.isArray(shippers) ? [...shippers] : [];
+    list.sort((a, b) => Number(b?.updated_at || b?.created_at || 0) - Number(a?.updated_at || a?.created_at || 0));
+    return list.slice(0, 75);
+  }, [shippers]);
+
+  const statusBadge = (u) => {
+    if (u?.is_locked) return { text: 'Locked', cls: 'revoked' };
+    if (u?.is_active === false) return { text: 'Suspended', cls: 'revoked' };
+    if (u?.onboarding_completed === false || u?.is_verified === false) return { text: 'Pending', cls: 'pending' };
+    return { text: 'Active', cls: 'active' };
+  };
+
+  const formatRole = (r) => {
+    const role = String(r || '').replace(/_/g, ' ').trim();
+    if (!role) return '—';
+    return role[0].toUpperCase() + role.slice(1);
+  };
 
   return (
     <div>
@@ -21,7 +46,54 @@ export default function Shippers(){
         <div className="fp-header-titles"><h2>Shippers/Brokers</h2></div>
       </header>
       <PulsePanel cards={cards} />
-      <CarriersTable rows={sampleRows} title="Issues Requiring Super Admin Action" firstColLabel="Company Name" />
+      <div className="uo-panel">
+        <section className="adm-user-overview">
+          <div className="uo-header"><h3 style={{fontWeight:700,fontSize:18}}>Shippers / Brokers</h3></div>
+
+          <div className="uo-table-wrap">
+            <table className="uo-table carriers-table">
+              <thead>
+                <tr>
+                  <th>Company / User</th>
+                  <th>Role</th>
+                  <th>Contact</th>
+                  <th>Status</th>
+                  <th>Updated</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {error ? (
+                  <tr><td colSpan={6} style={{ padding: 16 }}>Failed to load shippers/brokers: {String(error?.message || error)}</td></tr>
+                ) : loading ? (
+                  <tr><td colSpan={6} style={{ padding: 16 }}>Loading shippers/brokers…</td></tr>
+                ) : tableRows.length === 0 ? (
+                  <tr><td colSpan={6} style={{ padding: 16 }}>No shippers/brokers found.</td></tr>
+                ) : (
+                  tableRows.map((s) => {
+                    const name = s?.company_name || s?.display_name || s?.name || s?.email || s?.uid || s?.id;
+                    const status = statusBadge(s);
+                    const updated = Number(s?.updated_at || s?.created_at);
+                    const when = Number.isFinite(updated) && updated > 0 ? formatDateTime(updated, settings) : '—';
+                    return (
+                      <tr key={s.id}>
+                        <td className="carrier-name">{name}</td>
+                        <td className="carrier-res">{formatRole(s?.role)}</td>
+                        <td className="carrier-res">{s?.email || '—'}</td>
+                        <td><span className={`int-status-badge ${status.cls}`}>{status.text}</span></td>
+                        <td className="carrier-res">{when}</td>
+                        <td className="carrier-actions"><a className="card-action">View</a></td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="uo-footer"><a className="card-action">Showing latest {Math.min(75, shippers?.length || 0)} accounts</a></div>
+        </section>
+      </div>
 
       <div className="ai-summary">
               <div className="ai-summary-left">

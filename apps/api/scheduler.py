@@ -62,7 +62,7 @@ def reset_marketplace_views_job():
     Runs every Monday at 00:00.
     """
     try:
-        print(f"🔄 [{datetime.now()}] Running weekly marketplace views reset...")
+        print(f"[{datetime.now()}] Running weekly marketplace views reset...")
         
         # Import here to avoid circular imports
         from firebase_admin import firestore
@@ -112,10 +112,10 @@ def reset_marketplace_views_job():
             
             reset_count += 1
         
-        print(f"✅ Successfully reset marketplace views for {reset_count} drivers")
+        print(f"Successfully reset marketplace views for {reset_count} drivers")
     
     except Exception as e:
-        print(f"❌ Error in marketplace views reset: {e}")
+        print(f"Error in marketplace views reset: {e}")
         import traceback
         traceback.print_exc()
 
@@ -132,5 +132,5 @@ def init_marketplace_scheduler(scheduler_wrapper: SchedulerWrapper):
         cron_trigger,
         'reset_marketplace_views'
     )
-    print("⏰ Marketplace scheduler initialized: Views reset every Monday at 00:00")
+    print("Marketplace scheduler initialized: Views reset every Monday at 00:00")
 

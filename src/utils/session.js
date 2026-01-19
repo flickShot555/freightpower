@@ -13,6 +13,17 @@ export function isSessionRevokedMessage(message) {
   );
 }
 
+export function isAccountDeletedMessage(message) {
+  const m = String(message || '').toLowerCase();
+  if (!m) return false;
+  return (
+    m.includes('user profile not found') ||
+    m.includes('account deleted') ||
+    m.includes('account removed') ||
+    m.includes('profile missing')
+  );
+}
+
 export async function forceLogoutToLogin(reason = 'session_revoked') {
   try {
     if (typeof window !== 'undefined') {

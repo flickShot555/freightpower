@@ -82,13 +82,13 @@ export default function AdminLogin(){
       await signInWithCustomToken(auth, data.custom_token)
       if (data?.session_id) setSessionId(data.session_id)
       if (hasTrustedDeviceToken) {
-        navigate('/admin/dashboard', { replace: true })
+        navigate('/admin', { replace: true })
         return
       }
 
       const from = location?.state?.from
       const fromPath = from?.pathname ? `${from.pathname}${from.search || ''}` : ''
-      navigate(fromPath || '/admin/dashboard', { replace: true })
+      navigate(fromPath || '/admin', { replace: true })
     } catch (err) {
       console.error(err)
       setToast({ type: 'error', message: err?.message || 'Login failed. Check email/password.' })

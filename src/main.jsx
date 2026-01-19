@@ -3,10 +3,13 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
 import { AuthProvider } from './contexts/AuthContext' // <--- Import this
+import { UserSettingsProvider } from './contexts/UserSettingsContext'
 
 createRoot(document.getElementById('root')).render(
   <AuthProvider>
-    <App />
+    <UserSettingsProvider>
+      <App />
+    </UserSettingsProvider>
   </AuthProvider>,
 
 )

@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import '../../styles/admin/UsersRoles.css';
+import useAdminManagementUsers from '../../hooks/useAdminManagementUsers';
 
 function PulseCard({variant, label, value, actionLabel, iconClass}){
   return (
@@ -17,6 +18,53 @@ function PulseCard({variant, label, value, actionLabel, iconClass}){
 }
 
 export default function UsersRoles(){
+  const { items: users, metrics: apiMetrics, loading, error } = useAdminManagementUsers({ role: 'all', limit: 250, refreshMs: 5000 });
+
+  const metrics = useMemo(() => {
+    if (apiMetrics) {
+      return {
+        activeUsers: apiMetrics.active ?? 0,
+        pendingApprovals: apiMetrics.pending ?? 0,
+        flaggedOrSuspended: apiMetrics.flagged ?? 0,
+      };
+    }
+    const list = Array.isArray(users) ? users : [];
+    const activeUsers = list.filter((u) => u?.is_active !== false && u?.is_locked !== true).length;
+    const pendingApprovals = list.filter((u) => u?.onboarding_completed === false || u?.is_verified === false).length;
+    const flaggedOrSuspended = list.filter((u) => u?.is_active === false || u?.is_locked === true).length;
+    return { activeUsers, pendingApprovals, flaggedOrSuspended };
+  }, [users, apiMetrics]);
+
+  const tableRows = useMemo(() => {
+    const list = Array.isArray(users) ? [...users] : [];
+    // Avoid Firestore composite index requirements by sorting client-side.
+    list.sort((a, b) => Number(b?.updated_at || b?.last_login_at || b?.created_at || 0) - Number(a?.updated_at || a?.last_login_at || a?.created_at || 0));
+    return list.slice(0, 50);
+  }, [users]);
+
+  const formatRole = (r) => {
+    const role = String(r || '').replace(/_/g, ' ').trim();
+    if (!role) return '—';
+    return role.split(' ').map((w) => w ? (w[0].toUpperCase() + w.slice(1)) : w).join(' ');
+  };
+
+  const formatStatus = (u) => {
+    if (u?.is_locked) return { text: 'Locked', cls: 'revoked' };
+    if (u?.is_active === false) return { text: 'Suspended', cls: 'revoked' };
+    if (u?.onboarding_completed === false || u?.is_verified === false) return { text: 'Pending', cls: 'pending' };
+    return { text: 'Active', cls: 'active' };
+  };
+
+  const formatWhen = (ts) => {
+    const n = Number(ts);
+    if (!Number.isFinite(n) || n <= 0) return '—';
+    try {
+      return new Date(n * 1000).toLocaleString();
+    } catch (_) {
+      return '—';
+    }
+  };
+
   return (
     <div className="adm-users-root">
       <section className="adm-system-pulse">
@@ -28,10 +76,10 @@ export default function UsersRoles(){
 
         <div className="pulse-panel">
           <div className="pulse-cards">
-            <PulseCard variant="green" label="Active Users" value="147" actionLabel="View" iconClass="fa-user-check" />
-            <PulseCard variant="yellow" label="Pending Approvals" value="6" actionLabel="Approve All" iconClass="fa-clock" />
-            <PulseCard variant="red" label="Flagged / Suspended" value="2" actionLabel="Review" iconClass="fa-triangle-exclamation" />
-            <PulseCard variant="blue" label="AI Role Suggestions" value="3" actionLabel="Apply" iconClass="fa-brain" />
+            <PulseCard variant="green" label="Active Users" value={loading ? '…' : String(metrics.activeUsers)} actionLabel="View" iconClass="fa-user-check" />
+            <PulseCard variant="yellow" label="Pending Approvals" value={loading ? '…' : String(metrics.pendingApprovals)} actionLabel="Review" iconClass="fa-clock" />
+            <PulseCard variant="red" label="Flagged / Suspended" value={loading ? '…' : String(metrics.flaggedOrSuspended)} actionLabel="Review" iconClass="fa-triangle-exclamation" />
+            <PulseCard variant="blue" label="Total Users" value={loading ? '…' : String(users?.length || 0)} actionLabel="View" iconClass="fa-users" />
           </div>
         </div>
 
@@ -45,43 +93,43 @@ export default function UsersRoles(){
                 <tr><th>User</th><th>Role</th><th>Managed By</th><th>Status</th><th>Last Activity</th><th>Action</th></tr>
               </thead>
               <tbody>
-                <tr>
-                  <td className="user-cell"><img src="https://randomuser.me/api/portraits/men/10.jpg" alt="a"/> Ayaan Abdinur</td>
-                  <td>Sub-Admin</td>
-                  <td>Farhan Salad</td>
-                  <td><span className="int-status-badge active">Active</span></td>
-                  <td>2h ago</td>
-                  <td ><i className="fa-solid fa-ellipsis-h"></i></td>
-                </tr>
-                <tr>
-                  <td className="user-cell"><img src="https://randomuser.me/api/portraits/men/11.jpg" alt="j"/> John D.</td>
-                  <td>Driver</td>
-                  <td>Ayaan</td>
-                  <td><span className="int-status-badge pending">Pending</span></td>
-                  <td>1h ago</td>
-                  <td><i className="fa-solid fa-ellipsis-h"></i></td>
-                </tr>
-                <tr>
-                  <td className="user-cell"><img src="https://randomuser.me/api/portraits/men/12.jpg" alt="m"/> Mike L.</td>
-                  <td>Carrier Admin</td>
-                  <td>Ayaan</td>
-                  <td><span className="int-status-badge revoked">Flagged</span></td>
-                  <td>4h ago</td>
-                  <td><i className="fa-solid fa-ellipsis-h"></i></td>
-                </tr>
-                <tr>
-                  <td className="user-cell"><img src="https://randomuser.me/api/portraits/women/13.jpg" alt="s"/> Sara B.</td>
-                  <td>Provider</td>
-                  <td>Yusuf</td>
-                  <td><span className="int-status-badge active">Active</span></td>
-                  <td>3h ago</td>
-                  <td><i className="fa-solid fa-ellipsis-h"></i></td>
-                </tr>
+                {error ? (
+                  <tr>
+                    <td colSpan={6} style={{ padding: 16 }}>
+                      Failed to load users: {String(error?.message || error)}
+                    </td>
+                  </tr>
+                ) : loading ? (
+                  <tr>
+                    <td colSpan={6} style={{ padding: 16 }}>Loading users…</td>
+                  </tr>
+                ) : tableRows.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} style={{ padding: 16 }}>No users found.</td>
+                  </tr>
+                ) : (
+                  tableRows.map((u) => {
+                    const status = formatStatus(u);
+                    const displayName = u?.display_name || u?.name || u?.company_name || u?.email || u?.uid || u?.id;
+                    const manager = u?.managed_by_name || u?.managed_by || u?.sub_admin_name || '—';
+                    const photo = u?.photo_url || 'https://www.gravatar.com/avatar/?d=mp';
+                    return (
+                      <tr key={u.id}>
+                        <td className="user-cell"><img src={photo} alt="avatar"/> {displayName}</td>
+                        <td>{formatRole(u?.role)}</td>
+                        <td>{manager}</td>
+                        <td><span className={`int-status-badge ${status.cls}`}>{status.text}</span></td>
+                        <td>{formatWhen(u?.last_login_at || u?.updated_at || u?.created_at)}</td>
+                        <td><i className="fa-solid fa-ellipsis-h"></i></td>
+                      </tr>
+                    );
+                  })
+                )}
               </tbody>
               </table>
             </div>
 
-            <div className="uo-footer"><a className="card-action">Load More Users</a></div>
+            <div className="uo-footer"><a className="card-action">Showing latest {Math.min(50, users?.length || 0)} users</a></div>
           </section>
         </div>
       </section>
@@ -99,3 +147,4 @@ export default function UsersRoles(){
     </div>
   )
 }
+

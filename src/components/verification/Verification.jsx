@@ -97,7 +97,7 @@ const Verification = () => {
 
       switch (role) {
         case 'super_admin': navigate('/super-admin/dashboard'); break;
-        case 'admin': navigate('/admin/dashboard'); break;
+        case 'admin': navigate('/admin'); break;
         case 'driver': navigate('/driver-dashboard'); break;
         case 'shipper': navigate('/shipper-dashboard'); break;
         default: navigate('/carrier-dashboard');

@@ -26,6 +26,111 @@ export function AuthProvider({ children }) {
   const [isVerified, setIsVerified] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  // Background GPS heartbeat (best-effort) to populate users.gps_lat/gps_lng.
+  // This powers admin Tracking & Visibility map markers.
+  useEffect(() => {
+    if (!currentUser) return;
+    const role = String(userRole || '').toLowerCase();
+    if (!role || role === 'admin' || role === 'super_admin') return;
+
+    const isEligibleRole = ['driver', 'carrier', 'shipper', 'broker'].includes(role);
+    if (!isEligibleRole) return;
+
+    if (!('geolocation' in navigator)) return;
+
+    const STORAGE_KEY = 'fp_gps_last_sent_v1';
+    const MIN_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
+    const MIN_MOVE_MILES = 0.5;
+
+    function haversineMiles(lat1, lon1, lat2, lon2) {
+      const R = 3958.8;
+      const toRad = (deg) => (deg * Math.PI) / 180;
+      const dLat = toRad(lat2 - lat1);
+      const dLon = toRad(lon2 - lon1);
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return R * c;
+    }
+
+    function readLast() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : null;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function writeLast(obj) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(obj));
+      } catch (e) {}
+    }
+
+    async function sendGps(lat, lng) {
+      try {
+        const token = await currentUser.getIdToken();
+        await fetch(`${API_URL}/auth/profile/update`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            gps_lat: lat,
+            gps_lng: lng,
+          })
+        });
+      } catch (e) {
+        // best-effort: ignore
+      }
+    }
+
+    let stopped = false;
+
+    const tick = () => {
+      if (stopped) return;
+      navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+          if (stopped) return;
+          const lat = Number(pos?.coords?.latitude);
+          const lng = Number(pos?.coords?.longitude);
+          if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+
+          const now = Date.now();
+          const last = readLast();
+
+          const tooSoon = last?.ts && (now - Number(last.ts) < MIN_INTERVAL_MS);
+          const movedEnough = last?.lat != null && last?.lng != null
+            ? (haversineMiles(Number(last.lat), Number(last.lng), lat, lng) >= MIN_MOVE_MILES)
+            : true;
+
+          if (!tooSoon && movedEnough) {
+            await sendGps(lat, lng);
+            writeLast({ ts: now, lat, lng });
+          }
+        },
+        () => {
+          // Permission denied / unavailable: do nothing.
+        },
+        { enableHighAccuracy: false, timeout: 8000, maximumAge: 60000 }
+      );
+    };
+
+    // Kick once soon after login, then keep updating.
+    const startTimer = setTimeout(tick, 1500);
+    const intervalId = setInterval(tick, MIN_INTERVAL_MS);
+
+    return () => {
+      stopped = true;
+      clearTimeout(startTimer);
+      clearInterval(intervalId);
+    };
+  }, [currentUser, userRole]);
+
   const smsOtpDisabled = String(import.meta.env.VITE_DISABLE_SMS_OTP || '').toLowerCase() === '1'
     || String(import.meta.env.VITE_DISABLE_SMS_OTP || '').toLowerCase() === 'true';
   const mockSmsCode = String(import.meta.env.VITE_MOCK_SMS_CODE || '123456');

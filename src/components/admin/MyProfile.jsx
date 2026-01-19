@@ -1,4 +1,6 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import { useUserSettings } from '../../contexts/UserSettingsContext';
+import { formatDateTime } from '../../utils/dateTimeFormat';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import '../../styles/admin/MyProfile.css';
 import Toast from '../common/Toast';
 import { API_URL } from '../../config';
@@ -12,13 +14,16 @@ import {
 import { forceLogoutToLogin, getSessionId, isSessionRevokedMessage } from '../../utils/session';
 
 export default function MyProfile() {
+		const { settings } = useUserSettings();
 	const { currentUser } = useAuth();
 	const [toast, setToast] = useState(null);
 	const [loading, setLoading] = useState(true);
 	const [saving, setSaving] = useState(false);
+	const [uploadingAvatar, setUploadingAvatar] = useState(false);
 	const [profile, setProfile] = useState(null);
 	const [sessions, setSessions] = useState([]);
 	const [loadingSessions, setLoadingSessions] = useState(false);
+	const fileInputRef = useRef(null);
 	const [draft, setDraft] = useState({
 		name: '',
 		email: '',
@@ -145,7 +150,7 @@ export default function MyProfile() {
 		const n = Number(ts);
 		if (!Number.isFinite(n) || n <= 0) return '';
 		try {
-			return new Date(n * 1000).toLocaleString();
+			return formatDateTime(n, settings);
 		} catch {
 			return '';
 		}
@@ -352,6 +357,55 @@ export default function MyProfile() {
 		}
 	};
 
+	const pickAvatarFile = () => {
+		try {
+			fileInputRef.current?.click();
+		} catch {
+			// ignore
+		}
+	};
+
+	const uploadAvatar = async (file) => {
+		setToast(null);
+		if (!currentUser) {
+			setToast({ type: 'error', message: 'Not signed in' });
+			return;
+		}
+		if (!file) return;
+		if (!String(file.type || '').startsWith('image/')) {
+			setToast({ type: 'error', message: 'Please select an image file' });
+			return;
+		}
+
+		setUploadingAvatar(true);
+		try {
+			const token = await currentUser.getIdToken();
+			const formData = new FormData();
+			formData.append('file', file);
+
+			const resp = await fetch(`${API_URL}/auth/profile/picture`, {
+				method: 'POST',
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+				body: formData,
+			});
+			const data = await resp.json().catch(() => ({}));
+			if (!resp.ok) throw new Error(data?.detail || data?.message || 'Failed to upload profile picture');
+
+			const url = data?.profile_picture_url;
+			if (url) {
+				setProfile((p) => ({ ...(p || {}), profile_picture_url: url }));
+			}
+			setToast({ type: 'success', message: 'Profile picture updated' });
+		} catch (e) {
+			console.error(e);
+			setToast({ type: 'error', message: e?.message || 'Upload failed' });
+		} finally {
+			setUploadingAvatar(false);
+		}
+	};
+
 	return (
 		<div className="my-profile-root">
 			<Toast message={toast?.message} type={toast?.type} onClose={() => setToast(null)} />
@@ -368,10 +422,22 @@ export default function MyProfile() {
 				<div className="card profile-card">
 					<div className="card-header"><h3> Personal Details</h3></div>
                     <div className="profile-avatar-big">
-							<div className="avatar-frame">
+							<input
+								ref={fileInputRef}
+								type="file"
+								accept="image/*"
+								hidden
+								onChange={(e) => {
+									const f = e.target.files?.[0] || null;
+									// allow selecting the same file twice
+									e.target.value = '';
+									if (f) uploadAvatar(f);
+								}}
+							/>
+							<div className="avatar-frame" role="button" tabIndex={0} onClick={pickAvatarFile} onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && pickAvatarFile()}>
 								<img src={profile?.profile_picture_url || 'https://randomuser.me/api/portraits/lego/2.jpg'} alt="avatar" />
 							</div>
-							<div className="upload-text">Click to upload new photo</div>
+							<div className="upload-text">{uploadingAvatar ? 'Uploading…' : 'Click to upload new photo'}</div>
 						</div>
 					<div className="profile-card-body">
 
@@ -450,7 +516,7 @@ export default function MyProfile() {
 
 						<div className="pref-section" style={{marginBottom: "20px"}}>
 							<h4>Quick Actions</h4>
-							<button className="btn small ghost-cd">Change Profile Photo</button>
+							<button className="btn small ghost-cd" type="button" onClick={pickAvatarFile} disabled={uploadingAvatar}>Change Profile Photo</button>
 						</div>
 
 						<div className="pref-section">

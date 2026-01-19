@@ -176,7 +176,7 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
         'carrier': '/carrier-dashboard',
         'driver': '/driver-dashboard',
         'shipper': '/shipper-dashboard',
-        'admin': '/admin/dashboard',
+        'admin': '/admin',
         'super_admin': '/super-admin/dashboard'
       };
       

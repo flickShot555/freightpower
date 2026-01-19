@@ -26,6 +26,7 @@ import MarketingPromotion from '../super_admin/MarketingPromotion';
 import SupportHub from '../super_admin/SupportHub';
 import SystemSettings from '../super_admin/SystemSettings';
 import AdminApprovals from '../super_admin/AdminApprovals';
+import RemovalApprovals from '../super_admin/RemovalApprovals';
 import logo from '/src/assets/logo.png';
 import resp_logo from '/src/assets/logo_1.png';
 
@@ -53,6 +54,7 @@ export default function SuperAdminDashboard(){
       items: [
         { key: 'users', label: 'Users & Roles', icon: 'fa-solid fa-users' },
         { key: 'admin-approvals', label: 'Admin Approvals', icon: 'fa-solid fa-user-check' },
+        { key: 'removal-approvals', label: 'Removal Approvals', icon: 'fa-solid fa-user-slash' },
         { key: 'carriers', label: 'Carriers', icon: 'fa-solid fa-truck' },
         { key: 'shippers', label: 'Shippers / Brokers', icon: 'fa-solid fa-people-group' },
         { key: 'drivers', label: 'Drivers', icon: 'fa-solid fa-person' },
@@ -345,6 +347,7 @@ export default function SuperAdminDashboard(){
           {activeNav === 'analytics' && <AdminAnalytics /> }
           {activeNav === 'users' && <UsersRoles /> }
           {activeNav === 'admin-approvals' && <AdminApprovals /> }
+          {activeNav === 'removal-approvals' && <RemovalApprovals /> }
             {activeNav === 'carriers' && <Carriers /> }
             {activeNav === 'drivers' && <Drivers /> }
             {activeNav === 'shippers' && <Shippers /> }

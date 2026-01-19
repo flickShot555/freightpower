@@ -82,6 +82,24 @@ class ProfileUpdate(BaseModel):
     utc_offset_minutes: Optional[int] = None
     trusted_devices_enabled: Optional[bool] = None
 
+
+class UserSettings(BaseModel):
+    language: Optional[str] = None
+    time_zone: Optional[str] = None
+    date_format: str = "mdy"  # mdy | dmy
+    start_dashboard_view: str = "dashboard"
+    auto_save_edits: bool = True
+    email_digest_enabled: bool = True
+
+
+class UserSettingsUpdate(BaseModel):
+    language: Optional[str] = None
+    time_zone: Optional[str] = None
+    date_format: Optional[str] = None
+    start_dashboard_view: Optional[str] = None
+    auto_save_edits: Optional[bool] = None
+    email_digest_enabled: Optional[bool] = None
+
 class UserProfile(BaseModel):
     uid: str
     email: str

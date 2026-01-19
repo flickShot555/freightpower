@@ -11,6 +11,8 @@
 .stats-row .stat{flex:1;display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding:12px}
 .stat .stat-num{font-weight:800;font-size:20px;color:#0b3240}
 .dark-root .stat .stat-num{color:#f1f5f9}
+.stat .stat-num.nil{color:#dc2626}
+.dark-root .stat .stat-num.nil{color:#f87171}
 .stat .stat-label{color:#64748b}
 .dark-root .stat .stat-label{color:#94a3a8}
 

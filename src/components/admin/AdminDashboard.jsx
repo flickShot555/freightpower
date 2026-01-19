@@ -22,15 +22,37 @@ import Notifications from './Notifications';
 import Logout from './Logout';
 import logo from '/src/assets/logo.png';
 import resp_logo from '/src/assets/logo_1.png';
+import { getJson, postJson } from '../../api/http';
+import { useAuth } from '../../contexts/AuthContext';
+import UserDetailsModal from './UserDetailsModal';
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const { section } = useParams();
+  const { currentUser, userRole, logout } = useAuth();
 
   const [activeNav, setActiveNav] = useState('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSidebarDark, setIsSidebarDark] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
+
+  const [adminProfile, setAdminProfile] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchItems, setSearchItems] = useState([]);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [searchError, setSearchError] = useState('');
+
+  const [selectedUserId, setSelectedUserId] = useState(null);
+  const [userModalOpen, setUserModalOpen] = useState(false);
+  const [initialThreadId, setInitialThreadId] = useState(null);
+
+  const [dashboardMetrics, setDashboardMetrics] = useState(null);
+  const [metricsLoading, setMetricsLoading] = useState(false);
+  const [metricsError, setMetricsError] = useState('');
+
+  const [recentUnreadThreads, setRecentUnreadThreads] = useState([]);
+  const [recentUnreadLoading, setRecentUnreadLoading] = useState(false);
 
   const navGroups = [
     {
@@ -81,9 +103,175 @@ export default function AdminDashboard() {
   }, []);
 
   useEffect(() => {
+    // If the URL doesn't specify a section, honor the user's preferred start view.
+    if (!currentUser) return;
+    if (section) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const s = await getJson('/auth/settings', { requestLabel: 'GET /auth/settings (start view)' });
+        if (cancelled) return;
+        const start = String(s?.start_dashboard_view || '').trim().toLowerCase();
+        if (start && start !== 'dashboard' && validNavKeys.has(start)) {
+          navigate(`/admin/${start}`, { replace: true });
+        }
+      } catch {
+        // Ignore and use default.
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [currentUser, section, validNavKeys, navigate]);
+
+  useEffect(() => {
     const next = (section || 'dashboard').toLowerCase();
     setActiveNav(validNavKeys.has(next) ? next : 'dashboard');
   }, [section, validNavKeys]);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const me = await getJson('/auth/me', { requestLabel: 'GET /auth/me (admin)' });
+        if (!mounted) return;
+        setAdminProfile(me || null);
+      } catch (e) {
+        // Fallbacks will be used if this fails.
+        if (!mounted) return;
+        setAdminProfile(null);
+      }
+    })();
+    return () => { mounted = false; };
+  }, []);
+
+  useEffect(() => {
+    const q = String(searchQuery || '').trim();
+    setSearchError('');
+    if (!q || q.length < 2) {
+      setSearchItems([]);
+      setSearchLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+    setSearchLoading(true);
+    const t = setTimeout(async () => {
+      try {
+        const res = await getJson(`/admin/users/search?q=${encodeURIComponent(q)}&limit=8`, {
+          requestLabel: 'GET /admin/users/search',
+          timeoutMs: 25000,
+        });
+        if (cancelled) return;
+        setSearchItems(Array.isArray(res?.items) ? res.items : []);
+      } catch (e) {
+        if (cancelled) return;
+        setSearchItems([]);
+        setSearchError(e?.message || 'Search failed');
+      } finally {
+        if (!cancelled) setSearchLoading(false);
+      }
+    }, 300);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(t);
+    };
+  }, [searchQuery]);
+
+  useEffect(() => {
+    if (activeNav !== 'dashboard') return;
+    let cancelled = false;
+    setMetricsError('');
+    setMetricsLoading(true);
+    (async () => {
+      try {
+        const m = await getJson('/admin/dashboard/metrics', { requestLabel: 'GET /admin/dashboard/metrics' });
+        if (cancelled) return;
+        setDashboardMetrics(m || null);
+      } catch (e) {
+        if (cancelled) return;
+        setDashboardMetrics(null);
+        setMetricsError(e?.message || 'Failed to load dashboard metrics');
+      } finally {
+        if (!cancelled) setMetricsLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [activeNav]);
+
+  useEffect(() => {
+    if (activeNav !== 'dashboard') return;
+    let cancelled = false;
+    setRecentUnreadLoading(true);
+    (async () => {
+      try {
+        const [threadsResp, unreadResp] = await Promise.all([
+          getJson('/messaging/threads?limit=100', { requestLabel: 'GET /messaging/threads (dashboard)' }),
+          getJson('/messaging/unread/summary', { requestLabel: 'GET /messaging/unread/summary (dashboard)' }),
+        ]);
+        if (cancelled) return;
+
+        const threads = Array.isArray(threadsResp?.threads) ? threadsResp.threads : [];
+        const summaryThreads = unreadResp?.threads || {};
+
+        const unread = threads
+          .filter((t) => summaryThreads?.[t?.id]?.has_unread)
+          .sort((a, b) => {
+            const at = Number(summaryThreads?.[a?.id]?.last_message_at || a?.last_message_at || a?.updated_at || 0);
+            const bt = Number(summaryThreads?.[b?.id]?.last_message_at || b?.last_message_at || b?.updated_at || 0);
+            return bt - at;
+          })
+          .slice(0, 2);
+
+        setRecentUnreadThreads(unread);
+      } catch (e) {
+        if (cancelled) return;
+        setRecentUnreadThreads([]);
+      } finally {
+        if (!cancelled) setRecentUnreadLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [activeNav]);
+
+  const adminName =
+    adminProfile?.name
+    || currentUser?.displayName
+    || (currentUser?.email ? currentUser.email.split('@')[0] : '')
+    || 'Admin';
+
+  const adminAvatar =
+    adminProfile?.profile_picture_url
+    || currentUser?.photoURL
+    || 'https://randomuser.me/api/portraits/men/75.jpg';
+
+  const adminRoleLabel =
+    (adminProfile?.role || userRole || 'admin')
+      .toString()
+      .replace(/_/g, ' ')
+      .replace(/\b\w/g, (c) => c.toUpperCase());
+
+  const goToSection = (key) => {
+    setActiveNav(key);
+    navigate(`/admin/${key}`);
+    if (isSidebarOpen) setIsSidebarOpen(false);
+  };
+
+  const openUserModal = (uid) => {
+    setSelectedUserId(uid);
+    setUserModalOpen(true);
+  };
+
+  const handleLogoutQuick = async () => {
+    try {
+      await logout();
+    } finally {
+      navigate('/admin/login', { replace: true });
+    }
+  };
 
   return (
     <div className={`fp-dashboard-root ${isDarkMode ? 'dark-root' : ''}`}>
@@ -105,7 +293,54 @@ export default function AdminDashboard() {
 
           <div style={{flex:1,display:'flex',justifyContent:'center'}}>
             <div className="search-input-container" style={{width:720,maxWidth:'70%'}}>
-              <input className="search-input" placeholder="Search by user, carrier, or document..." />
+              <input
+                className="search-input"
+                placeholder="Search users by name/email/DOT/MC/CDL..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => setSearchOpen(true)}
+                onBlur={() => setTimeout(() => setSearchOpen(false), 150)}
+              />
+
+              {searchOpen && (searchLoading || searchError || (searchItems?.length || 0) > 0) && (
+                <div
+                  className="adm-search-dropdown"
+                  role="listbox"
+                  aria-label="User search results"
+                >
+                  {searchLoading && <div className="adm-search-row muted">Searching…</div>}
+                  {!!searchError && !searchLoading && <div className="adm-search-row error">{searchError}</div>}
+
+                  {!searchLoading && !searchError && (searchItems || []).map((it) => (
+                    <button
+                      key={it.uid}
+                      type="button"
+                      className="adm-search-row"
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => {
+                        setSearchQuery('');
+                        setSearchItems([]);
+                        setSearchOpen(false);
+                        openUserModal(it.uid);
+                      }}
+                    >
+                      <div className="adm-search-main">
+                        <div className="adm-search-name">{it.name || it.email || it.uid}</div>
+                        <div className="adm-search-sub muted">
+                          {(it.role || 'user').toString().replace(/_/g, ' ')}
+                          {it.dot_number ? ` • DOT ${it.dot_number}` : ''}
+                          {it.mc_number ? ` • MC ${it.mc_number}` : ''}
+                          {it.cdl_number ? ` • CDL ${it.cdl_number}` : ''}
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+
+                  {!searchLoading && !searchError && (searchItems?.length || 0) === 0 && String(searchQuery || '').trim().length >= 2 && (
+                    <div className="adm-search-row muted">No matches</div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
@@ -114,19 +349,46 @@ export default function AdminDashboard() {
               <i className="fa-solid fa-magnifying-glass" />
             </button>
             <div className="icons">
-              <div className="notif" style={{position:'relative'}}>
+              <button
+                type="button"
+                className="notif"
+                style={{position:'relative',background:'transparent',border:0,padding:0,cursor:'pointer'}}
+                aria-label="Notifications"
+                onClick={() => goToSection('notifications')}
+              >
                 <i className="fa-regular fa-bell notif-icon" aria-hidden="true" />
                 <span className="notif-badge" style={{position:'absolute',right:-6,top:-6}}>3</span>
-              </div>
-              <i className="fa-regular fa-comments" style={{fontSize:18}} aria-hidden="true" />
+              </button>
+              <button
+                type="button"
+                style={{background:'transparent',border:0,padding:0,cursor:'pointer'}}
+                aria-label="Messages"
+                onClick={() => goToSection('messages')}
+              >
+                <i className="fa-regular fa-comments" style={{fontSize:18}} aria-hidden="true" />
+              </button>
             </div>
 
             <div className="profile" style={{display:'flex',alignItems:'center',gap:8}}>
-              <img src="https://randomuser.me/api/portraits/men/75.jpg" alt="avatar" className="avatar-img"/>
+              <button
+                type="button"
+                onClick={() => goToSection('my-profile')}
+                aria-label="My Profile"
+                style={{background:'transparent',border:0,padding:0,cursor:'pointer'}}
+              >
+                <img src={adminAvatar} alt="avatar" className="avatar-img"/>
+              </button>
               <div className="profile-labels" style={{textAlign:'right'}}>
-                <div style={{fontWeight:700}}>Farhan Salad</div>
-                <div className="muted" style={{fontSize:12}}>Sub-Admin</div>
-                <i className="fa-solid fa-caret-down" />
+                <div style={{fontWeight:700}}>{adminName}</div>
+                <div className="muted" style={{fontSize:12}}>{adminRoleLabel}</div>
+                <button
+                  type="button"
+                  aria-label="Logout"
+                  onClick={() => goToSection('logout')}
+                  style={{background:'transparent',border:0,padding:0,cursor:'pointer'}}
+                >
+                  <i className="fa-solid fa-caret-down" />
+                </button>
               </div>
             </div>
           </div>
@@ -140,7 +402,7 @@ export default function AdminDashboard() {
               <div className="logo"><img src={logo} alt="FreightPower" className="landing-logo-image" /></div>
             </div>
             <div className="chips sidebar-chips">
-              <span className="chip-cd success">Admin</span>
+              <span className="chip-cd success">{adminName}</span>
             </div>
           </div>
 
@@ -191,6 +453,26 @@ export default function AdminDashboard() {
 
         <main className="adm-main fp-main">
 
+          <UserDetailsModal
+            open={userModalOpen}
+            userId={selectedUserId}
+            onClose={() => setUserModalOpen(false)}
+            onSendMessage={async (u) => {
+              try {
+                const targetUid = String(u?.uid || '').trim();
+                if (!targetUid) return;
+                const resp = await postJson('/messaging/admin/threads/direct', { target_uid: targetUid });
+                const tid = resp?.thread?.id || resp?.thread_id || null;
+                setInitialThreadId(tid);
+              } catch (e) {
+                console.error('Failed to open direct thread:', e);
+              } finally {
+                setUserModalOpen(false);
+                goToSection('messages');
+              }
+            }}
+          />
+
           {activeNav === 'tracking' && (
             <TrackingVisibility />
           )}
@@ -232,7 +514,7 @@ export default function AdminDashboard() {
           )}
 
           {activeNav === 'messages' && (
-            <AdminMessaging />
+            <AdminMessaging initialThreadId={initialThreadId} />
           )}
 
           {activeNav === 'tasks' && (
@@ -267,46 +549,65 @@ export default function AdminDashboard() {
             <>
             <header className="fp-header">
             <div className="fp-header-titles">
-              <h2>Welcome, Farhan <span role="img" aria-label="wave">👋</span></h2>
-              <p className="fp-subtitle">Role: Compliance & Operations Sub-Admin — Last login: Today at 8:45 AM</p>
+              <h2>Welcome, {adminName} <span role="img" aria-label="wave">👋</span></h2>
+              <p className="fp-subtitle">Role: {adminRoleLabel} — Last login: Recently</p>
             </div>
           </header>
 
-          <div className="buttons-aa">
+          {/*
+            Quick actions intentionally hidden for now:
+            1) Add User
+            2) Upload Document
+            3) Assign Task
+            4) Support
+          */}
+          {/* <div className="buttons-aa">
               <button className="btn small-cd">+ Add User</button>
               <button className="btn ghost-cd small">Upload Document</button>
               <button className="btn ghost-cd small">Assign Task</button>
               <button className="btn small ghost-cd">Support</button>
+            </div> */}
+
+          {metricsError && (
+            <div className="card" style={{ padding: 14, borderColor: '#fecaca', background: '#fff1f2' }}>
+              <div style={{ fontWeight: 800, marginBottom: 4 }}>Dashboard metrics unavailable</div>
+              <div className="muted">{metricsError}</div>
             </div>
+          )}
             <section className="fp-grid">
             <div className="card stats-card">
               <div className="card-headers"><h3>Pending Documents</h3><i className="fa-regular fa-file card-icon"/></div>
-              <div className="statss"><div>42</div></div>
+              <div className="statss"><div>{metricsLoading ? '—' : (dashboardMetrics?.pending_documents ?? '—')}</div></div>
             </div>
 
             <div className="card stats-card">
               <div className="card-headers"><h3>Active Carriers</h3><i className="fa-solid fa-truck card-icon"/></div>
-              <div className="statss"><div>18</div></div>
+              <div className="statss"><div>{metricsLoading ? '—' : (dashboardMetrics?.active_carriers ?? '—')}</div></div>
             </div>
 
             <div className="card stats-card">
               <div className="card-headers"><h3>Active Drivers</h3><i className="fa-solid fa-user card-icon"/></div>
-              <div className="statss"><div>24</div></div>
+              <div className="statss"><div>{metricsLoading ? '—' : (dashboardMetrics?.active_drivers ?? '—')}</div></div>
             </div>
 
             <div className="card stats-card">
               <div className="card-headers"><h3>Pending Onboardings</h3><i className="fa-solid fa-hourglass-half card-icon"/></div>
-              <div className="statss"><div>9</div></div>
+              <div className="statss"><div>{metricsLoading ? '—' : (dashboardMetrics?.pending_onboardings ?? '—')}</div></div>
             </div>
 
             <div className="card stats-card">
               <div className="card-headers"><h3>Support Tickets</h3><i className="fa-solid fa-ticket card-icon"/></div>
-              <div className="statss"><div>12</div></div>
+              <div className="statss"><div>{metricsLoading ? '—' : (dashboardMetrics?.support_tickets ?? '—')}</div></div>
             </div>
 
             <div className="card stats-card">
               <div className="card-headers"><h3>Compliance Rate</h3><i className="fa-solid fa-shield-halved card-icon"/></div>
-              <div className="statss"><div>94% <span>+2% this week</span></div></div>
+              <div className="statss"><div>
+                {metricsLoading ? '—' : `${Number(dashboardMetrics?.compliance_rate_percent ?? 0).toFixed(1)}%`}
+                <span style={{ marginLeft: 10, color: Number(dashboardMetrics?.compliance_delta_percent ?? 0) >= 0 ? '#16a34a' : '#dc2626' }}>
+                  {metricsLoading ? '' : `${Number(dashboardMetrics?.compliance_delta_percent ?? 0) >= 0 ? '+' : ''}${Number(dashboardMetrics?.compliance_delta_percent ?? 0).toFixed(1)}% this week`}
+                </span>
+              </div></div>
             </div>
           </section>
 
@@ -380,8 +681,35 @@ export default function AdminDashboard() {
               <div className="card recent-messages" style={{marginTop:18}}>
                 <div className="card-row"><h3>Recent Messages</h3></div>
                 <ul className="recent-list">
-                  <li className="msg-item"><img className="msg-avatar" src="https://randomuser.me/api/portraits/women/65.jpg" alt="sarah" /><div className="msg-body"><div className="msg-head"><strong>Sarah Johnson</strong> <span className="muted">New carrier registration approved</span></div><div className="muted">15 min ago</div></div></li>
-                  <li className="msg-item"><img className="msg-avatar" src="https://randomuser.me/api/portraits/men/32.jpg" alt="mike" /><div className="msg-body"><div className="msg-head"><strong>Mike Davis</strong> <span className="muted">Document verification needed</span></div><div className="muted">1 hour ago</div></div></li>
+                  {recentUnreadLoading && (
+                    <li className="msg-item"><div className="msg-body"><div className="muted">Loading unread messages…</div></div></li>
+                  )}
+                  {!recentUnreadLoading && (recentUnreadThreads || []).length === 0 && (
+                    <li className="msg-item"><div className="msg-body"><div className="muted">No unread chats.</div></div></li>
+                  )}
+
+                  {!recentUnreadLoading && (recentUnreadThreads || []).map((t) => {
+                    const title = t?.display_title || t?.other_display_name || t?.title || 'Conversation';
+                    const preview = t?.last_message?.text || t?.last_message?.message || t?.last_message?.content || 'Unread message';
+                    return (
+                      <li key={t?.id} className="msg-item">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setInitialThreadId(t?.id || null);
+                            goToSection('messages');
+                          }}
+                          style={{ display: 'flex', gap: 10, width: '100%', textAlign: 'left', border: 0, background: 'transparent', padding: 0, cursor: 'pointer' }}
+                        >
+                          <img className="msg-avatar" src={t?.other_photo_url || 'https://www.gravatar.com/avatar/?d=mp'} alt="avatar" />
+                          <div className="msg-body">
+                            <div className="msg-head"><strong>{title}</strong> <span className="muted">{String(preview).slice(0, 60)}</span></div>
+                            <div className="muted">Unread</div>
+                          </div>
+                        </button>
+                      </li>
+                    );
+                  })}
                 </ul>
                 <div style={{marginTop:12}}><a className="view-all">View All Messages</a></div>
               </div>

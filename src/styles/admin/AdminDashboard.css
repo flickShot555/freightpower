@@ -61,6 +61,103 @@
 .search-icon{ position:absolute; right:14px; color:#94a3b8 }
 .dark-root .adm-main .card{ background: #2c2c2c; color: #f1f5f9; border-color: #353535; box-shadow:none }
 
+/* Admin topbar search dropdown (user search) */
+.adm-search-dropdown{
+  position:absolute;
+  top: calc(100% + 8px);
+  left:0;
+  right:0;
+  z-index: 50;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.12);
+  overflow:hidden;
+}
+.dark-root .adm-search-dropdown{ background:#1f2937; border-color:#374151; }
+
+.adm-search-row{
+  width:100%;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 12px;
+  border:0;
+  background:transparent;
+  text-align:left;
+}
+.adm-search-row:hover{ background:#f8fafc; cursor:pointer; }
+.dark-root .adm-search-row:hover{ background:#111827; }
+.adm-search-row + .adm-search-row{ border-top:1px solid #eef2f6; }
+.dark-root .adm-search-row + .adm-search-row{ border-top:1px solid #374151; }
+
+.adm-search-main{ display:flex; flex-direction:column; min-width:0; }
+.adm-search-name{ font-weight:700; color:#0b3240; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.dark-root .adm-search-name{ color:#f1f5f9; }
+.adm-search-sub{ font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.adm-search-row.error{ color:#b91c1c; }
+
+/* User details modal */
+.adm-ud-overlay{
+  position:fixed;
+  inset:0;
+  background: rgba(15, 23, 42, 0.55);
+  z-index: 80;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding: 18px;
+}
+.adm-ud-modal{
+  width: 920px;
+  max-width: 100%;
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+  overflow:hidden;
+}
+.dark-root .adm-ud-modal{ background:#111827; border-color:#374151; }
+
+.adm-ud-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid #eef2f6;
+}
+.dark-root .adm-ud-header{ border-bottom-color:#374151; }
+.adm-ud-title{ font-weight: 900; font-size: 16px; color:#0b3240; }
+.dark-root .adm-ud-title{ color:#f1f5f9; }
+.adm-ud-close{ background:transparent; border:0; cursor:pointer; font-size:18px; }
+.dark-root .adm-ud-close{ color:#f1f5f9; }
+
+.adm-ud-body{ padding: 14px 16px; max-height: 70vh; overflow:auto; }
+.adm-ud-error{ color:#b91c1c; background:#fee2e2; padding:10px 12px; border-radius:12px; margin-bottom:10px; }
+.dark-root .adm-ud-error{ background:#3f1d1d; }
+.adm-ud-loading{ opacity:0.85; padding: 8px 0; }
+
+.adm-ud-grid{ display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 14px; }
+@media (max-width: 720px){ .adm-ud-grid{ grid-template-columns: 1fr; } }
+.adm-ud-field{ display:flex; align-items:flex-start; justify-content:space-between; gap: 12px; padding: 10px 12px; border: 1px solid #eef2f6; border-radius: 12px; }
+.dark-root .adm-ud-field{ border-color:#374151; }
+.adm-ud-label{ font-weight: 800; color:#0b3240; }
+.dark-root .adm-ud-label{ color:#f1f5f9; }
+.adm-ud-value{ color:#334155; text-align:right; word-break:break-word; }
+.dark-root .adm-ud-value{ color:#cbd5e1; }
+
+.adm-ud-footer{ display:flex; gap:10px; justify-content:flex-end; padding: 14px 16px; border-top:1px solid #eef2f6; }
+.dark-root .adm-ud-footer{ border-top-color:#374151; }
+@media (max-width: 720px){ .adm-ud-footer{ flex-wrap: wrap; justify-content:flex-start; } }
+
+.adm-ud-panel{ margin-top: 14px; padding: 12px; border: 1px solid #eef2f6; border-radius: 12px; background: #f8fafc; }
+.dark-root .adm-ud-panel{ border-color:#374151; background:#0b1220; }
+.adm-ud-panel-title{ font-weight: 900; margin-bottom: 10px; }
+.adm-ud-input-label{ display:block; font-size: 12px; font-weight: 800; margin: 10px 0 6px; }
+.adm-ud-input, .adm-ud-textarea{ width: 100%; border: 1px solid #e5e7eb; border-radius: 12px; padding: 10px 12px; background:#fff; }
+.dark-root .adm-ud-input, .dark-root .adm-ud-textarea{ border-color:#374151; background:#111827; color:#f1f5f9; }
+.adm-ud-panel-actions{ display:flex; gap:10px; justify-content:flex-end; margin-top: 12px; }
+
 /* default: hide compact search toggle on large screens */
 .search-toggle{ display:none; border:0; background:transparent; padding:6px; font-size:18px }
 

@@ -1,6 +1,6 @@
 import { API_URL } from '../config';
 import { auth } from '../firebase';
-import { forceLogoutToLogin, getSessionId, isSessionRevokedMessage } from '../utils/session';
+import { forceLogoutToLogin, getSessionId, isAccountDeletedMessage, isSessionRevokedMessage } from '../utils/session';
 
 async function getAuthToken() {
   const user = auth.currentUser;
@@ -81,6 +81,12 @@ export async function apiFetch(path, options = {}) {
       forceLogoutToLogin('session_revoked');
     }
 
+    // If the backend indicates the account no longer exists (deleted/banned cleanup),
+    // force a logout so the user can't stay on a stale dashboard.
+    if ((res.status === 401 || res.status === 403 || res.status === 404) && isAccountDeletedMessage(detail)) {
+      forceLogoutToLogin('account_deleted');
+    }
+
     const err = new Error(detail);
     err.status = res.status;
     err.body = body;
@@ -97,6 +103,15 @@ export function getJson(path, options = {}) {
 export function postJson(path, data, options = {}) {
   return apiFetch(path, {
     method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data ?? {}),
+    ...(options || {}),
+  });
+}
+
+export function patchJson(path, data, options = {}) {
+  return apiFetch(path, {
+    method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data ?? {}),
     ...(options || {}),

@@ -11,6 +11,7 @@ from firebase_admin import firestore
 from .auth import get_current_user
 from .database import db, log_action, record_profile_update
 from .fmcsa import FmcsaClient
+from .banlist import assert_not_banned
 from .models import (
     OnboardingDataRequest, ChatbotAccountCreationRequest, OnboardingStatusResponse
 )
@@ -393,6 +394,14 @@ async def update_profile_with_data(
                     update_data[db_field] = _normalize_identifier(data[frontend_field])
                 else:
                     update_data[db_field] = data[frontend_field]
+
+        # Ban enforcement when sensitive identifiers are being set.
+        assert_not_banned(
+            email=before.get("email"),
+            phone=update_data.get("phone") or before.get("phone"),
+            dot_number=update_data.get("dot_number") or before.get("dot_number"),
+            cdl_number=update_data.get("cdl_number") or before.get("cdl_number"),
+        )
 
         fmcsa_summary: Dict[str, Any] | None = None
         # FMCSA verification gate for carriers when DOT/MC is being set/changed.

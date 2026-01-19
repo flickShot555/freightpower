@@ -67,6 +67,10 @@ class CreateCarrierDirectThreadRequest(BaseModel):
     carrier_id: str
 
 
+class AdminCreateUserDirectThreadRequest(BaseModel):
+    target_uid: str
+
+
 class CreateGroupThreadRequest(BaseModel):
     title: str = Field(..., min_length=1, max_length=80)
     driver_ids: List[str] = Field(default_factory=list, min_length=1, max_length=50)
@@ -112,6 +116,11 @@ def _direct_thread_id(carrier_id: str, driver_id: str) -> str:
 
 def _shipper_carrier_thread_id(shipper_id: str, carrier_id: str) -> str:
     return f"sc_{shipper_id}_{carrier_id}"
+
+
+def _admin_user_thread_id(admin_id: str, user_id: str) -> str:
+    # One admin <-> one user per thread.
+    return f"au_{admin_id}_{user_id}"
 
 
 def _get_driver_doc(driver_id: str) -> Dict[str, Any]:
@@ -184,10 +193,14 @@ def _assert_send_allowed(user: Dict[str, Any], thread: Dict[str, Any]) -> None:
     role = user.get("role")
     uid = user.get("uid")
 
-    if thread.get("kind") not in {"carrier_driver_direct", "carrier_driver_group", "shipper_carrier_direct"}:
+    if thread.get("kind") not in {"carrier_driver_direct", "carrier_driver_group", "shipper_carrier_direct", "admin_user_direct"}:
         raise HTTPException(status_code=400, detail="Unsupported thread type")
 
     _assert_member(uid, thread)
+
+    # Admin <-> user direct messaging (platform support)
+    if thread.get("kind") == "admin_user_direct":
+        return
 
     carrier_id = thread.get("carrier_id")
     kind = thread.get("kind")
@@ -710,7 +723,7 @@ async def list_threads(limit: int = 200, user: Dict[str, Any] = Depends(get_curr
         raise HTTPException(status_code=401, detail="Unauthorized")
 
     role = user.get("role")
-    if role not in {"carrier", "driver", "shipper"}:
+    if role not in {"carrier", "driver", "shipper", "admin", "super_admin"}:
         return {"threads": []}
 
     limit = max(1, min(int(limit or 200), 500))
@@ -760,6 +773,16 @@ async def list_threads(limit: int = 200, user: Dict[str, Any] = Depends(get_curr
             shipper_id = t.get("shipper_id")
             carrier_id = t.get("carrier_id")
             other_id = carrier_id if uid == shipper_id else shipper_id
+            if other_id:
+                user_ids.append(other_id)
+        elif kind == "admin_user_direct":
+            members = t.get("member_uids") or []
+            other_id = None
+            for m in members:
+                if m and m != uid:
+                    other_id = m
+                    break
+            other_id = other_id or t.get("user_id")
             if other_id:
                 user_ids.append(other_id)
 
@@ -844,6 +867,22 @@ async def list_threads(limit: int = 200, user: Dict[str, Any] = Depends(get_curr
             threads.append(t)
             continue
 
+        if kind == "admin_user_direct":
+            members = t.get("member_uids") or []
+            other_id = None
+            for m in members:
+                if m and m != uid:
+                    other_id = m
+                    break
+            other_id = other_id or t.get("user_id")
+            if other_id:
+                udoc = user_docs.get(other_id) or {}
+                t["other_display_name"] = _display_name_for_user_doc(udoc)
+                t["other_photo_url"] = _photo_url_for_user_doc(udoc)
+            t["display_title"] = t.get("other_display_name") or t.get("title") or "Conversation"
+            threads.append(t)
+            continue
+
         # Group threads: keep title as-is
         t["display_title"] = t.get("title")
         threads.append(t)
@@ -867,7 +906,7 @@ async def unread_summary(user: Dict[str, Any] = Depends(get_current_user)):
         raise HTTPException(status_code=401, detail="Unauthorized")
 
     role = user.get("role")
-    if role not in {"carrier", "driver", "shipper"}:
+    if role not in {"carrier", "driver", "shipper", "admin", "super_admin"}:
         return {"total_unread": 0, "threads": {}, "channels": {}}
 
     # Threads (membership-based). Use an ordered+limited query to avoid scanning huge sets.
@@ -1557,6 +1596,55 @@ async def mark_channel_read(channel_id: str, user: Dict[str, Any] = Depends(get_
         merge=True,
     )
     return {"ok": True, "channel_id": channel_id, "last_read_at": now}
+
+
+@router.post("/admin/threads/direct")
+async def admin_create_user_direct_thread(
+    payload: AdminCreateUserDirectThreadRequest,
+    user: Dict[str, Any] = Depends(require_admin),
+):
+    """Admin-only: create (or return existing) admin<->user direct thread."""
+    admin_id = user.get("uid")
+    if not admin_id:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+
+    target_uid = _normalize_uid(payload.target_uid)
+    if target_uid == admin_id:
+        raise HTTPException(status_code=400, detail="Cannot create a thread with yourself")
+
+    # Ensure the target exists.
+    target_snap = db.collection("users").document(target_uid).get()
+    if not target_snap.exists:
+        raise HTTPException(status_code=404, detail="Target user not found")
+
+    now = _now()
+    thread_id = _admin_user_thread_id(admin_id, target_uid)
+    ref = db.collection("conversations").document(thread_id)
+    snap = ref.get()
+    if snap.exists:
+        d = snap.to_dict() or {}
+        d["id"] = snap.id
+        return {"created": False, "thread": d}
+
+    target_doc = target_snap.to_dict() or {}
+    title = _display_name_for_user_doc(target_doc)
+
+    data = {
+        "id": thread_id,
+        "kind": "admin_user_direct",
+        "title": title,
+        "admin_id": admin_id,
+        "user_id": target_uid,
+        "member_uids": [admin_id, target_uid],
+        "created_by": admin_id,
+        "created_at": now,
+        "updated_at": now,
+        "last_message": None,
+        "last_message_at": None,
+    }
+    ref.set(data)
+    log_action(admin_id, "ADMIN_USER_THREAD_CREATED", f"Created direct thread with {target_uid}")
+    return {"created": True, "thread": data}
 
 
 @router.post("/admin/notifications/send")

@@ -122,7 +122,11 @@ function InnerRoutes({ chatOpen, chatMinimized, setChatOpen, setChatMinimized })
           </ProtectedRoute>
         } />
         {/* Admin dashboard routing */}
-        <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
+        <Route path="/admin" element={
+          <ProtectedRoute allowedRoles={['admin']}>
+            <AdminDashboard />
+          </ProtectedRoute>
+        } />
         <Route path="/admin/:section" element={
           <ProtectedRoute allowedRoles={['admin']}>
             <AdminDashboard />
@@ -138,7 +142,7 @@ function InnerRoutes({ chatOpen, chatMinimized, setChatOpen, setChatMinimized })
         } />
 
         {/* Back-compat dashboard paths */}
-        <Route path="/admin-dashboard" element={<Navigate to="/admin/dashboard" replace />} />
+        <Route path="/admin-dashboard" element={<Navigate to="/admin" replace />} />
         <Route path="/super-admin-dashboard" element={<Navigate to="/super-admin/dashboard" replace />} />
         <Route path="/shipper-dashboard" element={
           <ProtectedRoute allowedRoles={['shipper']}>

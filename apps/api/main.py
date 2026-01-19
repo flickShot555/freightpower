@@ -1,17 +1,28 @@
+from __future__ import annotations
+
 # File: apps/api/main.py
 from fastapi import FastAPI, UploadFile, File, HTTPException, Header, Depends, Form, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, RedirectResponse, FileResponse
-from pydantic import BaseModel, root_validator
+from pydantic import BaseModel, root_validator, Field
 from typing import Dict, Any, List, Optional, Tuple
+from datetime import datetime, timezone
 import uuid
 import json
 import time
 import os
 from pathlib import Path
 
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
+from firebase_admin import auth as firebase_auth
+from firebase_admin import firestore
+
 # --- Local Imports ---
 from .settings import settings
+from .banlist import record_bans
 from .storage import ResponseStore
 from .pdf_utils import pdf_to_images, pdf_to_text
 from .vision import detect_document_type, extract_document
@@ -26,96 +37,439 @@ from .preextract import preextract_fields
 from .coach import compute_coach_plan
 from .match import match_load
 from .alerts import create_alert, list_alerts, summarize_alerts, digest_alerts
-from .scheduler import SchedulerWrapper
-from .forms import (
-    autofill_driver_registration,
-    autofill_clearinghouse_consent,
-    autofill_mvr_release,
-)
-from .notify import send_webhook
-from .auth import router as auth_router, get_current_user
-from .database import db, log_action, bucket  # Added bucket import
-from .here_maps import get_here_client
-from .messaging import router as messaging_router
-from .messaging import process_pending_message_email_notifications_job
-from firebase_admin import auth as firebase_auth
-from firebase_admin import firestore
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 
-# --- NEW IMPORTS FOR CHATBOT & ONBOARDING ---
-from .chat_flow import process_onboarding_chat
-from .models import ChatResponse
+# Auth/DB + Routers
+from .database import db, log_action, bucket
+from .auth import (
+    router as auth_router,
+    get_current_user,
+    require_admin,
+    require_super_admin,
+)
 from .onboarding import router as onboarding_router
-from .models import (
-    LoadStep1Create, LoadStep1Response, LoadStep2Update, LoadStep3Update,
-    LoadComplete, LoadResponse, LoadListResponse, LoadStatus,
-    GenerateInstructionsRequest, GenerateInstructionsResponse,
-    AcceptCarrierRequest, RejectOfferRequest, DriverStatusUpdateRequest,
-    LoadStatusChangeLog, LoadActionResponse, TenderOfferRequest,
-    OfferResponse, OffersListResponse,
-    DistanceCalculationRequest, DistanceCalculationResponse,
-    LoadCostCalculationRequest, LoadCostCalculationResponse,
-    GeocodeRequest, GeocodeResponse, ReverseGeocodeRequest, ReverseGeocodeResponse,
-    RouteRequest, RouteResponse, MatrixRequest, MatrixResponse,
-    SnapshotRequest, SnapshotResponse
+from .messaging import (
+    router as messaging_router,
+    process_pending_message_email_notifications_job,
 )
+from .scheduler import SchedulerWrapper
+
+# Shared API models used by response_model=... and request bodies in this module.
+from .models import (
+    ChatResponse,
+    DistanceCalculationRequest,
+    DistanceCalculationResponse,
+    DriverStatusUpdateRequest,
+    GeocodeRequest,
+    GenerateInstructionsResponse,
+    GenerateInstructionsRequest,
+    LoadActionResponse,
+    LoadComplete,
+    LoadCostCalculationRequest,
+    LoadCostCalculationResponse,
+    LoadListResponse,
+    LoadResponse,
+    LoadStatus,
+    LoadStep1Create,
+    LoadStep1Response,
+    LoadStep2Update,
+    LoadStep3Update,
+    MatrixRequest,
+    MatrixResponse,
+    OfferResponse,
+    OffersListResponse,
+    ReverseGeocodeRequest,
+    RouteRequest,
+    RouteResponse,
+    SnapshotRequest,
+    SnapshotResponse,
+    TenderOfferRequest,
+    AcceptCarrierRequest,
+    RejectOfferRequest,
+)
+
 from .utils import generate_load_id
-from .ai_utils import calculate_freight_distance, calculate_load_cost
+from .chat_flow import process_onboarding_chat
+from .forms import autofill_driver_registration, autofill_clearinghouse_consent, autofill_mvr_release
+from .here_maps import get_here_client
+from .ai_utils import calculate_load_cost
+from .notify import send_webhook
 
-# --- App Initialization ---
-app = FastAPI(title="FreightPower AI API", version="1.0.0")
 
-# --- CORS Middleware ---
+def _normalize_role_filter(role: str) -> str:
+    r = (role or 'all').strip().lower()
+    if r in {'all', 'any', '*'}:
+        return 'all'
+    if r in {'shippers', 'shipper'}:
+        return 'shipper'
+    if r in {'brokers', 'broker'}:
+        return 'broker'
+    if r in {'shippers/brokers', 'shippers_brokers', 'shipper_broker', 'shipper-broker', 'shippers-brokers'}:
+        return 'shipper_broker'
+    if r in {'carriers', 'carrier'}:
+        return 'carrier'
+    if r in {'drivers', 'driver'}:
+        return 'driver'
+    if r in {'service_providers', 'service-provider', 'service-providers', 'service_provider', 'provider', 'providers'}:
+        return 'service_provider'
+    if r in {'admin', 'super_admin', 'superadmin'}:
+        return 'super_admin' if r in {'superadmin'} else r
+    return r
+
+
+def _user_display_name(d: dict) -> str:
+    return (
+        d.get('name')
+        or d.get('full_name')
+        or d.get('company_name')
+        or d.get('email')
+        or d.get('uid')
+        or ''
+    )
+
+def _to_epoch_seconds(value: Any) -> Optional[float]:
+    if value is None:
+        return None
+    # Avoid bool being treated as int.
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, (int, float)):
+        return float(value)
+    if isinstance(value, str):
+        s = value.strip()
+        if not s:
+            return None
+        try:
+            return float(s)
+        except Exception:
+            try:
+                dt = datetime.fromisoformat(s.replace('Z', '+00:00'))
+                if dt.tzinfo is None:
+                    dt = dt.replace(tzinfo=timezone.utc)
+                return float(dt.timestamp())
+            except Exception:
+                return None
+    # Firestore returns DatetimeWithNanoseconds which subclasses datetime.
+    if isinstance(value, datetime):
+        dt = value
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        return float(dt.timestamp())
+
+    # Some Firestore timestamp types expose to_datetime().
+    to_dt = getattr(value, 'to_datetime', None)
+    if callable(to_dt):
+        try:
+            dt = to_dt()
+            if isinstance(dt, datetime):
+                if dt.tzinfo is None:
+                    dt = dt.replace(tzinfo=timezone.utc)
+                return float(dt.timestamp())
+        except Exception:
+            pass
+
+    # Some timestamp objects expose seconds/nanoseconds.
+    seconds = getattr(value, 'seconds', None)
+    nanos = getattr(value, 'nanoseconds', None)
+    if isinstance(seconds, int):
+        try:
+            return float(seconds) + (float(nanos or 0) / 1e9)
+        except Exception:
+            return float(seconds)
+
+    return None
+
+
+def _format_digest_number(n: Any) -> str:
+    try:
+        return f"{int(n):,}"
+    except Exception:
+        return str(n)
+
+
+def _admin_digest_snapshot(max_per_role_scan: int = 5000) -> dict:
+    """Compute a lightweight system snapshot for admin email digests.
+
+    This intentionally avoids composite indexes by using role== queries and in-Python aggregation.
+    """
+
+    def _agg_for_role(role_value: str) -> dict:
+        total = 0
+        active = 0
+        pending = 0
+        flagged = 0
+        scanned = 0
+
+        try:
+            stream_iter = db.collection('users').where('role', '==', role_value).stream()
+        except Exception:
+            stream_iter = []
+
+        for snap in stream_iter:
+            scanned += 1
+            if scanned > max_per_role_scan:
+                break
+            d = snap.to_dict() or {}
+            total += 1
+            is_locked = bool(d.get('is_locked', False))
+            is_active = d.get('is_active', True) is not False
+            is_verified = bool(d.get('is_verified', False))
+            onboarding_completed = bool(d.get('onboarding_completed', False))
+
+            if is_active and not is_locked:
+                active += 1
+            if (not onboarding_completed) or (not is_verified):
+                pending += 1
+            if (not is_active) or is_locked:
+                flagged += 1
+
+        return {
+            'role': role_value,
+            'total': int(total),
+            'active': int(active),
+            'pending': int(pending),
+            'flagged': int(flagged),
+            'scanned': int(scanned),
+        }
+
+    roles = ['driver', 'carrier', 'shipper', 'broker']
+    by_role = {r: _agg_for_role(r) for r in roles}
+    return {
+        'generated_at': time.time(),
+        'max_per_role_scan': int(max_per_role_scan),
+        'roles': by_role,
+        'totals': {
+            'total': sum(by_role[r]['total'] for r in roles),
+            'active': sum(by_role[r]['active'] for r in roles),
+            'pending': sum(by_role[r]['pending'] for r in roles),
+            'flagged': sum(by_role[r]['flagged'] for r in roles),
+        },
+    }
+
+
+def _render_admin_digest_html(snapshot: dict, recipient_label: str) -> str:
+    roles = snapshot.get('roles') or {}
+    totals = snapshot.get('totals') or {}
+    gen_ts = snapshot.get('generated_at')
+    try:
+        gen_str = datetime.fromtimestamp(float(gen_ts), tz=timezone.utc).strftime('%Y-%m-%d %H:%M UTC')
+    except Exception:
+        gen_str = 'Unknown'
+
+    def row(role_key: str, label: str) -> str:
+        d = roles.get(role_key) or {}
+        return (
+            f"<tr>"
+            f"<td style='padding:8px 10px;border-bottom:1px solid #e5e7eb'><strong>{label}</strong></td>"
+            f"<td style='padding:8px 10px;border-bottom:1px solid #e5e7eb;text-align:right'>{_format_digest_number(d.get('total', 0))}</td>"
+            f"<td style='padding:8px 10px;border-bottom:1px solid #e5e7eb;text-align:right'>{_format_digest_number(d.get('active', 0))}</td>"
+            f"<td style='padding:8px 10px;border-bottom:1px solid #e5e7eb;text-align:right'>{_format_digest_number(d.get('pending', 0))}</td>"
+            f"<td style='padding:8px 10px;border-bottom:1px solid #e5e7eb;text-align:right'>{_format_digest_number(d.get('flagged', 0))}</td>"
+            f"</tr>"
+        )
+
+    return f"""
+    <html>
+      <body style="font-family: Arial, Helvetica, sans-serif; background:#f6f7fb; padding: 18px;">
+        <div style="max-width: 760px; margin: 0 auto; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 14px; overflow:hidden;">
+          <div style="padding: 16px 18px; background:#111827; color:#fff;">
+            <div style="font-size: 16px; font-weight: 800;">FreightPower Admin Digest</div>
+            <div style="font-size: 12px; opacity: 0.85; margin-top: 4px;">Generated: {gen_str}</div>
+          </div>
+
+          <div style="padding: 18px;">
+            <p style="margin:0 0 12px 0; color:#111827;">Hi {recipient_label}, here’s your account digest summary.</p>
+
+            <div style="display:flex; gap:12px; flex-wrap:wrap; margin: 10px 0 16px 0;">
+              <div style="flex:1 1 160px; border:1px solid #e5e7eb; border-radius: 12px; padding: 12px;">
+                <div style="font-size:12px;color:#6b7280;">Total Users</div>
+                <div style="font-size:20px;font-weight:900;color:#111827;">{_format_digest_number(totals.get('total', 0))}</div>
+              </div>
+              <div style="flex:1 1 160px; border:1px solid #e5e7eb; border-radius: 12px; padding: 12px;">
+                <div style="font-size:12px;color:#6b7280;">Active</div>
+                <div style="font-size:20px;font-weight:900;color:#111827;">{_format_digest_number(totals.get('active', 0))}</div>
+              </div>
+              <div style="flex:1 1 160px; border:1px solid #e5e7eb; border-radius: 12px; padding: 12px;">
+                <div style="font-size:12px;color:#6b7280;">Pending</div>
+                <div style="font-size:20px;font-weight:900;color:#111827;">{_format_digest_number(totals.get('pending', 0))}</div>
+              </div>
+              <div style="flex:1 1 160px; border:1px solid #e5e7eb; border-radius: 12px; padding: 12px;">
+                <div style="font-size:12px;color:#6b7280;">Flagged / Locked</div>
+                <div style="font-size:20px;font-weight:900;color:#111827;">{_format_digest_number(totals.get('flagged', 0))}</div>
+              </div>
+            </div>
+
+            <table style="width:100%; border-collapse: collapse; border:1px solid #e5e7eb; border-radius:12px; overflow:hidden;">
+              <thead>
+                <tr style="background:#f9fafb;">
+                  <th style="padding:10px;border-bottom:1px solid #e5e7eb;text-align:left;">Role</th>
+                  <th style="padding:10px;border-bottom:1px solid #e5e7eb;text-align:right;">Total</th>
+                  <th style="padding:10px;border-bottom:1px solid #e5e7eb;text-align:right;">Active</th>
+                  <th style="padding:10px;border-bottom:1px solid #e5e7eb;text-align:right;">Pending</th>
+                  <th style="padding:10px;border-bottom:1px solid #e5e7eb;text-align:right;">Flagged</th>
+                </tr>
+              </thead>
+              <tbody>
+                {row('driver','Drivers')}
+                {row('carrier','Carriers')}
+                {row('shipper','Shippers')}
+                {row('broker','Brokers')}
+              </tbody>
+            </table>
+
+            <p style="margin: 14px 0 0 0; font-size: 12px; color: #6b7280;">You can disable these emails in Admin → System Settings.</p>
+          </div>
+        </div>
+      </body>
+    </html>
+    """
+
+
+def _send_email_digest_to_user(user_doc_id: str, user_data: dict, snapshot: dict, reason: str) -> Tuple[bool, str]:
+    email = (user_data.get('email') or '').strip()
+    if not email:
+        return False, 'Missing email'
+    if user_data.get('email_digest_enabled', True) is False:
+        return False, 'Email digest disabled'
+
+    now = time.time()
+    last_sent = _to_epoch_seconds(user_data.get('last_email_digest_sent_at'))
+    # Throttle to roughly once per day.
+    if last_sent and (now - float(last_sent) < 23.0 * 3600.0) and reason != 'manual_test':
+        return False, 'Recently sent'
+
+    name = user_data.get('name') or user_data.get('display_name') or email.split('@')[0]
+    smtp_configured = bool(getattr(settings, 'SMTP_USERNAME', '') and getattr(settings, 'SMTP_PASSWORD', ''))
+    subject = f"FreightPower Admin Digest • {datetime.fromtimestamp(now, tz=timezone.utc).strftime('%Y-%m-%d')}"
+    html = _render_admin_digest_html(snapshot, recipient_label=str(name))
+    ok = send_email(to_email=email, subject=subject, body=html, is_html=True)
+    if ok:
+        status_value = 'sent' if smtp_configured else 'logged'
+        try:
+            db.collection('users').document(user_doc_id).set({
+                'last_email_digest_sent_at': now,
+                'last_email_digest_status': status_value,
+                'last_email_digest_error': None,
+            }, merge=True)
+        except Exception:
+            pass
+        try:
+            log_action(user_doc_id, 'EMAIL_DIGEST_SENT', f"Email digest sent ({reason})")
+        except Exception:
+            pass
+        return True, status_value
+    else:
+        try:
+            db.collection('users').document(user_doc_id).set({
+                'last_email_digest_status': 'failed',
+                'last_email_digest_error': 'send_email returned False',
+            }, merge=True)
+        except Exception:
+            pass
+        return False, 'send_failed'
+
+
+def _send_admin_email_digest_job():
+    """Scheduled job: sends digest emails to admins who enabled them."""
+    try:
+        snapshot = _admin_digest_snapshot(max_per_role_scan=5000)
+    except Exception as e:
+        print(f"[EmailDigest] Failed to compute snapshot: {e}")
+        return
+
+    # Avoid composite indexes: query admins and super_admins separately.
+    candidates: List[Tuple[str, dict]] = []
+    try:
+        for role_value in ['admin', 'super_admin']:
+            for snap in db.collection('users').where('role', '==', role_value).stream():
+                d = snap.to_dict() or {}
+                if d.get('email_digest_enabled', True) is False:
+                    continue
+                candidates.append((snap.id, d))
+    except Exception as e:
+        print(f"[EmailDigest] Failed to list admin users: {e}")
+        return
+
+    sent = 0
+    skipped = 0
+    for uid, d in candidates:
+        ok, reason = _send_email_digest_to_user(uid, d, snapshot, reason='scheduled')
+        if ok:
+            sent += 1
+        else:
+            skipped += 1
+    print(f"[EmailDigest] Scheduled run complete sent={sent} skipped={skipped}")
+
+
+def _project_user(doc_id: str, d: dict) -> dict:
+    # Return only safe, UI-relevant fields.
+    return {
+        'id': doc_id,
+        'uid': d.get('uid') or doc_id,
+        'name': d.get('name') or d.get('full_name') or None,
+        'display_name': _user_display_name(d) or doc_id,
+        'email': d.get('email'),
+        'role': d.get('role'),
+        'company_name': d.get('company_name'),
+        'mc_number': d.get('mc_number'),
+        'dot_number': d.get('dot_number'),
+        'cdl_number': d.get('cdl_number'),
+        'license_number': d.get('license_number'),
+        'phone': d.get('phone'),
+        'photo_url': d.get('photo_url'),
+        'is_active': d.get('is_active', True) is not False,
+        'is_locked': bool(d.get('is_locked', False)),
+        'is_verified': bool(d.get('is_verified', False)),
+        'onboarding_completed': bool(d.get('onboarding_completed', False)),
+        'last_login_at': _to_epoch_seconds(d.get('last_login_at')),
+        'updated_at': _to_epoch_seconds(d.get('updated_at')),
+        'created_at': _to_epoch_seconds(d.get('created_at')),
+        'gps_lat': d.get('gps_lat'),
+        'gps_lng': d.get('gps_lng'),
+    }
+
+
+# ResponseStore is used by RAG, onboarding chatbot, and several helper flows.
+store = ResponseStore(base_dir=str(Path(__file__).resolve().parents[2] / "data"))
+
+
+# --- FastAPI App ---
+
+app = FastAPI(title="FreightPower API")
+
 app.add_middleware(
     CORSMiddleware,
-    # Dev-friendly CORS: allow Vite default/alternate ports and LAN access when using `vite --host`.
-    allow_origins=[
-        "http://localhost:5173",
-        "http://localhost:5174",
-        "http://127.0.0.1:5173",
-        "http://127.0.0.1:5174",
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-    ],
-    allow_origin_regex=r"https?://(localhost|127\.0\.0\.1|192\.168\.[0-9]+\.[0-9]+)(:(5173|5174|3000))?$",
+    # Explicit origins are required when using credentials (Authorization cookies/headers).
+    # FRONTEND_BASE_URL is configurable via apps/.env.
+    allow_origins=list({
+        str(getattr(settings, 'FRONTEND_BASE_URL', '') or '').rstrip('/'),
+        'http://localhost:5173',
+        'http://127.0.0.1:5173',
+        'http://localhost:3000',
+        'http://127.0.0.1:3000',
+    } - {''}),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# --- Global Services ---
-store = ResponseStore(base_dir=settings.DATA_DIR)
-bootstrap_knowledge_base(store)
-fmcsa_client: FmcsaClient | None = None
+
+# Scheduler is started/stopped via app events near the end of the file.
 scheduler = SchedulerWrapper()
 
-# Initialize marketplace scheduler
-from .scheduler import init_marketplace_scheduler
-init_marketplace_scheduler(scheduler)
+
+# --- Admin dashboard metrics cache (best-effort, process-local) ---
+_ADMIN_METRICS_CACHE: Dict[str, Any] = {"expires_at": 0.0, "value": None}
 
 
-# --- Pydantic Models ---
+def _iso_week_key(ts: float) -> str:
+    dt = datetime.fromtimestamp(float(ts), tz=timezone.utc)
+    iso_year, iso_week, _ = dt.isocalendar()
+    return f"{iso_year}-W{iso_week:02d}"
 
-class ChatRequest(BaseModel):
-    query: str
-    max_context_chars: int = 4000
 
-class InteractiveChatRequest(BaseModel):
-    session_id: str
-    message: str
-    attached_document_id: Optional[str] = None 
-
-class FmcsaVerifyRequest(BaseModel):
-    usdot: Optional[str] = None
-    mc_number: Optional[str] = None
-
-    @root_validator(skip_on_failure=True)
-    def require_identifier(cls, values):
-        if not values.get("usdot") and not values.get("mc_number"):
-            raise ValueError("Provide at least a USDOT or MC number")
-        return values
+def _prev_week_key(ts: float) -> str:
+    # ISO weeks are stable if we subtract 7 days and recompute.
+    return _iso_week_key(float(ts) - 7.0 * 86400.0)
 
 class LoadRequest(BaseModel):
     id: str
@@ -174,6 +528,41 @@ class SuggestEditRequest(BaseModel):
     user_name: Optional[str] = None
 
 
+# --- Chat & FMCSA Request Models (used by endpoints below) ---
+
+class ChatRequest(BaseModel):
+    query: str = Field(..., min_length=1, max_length=4000)
+    max_context_chars: int = Field(default=6000, ge=500, le=20000)
+
+
+class InteractiveChatRequest(BaseModel):
+    session_id: str = Field(..., min_length=1, max_length=120)
+    message: str = Field(..., min_length=1, max_length=4000)
+    attached_document_id: Optional[str] = None
+
+
+class FmcsaVerifyRequest(BaseModel):
+    usdot: Optional[str] = None
+    mc_number: Optional[str] = None
+
+
+# --- Admin User Actions Models ---
+
+class AdminUserRemovalRequest(BaseModel):
+    reason: str = Field(..., min_length=3, max_length=400)
+    grace_days: int = Field(default=0, ge=0, le=365)
+    message_to_user: str = Field(default='', max_length=2000)
+
+
+class AdminUserWarningRequest(BaseModel):
+    warning: str = Field(..., min_length=3, max_length=2000)
+    subject: Optional[str] = Field(default=None, max_length=120)
+
+
+class SuperAdminDecisionRequest(BaseModel):
+    decision_note: Optional[str] = Field(default=None, max_length=800)
+
+
 # --- Core Endpoints ---
 
 @app.get("/health")
@@ -202,6 +591,1370 @@ def redirect_admin_login():
 @app.get("/super-admin/login")
 def redirect_super_admin_login():
     return RedirectResponse(url=f"{settings.FRONTEND_BASE_URL}/super-admin/login", status_code=302)
+
+
+@app.get("/admin/dashboard/metrics")
+async def admin_dashboard_metrics(user: dict = Depends(require_admin)):
+    """Admin-only: lightweight dashboard metrics.
+
+    Notes:
+    - Uses a short process-local cache to avoid repeated scans in dev.
+    - Compliance is currently defined as `onboarding_completed == True` for non-admin users.
+    - WoW delta uses a per-ISO-week Firestore doc (no composite index required).
+    """
+
+    now = time.time()
+    cached = _ADMIN_METRICS_CACHE.get("value")
+    if cached and float(_ADMIN_METRICS_CACHE.get("expires_at") or 0.0) > now:
+        return cached
+
+    # Core counts (best-effort; avoid heavy scans in large datasets).
+    active_carriers = 0
+    active_drivers = 0
+    pending_onboardings = 0
+    pending_documents = 0
+
+    total_non_admin_users = 0
+    compliant_users = 0
+
+    # Keep the scan bounded to prevent accidental timeouts on very large datasets.
+    max_users_to_scan = 2500
+    scanned = 0
+
+    # Import here to avoid circular import issues.
+    from .onboarding import calculate_document_status
+
+    try:
+        for snap in db.collection("users").stream():
+            scanned += 1
+            if scanned > max_users_to_scan:
+                break
+
+            u = snap.to_dict() or {}
+            role = str(u.get("role") or "").lower()
+            if role in {"admin", "super_admin"}:
+                continue
+
+            is_active = u.get("is_active", True) is not False
+
+            if role == "carrier" and is_active:
+                active_carriers += 1
+            if role == "driver" and is_active:
+                active_drivers += 1
+
+            total_non_admin_users += 1
+            if bool(u.get("onboarding_completed", False)):
+                compliant_users += 1
+            else:
+                # Pending onboarding: only count common marketplace roles.
+                if is_active and role in {"carrier", "driver", "shipper", "broker"}:
+                    pending_onboardings += 1
+
+            # Pending documents: parse onboarding_data JSON (best-effort).
+            onboarding_data_str = u.get("onboarding_data")
+            if onboarding_data_str:
+                try:
+                    onboarding_data = (
+                        json.loads(onboarding_data_str)
+                        if isinstance(onboarding_data_str, str)
+                        else onboarding_data_str
+                    )
+                    raw_docs = onboarding_data.get("documents", []) if isinstance(onboarding_data, dict) else []
+                    for doc in raw_docs:
+                        expiry_date = (doc.get("extracted_fields") or {}).get("expiry_date")
+                        status = calculate_document_status(expiry_date) if expiry_date else "Unknown"
+                        if status != "Valid":
+                            pending_documents += 1
+                except Exception:
+                    # Ignore malformed onboarding_data.
+                    pass
+    except Exception as e:
+        print(f"[AdminMetrics] Failed to scan users: {e}")
+
+    compliance_rate_percent = (
+        (float(compliant_users) / float(total_non_admin_users) * 100.0)
+        if total_non_admin_users
+        else 0.0
+    )
+
+    # Support tickets: pending support requests.
+    support_tickets = 0
+    try:
+        for _ in db.collection("support_requests").where("status", "==", "pending").stream():
+            support_tickets += 1
+            if support_tickets >= 10000:
+                break
+    except Exception:
+        support_tickets = 0
+
+    # Week-over-week compliance delta using a simple per-week doc.
+    week_key = _iso_week_key(now)
+    prev_week_key = _prev_week_key(now)
+    prev_rate: Optional[float] = None
+    try:
+        coll = db.collection("admin_dashboard_weekly_metrics")
+        coll.document(week_key).set(
+            {
+                "week_key": week_key,
+                "computed_at": now,
+                "compliance_rate_percent": compliance_rate_percent,
+            },
+            merge=True,
+        )
+        prev = coll.document(prev_week_key).get()
+        if prev.exists:
+            prev_rate = float((prev.to_dict() or {}).get("compliance_rate_percent") or 0.0)
+    except Exception as e:
+        print(f"[AdminMetrics] Weekly metrics read/write failed: {e}")
+
+    compliance_delta_percent = float(compliance_rate_percent - (prev_rate or 0.0)) if prev_rate is not None else 0.0
+
+    payload = {
+        "computed_at": now,
+        "pending_documents": int(pending_documents),
+        "active_carriers": int(active_carriers),
+        "active_drivers": int(active_drivers),
+        "pending_onboardings": int(pending_onboardings),
+        "support_tickets": int(support_tickets),
+        "compliance_rate_percent": float(compliance_rate_percent),
+        "compliance_delta_percent": float(compliance_delta_percent),
+    }
+
+    _ADMIN_METRICS_CACHE["value"] = payload
+    _ADMIN_METRICS_CACHE["expires_at"] = now + 20.0
+    return payload
+
+
+@app.get('/admin/management/users')
+async def admin_management_users(
+    role: str = 'all',
+    limit: int = 250,
+    user: dict = Depends(require_admin),
+):
+    """Admin-only: list users for dashboard Management tabs.
+
+    This endpoint exists because Firestore client rules often deny cross-tenant reads.
+    It uses the Firebase Admin SDK (server-side) and returns a bounded, UI-friendly list.
+    """
+
+    role_norm = _normalize_role_filter(role)
+    max_limit = max(1, min(int(limit or 250), 2000))
+
+    # Scan bounded set; avoid requiring composite indexes.
+    items: list[dict] = []
+    scanned = 0
+    max_scan = max_limit * 20
+
+    def _matches(d: dict) -> bool:
+        r = str(d.get('role') or '').lower()
+        if role_norm == 'all':
+            return True
+        if role_norm == 'shipper_broker':
+            return r in {'shipper', 'broker'}
+        return r == role_norm
+
+    try:
+        # Fast path for single-role queries.
+        base = db.collection('users')
+        stream_iter = None
+        if role_norm not in {'all', 'shipper_broker'}:
+            stream_iter = base.where('role', '==', role_norm).stream()
+        else:
+            # Attempt Firestore 'in' query first for shipper/broker.
+            if role_norm == 'shipper_broker':
+                try:
+                    stream_iter = base.where('role', 'in', ['shipper', 'broker']).stream()
+                except Exception:
+                    stream_iter = None
+            if stream_iter is None:
+                stream_iter = base.stream()
+
+        for snap in stream_iter:
+            scanned += 1
+            if scanned > max_scan:
+                break
+            d = snap.to_dict() or {}
+            if not _matches(d):
+                continue
+            items.append(_project_user(snap.id, d))
+            if len(items) >= max_limit:
+                break
+
+    except Exception as e:
+        print(f"[AdminManagement] Failed to list users: {e}")
+        raise HTTPException(status_code=500, detail='Failed to load users')
+
+    def _sort_key(it: dict) -> float:
+        return float(
+            _to_epoch_seconds(it.get('updated_at'))
+            or _to_epoch_seconds(it.get('last_login_at'))
+            or _to_epoch_seconds(it.get('created_at'))
+            or 0.0
+        )
+
+    items.sort(key=_sort_key, reverse=True)
+
+    active = sum(1 for u in items if u.get('is_active') and not u.get('is_locked'))
+    pending = sum(1 for u in items if not u.get('onboarding_completed') or not u.get('is_verified'))
+    flagged = sum(1 for u in items if (not u.get('is_active')) or u.get('is_locked'))
+
+    return {
+        'items': items,
+        'count': len(items),
+        'scanned': scanned,
+        'role': role_norm,
+        'metrics': {
+            'active': int(active),
+            'pending': int(pending),
+            'flagged': int(flagged),
+            'total': int(len(items)),
+        },
+        'computed_at': time.time(),
+    }
+
+
+@app.get('/admin/email-digest/preview')
+async def admin_email_digest_preview(
+    user: dict = Depends(require_admin),
+):
+    """Admin-only: preview the current digest snapshot."""
+    return {
+        'smtp_configured': bool(getattr(settings, 'SMTP_USERNAME', '')),
+        'snapshot': _admin_digest_snapshot(max_per_role_scan=5000),
+    }
+
+
+@app.post('/admin/email-digest/send-test')
+async def admin_email_digest_send_test(
+    user: dict = Depends(require_admin),
+):
+    """Admin-only: send a test digest email to the signed-in admin."""
+    if user.get('email_digest_enabled', True) is False:
+        raise HTTPException(status_code=400, detail='Enable Email Digest Summary in System Settings first')
+    snapshot = _admin_digest_snapshot(max_per_role_scan=5000)
+    uid = user.get('uid') or user.get('id') or ''
+    ok, reason = _send_email_digest_to_user(uid, user, snapshot, reason='manual_test')
+    if not ok:
+        raise HTTPException(status_code=500, detail=f'Failed to send digest: {reason}')
+    msg = 'Digest email sent' if reason == 'sent' else 'SMTP not configured; digest was logged in server console'
+    return {'success': True, 'message': msg, 'generated_at': snapshot.get('generated_at')}
+
+
+@app.get("/admin/tracking/locations")
+async def admin_tracking_locations(
+    role: str = "all",
+    limit: int = 1000,
+    user: dict = Depends(require_admin),
+):
+    """Admin-only: fetch GPS locations for users.
+
+    Uses `users.gps_lat` and `users.gps_lng` when available.
+    """
+
+    def _role_set(r: str) -> set[str]:
+        rr = (r or "all").strip().lower()
+        if rr in {"all", "any"}:
+            return {"carrier", "driver", "shipper", "broker"}
+        if rr in {"carrier", "carriers"}:
+            return {"carrier"}
+        if rr in {"driver", "drivers"}:
+            return {"driver"}
+        if rr in {"shipper", "shippers", "broker", "brokers", "shipper_broker", "shippers_brokers"}:
+            return {"shipper", "broker"}
+        return set()
+
+    roles = _role_set(role)
+    if not roles and (role or "").strip().lower() not in {"providers", "service_providers"}:
+        raise HTTPException(status_code=400, detail="Invalid role filter")
+
+    max_limit = max(1, min(int(limit or 1000), 5000))
+    items: list[dict] = []
+    scanned = 0
+    skipped_no_gps = 0
+
+    try:
+        # Prefer role query when we have a single role (fast path).
+        base = db.collection("users")
+        if len(roles) == 1:
+            (only_role,) = tuple(roles)
+            stream_iter = base.where("role", "==", only_role).stream()
+        else:
+            stream_iter = base.stream()
+
+        for snap in stream_iter:
+            scanned += 1
+            if len(items) >= max_limit:
+                break
+
+            d = snap.to_dict() or {}
+            urole = str(d.get("role") or "").lower()
+            if urole in {"admin", "super_admin"}:
+                continue
+            if roles and urole not in roles:
+                continue
+            if d.get("is_active", True) is False:
+                continue
+
+            lat = d.get("gps_lat")
+            lng = d.get("gps_lng")
+            try:
+                lat_f = float(lat) if lat is not None else None
+                lng_f = float(lng) if lng is not None else None
+            except Exception:
+                lat_f = None
+                lng_f = None
+
+            if lat_f is None or lng_f is None:
+                skipped_no_gps += 1
+                continue
+
+            items.append(
+                {
+                    "uid": snap.id,
+                    "role": urole,
+                    "name": d.get("name") or d.get("full_name") or d.get("company_name") or d.get("email"),
+                    "email": d.get("email"),
+                    "company_name": d.get("company_name"),
+                    "gps_lat": lat_f,
+                    "gps_lng": lng_f,
+                    "updated_at": d.get("updated_at"),
+                }
+            )
+    except Exception as e:
+        print(f"[AdminTracking] Failed to fetch locations: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch tracking locations")
+
+    return {
+        "items": items,
+        "count": len(items),
+        "scanned": scanned,
+        "skipped_no_gps": skipped_no_gps,
+    }
+
+
+@app.get("/admin/tracking/metrics")
+async def admin_tracking_metrics(user: dict = Depends(require_admin)):
+    """Admin-only: metrics used by Tracking & Visibility stat cards."""
+
+    now = time.time()
+
+    # Active loads (best-effort scan)
+    active_loads = 0
+    max_loads_to_scan = 5000
+    scanned_loads = 0
+    active_statuses = {
+        LoadStatus.COVERED.value,
+        LoadStatus.IN_TRANSIT.value,
+        LoadStatus.ACCEPTED.value,
+        LoadStatus.TENDERED.value,
+    }
+    try:
+        for snap in db.collection("loads").stream():
+            scanned_loads += 1
+            if scanned_loads > max_loads_to_scan:
+                break
+            d = snap.to_dict() or {}
+            if str(d.get("status") or "").lower() in active_statuses:
+                active_loads += 1
+    except Exception as e:
+        print(f"[AdminTracking] Failed to scan loads: {e}")
+        active_loads = 0
+
+    # Fallback: if Firestore has no loads (common in dev), use the local JSON store.
+    if active_loads == 0:
+        try:
+            local_loads = store.list_loads() if hasattr(store, "list_loads") else []
+            for l in (local_loads or []):
+                if str(l.get("status") or "").lower() in active_statuses:
+                    active_loads += 1
+        except Exception as e:
+            print(f"[AdminTracking] Failed to read local loads store: {e}")
+
+    # Missing documents (reuse same logic as dashboard metrics)
+    missing_documents = 0
+    max_users_to_scan = 2500
+    scanned_users = 0
+    try:
+        from .onboarding import calculate_document_status
+
+        for snap in db.collection("users").stream():
+            scanned_users += 1
+            if scanned_users > max_users_to_scan:
+                break
+
+            u = snap.to_dict() or {}
+            role = str(u.get("role") or "").lower()
+            if role in {"admin", "super_admin"}:
+                continue
+
+            onboarding_data_str = u.get("onboarding_data")
+            if not onboarding_data_str:
+                continue
+
+            try:
+                onboarding_data = (
+                    json.loads(onboarding_data_str)
+                    if isinstance(onboarding_data_str, str)
+                    else onboarding_data_str
+                )
+                raw_docs = onboarding_data.get("documents", []) if isinstance(onboarding_data, dict) else []
+                for doc in raw_docs:
+                    expiry_date = (doc.get("extracted_fields") or {}).get("expiry_date")
+                    status = calculate_document_status(expiry_date) if expiry_date else "Unknown"
+                    if status != "Valid":
+                        missing_documents += 1
+            except Exception:
+                continue
+    except Exception as e:
+        print(f"[AdminTracking] Failed to scan user documents: {e}")
+        missing_documents = 0
+
+    # Drivers offline (based on drivers.is_available)
+    drivers_offline = 0
+    max_drivers_to_scan = 5000
+    try:
+        driver_uids: set[str] = set()
+        scanned_driver_users = 0
+        for snap in db.collection("users").where("role", "==", "driver").stream():
+            scanned_driver_users += 1
+            if scanned_driver_users > max_drivers_to_scan:
+                break
+            u = snap.to_dict() or {}
+            if u.get("is_active", True) is False:
+                continue
+            driver_uids.add(snap.id)
+
+        scanned_driver_profiles = 0
+        for snap in db.collection("drivers").stream():
+            scanned_driver_profiles += 1
+            if scanned_driver_profiles > max_drivers_to_scan:
+                break
+            if snap.id not in driver_uids:
+                continue
+            d = snap.to_dict() or {}
+            if not bool(d.get("is_available", False)):
+                drivers_offline += 1
+    except Exception as e:
+        print(f"[AdminTracking] Failed to compute drivers offline: {e}")
+        drivers_offline = 0
+
+    return {
+        "computed_at": now,
+        "active_loads": int(active_loads),
+        "missing_documents": int(missing_documents),
+        "drivers_offline": int(drivers_offline),
+    }
+
+
+@app.get("/admin/users/search")
+async def admin_user_search(
+    q: str,
+    limit: int = 10,
+    user: dict = Depends(require_admin),
+):
+    """Admin-only user search.
+
+    Supports:
+    - Prefix match on users.name and users.email (case-sensitive in Firestore)
+    - Exact match on identifiers like dot_number/mc_number/cdl_number/license_number
+    - Exact match on uid (document id)
+
+    Returns a lightweight list suitable for header autocomplete.
+    """
+
+    def _norm_ident(v: str) -> str:
+        return "".join(ch for ch in (v or "") if ch.isalnum()).upper()
+
+    query = (q or "").strip()
+    if not query:
+        return {"items": []}
+
+    max_limit = 25
+    limit = int(limit) if limit is not None else 10
+    limit = max(1, min(limit, max_limit))
+
+    query_lower = query.lower()
+    ident = _norm_ident(query)
+
+    results_by_uid: Dict[str, Dict[str, Any]] = {}
+
+    def _add_user_doc(uid: str, d: Dict[str, Any]):
+        if not uid:
+            return
+        results_by_uid.setdefault(
+            uid,
+            {
+                "uid": uid,
+                "name": d.get("name") or d.get("full_name") or (d.get("email", "").split("@")[0] if d.get("email") else ""),
+                "email": d.get("email"),
+                "role": d.get("role"),
+                "profile_picture_url": d.get("profile_picture_url") or d.get("photo_url") or d.get("avatar_url"),
+                "dot_number": d.get("dot_number"),
+                "mc_number": d.get("mc_number"),
+                "cdl_number": d.get("cdl_number"),
+                "license_number": d.get("license_number"),
+                "is_verified": d.get("is_verified"),
+                "is_active": d.get("is_active"),
+            },
+        )
+
+    # 1) Direct lookup by UID (document id)
+    try:
+        direct = db.collection("users").document(query).get()
+        if direct.exists:
+            _add_user_doc(direct.id, direct.to_dict() or {})
+    except Exception:
+        pass
+
+    # 1b) Exact match on email (fast path; avoids expensive prefix scans)
+    # Firestore string matching is case-sensitive, so try both raw and lower.
+    if "@" in query and "." in query:
+        try:
+            snaps = db.collection("users").where("email", "==", query).limit(limit).stream()
+            for s in snaps:
+                _add_user_doc(s.id, s.to_dict() or {})
+        except Exception:
+            pass
+        if query_lower != query:
+            try:
+                snaps = db.collection("users").where("email", "==", query_lower).limit(limit).stream()
+                for s in snaps:
+                    _add_user_doc(s.id, s.to_dict() or {})
+            except Exception:
+                pass
+
+        # If we got an exact email match, return quickly.
+        if results_by_uid:
+            items = list(results_by_uid.values())
+            return {"items": items[:limit]}
+
+    # 2) Prefix match on name/email (best-effort)
+    # Avoid prefix scans for long / email-like inputs; exact matching handles those.
+    should_prefix_scan = 2 <= len(query) <= 32 and ("@" not in query)
+    if should_prefix_scan:
+        prefix_fields = ["name", "email"]
+        for field in prefix_fields:
+            try:
+                snaps = (
+                    db.collection("users")
+                    .order_by(field)
+                    .start_at([query])
+                    .end_at([query + "\uf8ff"])
+                    .limit(limit)
+                    .stream()
+                )
+                for s in snaps:
+                    _add_user_doc(s.id, s.to_dict() or {})
+                    if len(results_by_uid) >= limit:
+                        break
+            except Exception:
+                # Missing index / invalid ordering should not break the dashboard.
+                continue
+
+    # 3) Exact identifier matches (DOT/MC/CDL/etc) on users collection
+    exact_fields = ["dot_number", "mc_number", "cdl_number", "license_number"]
+    for field in exact_fields:
+        if not ident:
+            continue
+        try:
+            snaps = db.collection("users").where(field, "==", ident).limit(limit).stream()
+            for s in snaps:
+                _add_user_doc(s.id, s.to_dict() or {})
+                if len(results_by_uid) >= limit:
+                    break
+        except Exception:
+            continue
+
+    # 4) Also search role-specific collections (carriers/drivers) for common identifiers
+    try:
+        # carriers: dot_number / mc_number
+        for field in ["dot_number", "mc_number"]:
+            if len(results_by_uid) >= limit:
+                break
+            snaps = db.collection("carriers").where(field, "==", ident).limit(limit).stream()
+            carrier_ids = [s.id for s in snaps]
+            if carrier_ids:
+                user_refs = [db.collection("users").document(cid) for cid in carrier_ids]
+                for doc_snap in db.get_all(user_refs):
+                    if doc_snap.exists:
+                        _add_user_doc(doc_snap.id, doc_snap.to_dict() or {})
+
+        # drivers: cdl_number
+        if len(results_by_uid) < limit:
+            snaps = db.collection("drivers").where("cdl_number", "==", ident).limit(limit).stream()
+            driver_ids = [s.id for s in snaps]
+            if driver_ids:
+                user_refs = [db.collection("users").document(did) for did in driver_ids]
+                for doc_snap in db.get_all(user_refs):
+                    if doc_snap.exists:
+                        _add_user_doc(doc_snap.id, doc_snap.to_dict() or {})
+    except Exception:
+        pass
+
+    items = list(results_by_uid.values())
+    # Light sorting: verified/active first, then name.
+    def _sort_key(item: Dict[str, Any]):
+        return (
+            0 if item.get("is_active", True) else 1,
+            0 if item.get("is_verified", False) else 1,
+            str(item.get("name") or "").lower(),
+        )
+
+    items.sort(key=_sort_key)
+    return {"items": items[:limit]}
+
+
+@app.get("/admin/users/{target_uid}")
+async def admin_get_user_details(
+    target_uid: str,
+    user: dict = Depends(require_admin),
+):
+    """Admin-only: return detailed user data for the user-details modal."""
+    uid = str(target_uid or '').strip()
+    if not uid:
+        raise HTTPException(status_code=400, detail="Missing user id")
+
+    snap = db.collection("users").document(uid).get()
+    if not snap.exists:
+        raise HTTPException(status_code=404, detail="User not found")
+    u = snap.to_dict() or {}
+
+    role = str(u.get("role") or "").lower()
+    role_profile: Dict[str, Any] | None = None
+    try:
+        if role == "carrier":
+            s2 = db.collection("carriers").document(uid).get()
+            role_profile = s2.to_dict() if s2.exists else None
+        elif role == "driver":
+            s2 = db.collection("drivers").document(uid).get()
+            role_profile = s2.to_dict() if s2.exists else None
+        elif role in {"shipper", "broker"}:
+            s2 = db.collection("shippers").document(uid).get()
+            role_profile = s2.to_dict() if s2.exists else None
+        elif role == "service_provider":
+            s2 = db.collection("service_providers").document(uid).get()
+            role_profile = s2.to_dict() if s2.exists else None
+    except Exception:
+        role_profile = None
+
+    def _pick_name(d: Dict[str, Any]) -> str:
+        return (
+            d.get("name")
+            or d.get("full_name")
+            or d.get("display_name")
+            or (d.get("email", "").split("@")[0] if d.get("email") else "")
+            or "User"
+        )
+
+    details = {
+        "uid": uid,
+        "name": _pick_name(u),
+        "email": u.get("email"),
+        "phone": u.get("phone"),
+        "role": u.get("role"),
+        "department": u.get("department"),
+        "is_verified": u.get("is_verified", False),
+        "is_active": u.get("is_active", True),
+        "is_locked": u.get("is_locked", False),
+        "created_at": u.get("created_at"),
+        "updated_at": u.get("updated_at"),
+        "last_login_at": u.get("last_login_at"),
+        "dot_number": u.get("dot_number"),
+        "mc_number": u.get("mc_number"),
+        "cdl_number": u.get("cdl_number"),
+        "license_number": u.get("license_number"),
+        "profile_picture_url": u.get("profile_picture_url") or u.get("photo_url") or u.get("avatar_url"),
+        "address": u.get("address"),
+        "location": u.get("location"),
+        "fmcsa_verified": u.get("fmcsa_verified"),
+        "fmcsa_verification": u.get("fmcsa_verification"),
+        "role_profile": role_profile,
+    }
+    return {"user": details}
+
+
+def _parse_super_admin_emails() -> List[str]:
+    raw = getattr(settings, "SUPER_ADMIN_EMAILS", "") or ""
+    emails = [e.strip() for e in raw.split(",") if e.strip()]
+    # Fallback so we at least notify someone in dev.
+    if not emails:
+        admin_email = getattr(settings, "ADMIN_EMAIL", "") or ""
+        if admin_email:
+            emails = [admin_email]
+    return emails
+
+
+def _format_dt(ts: float) -> str:
+    try:
+        return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(float(ts or 0.0)))
+    except Exception:
+        return ""
+
+
+def _delete_collection(coll_ref, batch_size: int = 100) -> int:
+    """Best-effort delete for a collection reference (non-recursive)."""
+    deleted = 0
+    while True:
+        snaps = list(coll_ref.limit(batch_size).stream())
+        if not snaps:
+            break
+        batch = db.batch()
+        for s in snaps:
+            batch.delete(s.reference)
+            deleted += 1
+        batch.commit()
+    return deleted
+
+
+def _delete_document_recursive(doc_ref) -> None:
+    """Best-effort recursive delete of a document and its subcollections."""
+    try:
+        for sub in doc_ref.collections():
+            _delete_collection(sub)
+    except Exception:
+        # If listing subcollections fails, still delete the document.
+        pass
+    try:
+        doc_ref.delete()
+    except Exception:
+        pass
+
+
+def _delete_user_from_db_everywhere(target_uid: str) -> Dict[str, Any]:
+    """Best-effort purge of user data across Firestore + Firebase Auth."""
+    uid = str(target_uid or '').strip()
+    if not uid:
+        return {"ok": False, "detail": "Missing uid"}
+
+    out: Dict[str, Any] = {"uid": uid}
+
+    # 1) Delete conversations where user is a member (and messages subcollection).
+    deleted_threads = 0
+    deleted_messages = 0
+    try:
+        snaps = list(
+            db.collection("conversations")
+            .where("member_uids", "array_contains", uid)
+            .limit(200)
+            .stream()
+        )
+        for s in snaps:
+            try:
+                deleted_messages += _delete_collection(
+                    db.collection("conversations").document(s.id).collection("messages"),
+                    batch_size=200,
+                )
+            except Exception:
+                pass
+            try:
+                db.collection("conversations").document(s.id).delete()
+                deleted_threads += 1
+            except Exception:
+                pass
+    except Exception:
+        pass
+    out["deleted_conversations"] = deleted_threads
+    out["deleted_conversation_messages"] = deleted_messages
+
+    # 2) Delete role/profile docs.
+    for coll in ["carriers", "drivers", "shippers", "service_providers", "admins", "super_admins"]:
+        try:
+            db.collection(coll).document(uid).delete()
+        except Exception:
+            pass
+
+    # 3) Delete users/{uid} recursively (warnings/removal_requests/etc).
+    try:
+        _delete_document_recursive(db.collection("users").document(uid))
+        out["deleted_user_doc"] = True
+    except Exception:
+        out["deleted_user_doc"] = False
+
+    # 4) Delete Firebase Auth record.
+    try:
+        firebase_auth.delete_user(uid)
+        out["deleted_auth_user"] = True
+    except Exception as e:
+        out["deleted_auth_user"] = False
+        out["auth_delete_error"] = str(e)
+
+    return out
+
+
+@app.post("/admin/users/{target_uid}/removal-requests")
+async def admin_request_user_removal(
+    target_uid: str,
+    payload: AdminUserRemovalRequest,
+    user: dict = Depends(require_admin),
+):
+    """Admin-only: create a removal request that requires super-admin approval."""
+    uid = str(target_uid or '').strip()
+    if not uid:
+        raise HTTPException(status_code=400, detail="Missing user id")
+
+    target_snap = db.collection("users").document(uid).get()
+    if not target_snap.exists:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    target = target_snap.to_dict() or {}
+    target_email = target.get("email")
+    if not target_email:
+        raise HTTPException(status_code=400, detail="Target user is missing email")
+
+    now = time.time()
+    req_id = str(uuid.uuid4())
+    grace_days = int(payload.grace_days or 0)
+    deactivate_at = now + (grace_days * 86400)
+
+    doc = {
+        "id": req_id,
+        "kind": "user_removal",
+        "status": "pending",
+        "created_at": now,
+        "updated_at": now,
+        "requested_by_uid": user.get("uid"),
+        "requested_by_email": user.get("email"),
+        "requested_by_name": user.get("name") or user.get("display_name") or user.get("email"),
+        "requested_by_role": user.get("role"),
+        "target_uid": uid,
+        "target_email": target_email,
+        "target_name": target.get("name") or target.get("full_name") or target_email.split("@")[0],
+        "target_role": target.get("role"),
+        "target_created_at": target.get("created_at"),
+        "reason": payload.reason,
+        "grace_days": grace_days,
+        "deactivate_at": deactivate_at,
+        "message_to_user": payload.message_to_user or "",
+    }
+
+    db.collection("user_removal_requests").document(req_id).set(doc)
+    # Keep per-user history for audit.
+    db.collection("users").document(uid).collection("removal_requests").document(req_id).set(doc)
+
+    # Notify super admins
+    sa_emails = _parse_super_admin_emails()
+    if sa_emails:
+        html = f"""
+        <html><body>
+          <h2>User Removal Request (Pending Approval)</h2>
+          <p><strong>Target:</strong> {doc['target_name']} ({doc['target_email']})</p>
+          <p><strong>Target UID:</strong> {doc['target_uid']}</p>
+          <p><strong>Requested by:</strong> {doc.get('requested_by_email') or doc.get('requested_by_uid')}</p>
+          <p><strong>Reason:</strong> {doc['reason']}</p>
+          <p><strong>Grace days:</strong> {doc['grace_days']}</p>
+          <p><strong>Message to user:</strong><br>{(doc['message_to_user'] or '').replace(chr(10), '<br>')}</p>
+          <hr>
+          <p>Open Super Admin dashboard to approve/reject.</p>
+        </body></html>
+        """
+        for e in sa_emails:
+            send_email(e, "FreightPower-AI: User removal approval required", html, is_html=True)
+
+        # Notify the admin who initiated the request (confirmation)
+        if doc.get("requested_by_email"):
+                admin_html = f"""
+                <html><body>
+                    <h2>User Removal Request Created</h2>
+                    <p>Your request was created and is pending Super Admin action.</p>
+                    <p><strong>Target:</strong> {doc['target_name']} ({doc['target_email']})</p>
+                    <p><strong>Reason:</strong> {doc['reason']}</p>
+                    <p><strong>Grace days:</strong> {doc['grace_days']}</p>
+                    <p><strong>Initiated at:</strong> {_format_dt(now)}</p>
+                    <hr>
+                    <p><em>Generated by FreightPower-AI.</em></p>
+                </body></html>
+                """
+                send_email(doc["requested_by_email"], "FreightPower-AI: removal request created", admin_html, is_html=True)
+
+    # Inform user that a request was opened (pending approval)
+    user_html = f"""
+    <html><body>
+      <h2>Account Removal Request Initiated</h2>
+      <p>Your account has been flagged for removal review by an admin.</p>
+      <p><strong>Reason:</strong> {doc['reason']}</p>
+      <p><strong>Grace period:</strong> {doc['grace_days']} day(s)</p>
+      <p><strong>Message:</strong><br>{(doc['message_to_user'] or '').replace(chr(10), '<br>')}</p>
+      <hr>
+      <p><em>This request is pending platform approval.</em></p>
+      <p><em>Generated by FreightPower-AI.</em></p>
+    </body></html>
+    """
+    send_email(target_email, "FreightPower-AI: removal request initiated", user_html, is_html=True)
+
+    log_action(user.get("uid"), "USER_REMOVAL_REQUEST_CREATED", f"Created removal request {req_id} for {uid}")
+    return {"id": req_id, "status": "pending"}
+
+
+@app.post("/admin/users/{target_uid}/warnings")
+async def admin_send_warning(
+    target_uid: str,
+    payload: AdminUserWarningRequest,
+    user: dict = Depends(require_admin),
+):
+    """Admin-only: persist a warning and email it to the user."""
+    uid = str(target_uid or '').strip()
+    if not uid:
+        raise HTTPException(status_code=400, detail="Missing user id")
+
+    target_snap = db.collection("users").document(uid).get()
+    if not target_snap.exists:
+        raise HTTPException(status_code=404, detail="User not found")
+    target = target_snap.to_dict() or {}
+    target_email = target.get("email")
+    if not target_email:
+        raise HTTPException(status_code=400, detail="Target user is missing email")
+
+    now = time.time()
+    warn_id = str(uuid.uuid4())
+    subject = payload.subject or "FreightPower-AI: Important warning"
+
+    doc = {
+        "id": warn_id,
+        "kind": "warning",
+        "created_at": now,
+        "created_by_uid": user.get("uid"),
+        "created_by_email": user.get("email"),
+        "target_uid": uid,
+        "target_email": target_email,
+        "warning": payload.warning,
+        "subject": subject,
+    }
+    db.collection("user_warnings").document(warn_id).set(doc)
+    db.collection("users").document(uid).collection("warnings").document(warn_id).set(doc)
+
+    html = f"""
+    <html><body>
+      <h2>Warning Notice</h2>
+      <p>{payload.warning.replace(chr(10), '<br>')}</p>
+      <hr>
+      <p><em>Generated by FreightPower-AI.</em></p>
+    </body></html>
+    """
+    ok = send_email(target_email, subject, html, is_html=True)
+    if not ok:
+        raise HTTPException(status_code=500, detail="Failed to send warning email")
+
+    log_action(user.get("uid"), "USER_WARNING_SENT", f"Sent warning {warn_id} to {uid}")
+    return {"id": warn_id, "status": "sent"}
+
+
+@app.get("/super-admin/removal-requests")
+async def super_admin_list_removal_requests(
+    status: str = "pending",
+    limit: int = 50,
+    user: dict = Depends(require_super_admin),
+):
+    st = (status or "pending").strip().lower()
+    if st not in {"pending", "approved", "rejected", "executed", "deleted", "banned"}:
+        raise HTTPException(status_code=400, detail="Invalid status")
+    limit = max(1, min(int(limit or 50), 200))
+    try:
+        # NOTE: Firestore commonly requires a composite index for (status == X) + order_by(created_at).
+        # To keep local/dev setups working without manual index creation, we fetch by status and
+        # sort client-side.
+        snaps = (
+            db.collection("user_removal_requests")
+            .where("status", "==", st)
+            .limit(limit)
+            .stream()
+        )
+        items = []
+        now = time.time()
+        for s in snaps:
+            d = s.to_dict() or {}
+            d["id"] = s.id
+
+            # Enrich with current user data (best-effort)
+            tuid = d.get("target_uid")
+            if tuid:
+                try:
+                    us = db.collection("users").document(tuid).get()
+                    if us.exists:
+                        ud = us.to_dict() or {}
+                        d.setdefault("target_name", ud.get("name") or ud.get("full_name") or ud.get("email"))
+                        d.setdefault("target_email", ud.get("email"))
+                        d.setdefault("target_role", ud.get("role"))
+                        d.setdefault("target_created_at", ud.get("created_at"))
+                        if ud.get("created_at"):
+                            d["target_total_time_seconds"] = max(0.0, now - float(ud.get("created_at") or 0.0))
+                except Exception:
+                    pass
+
+            ruid = d.get("requested_by_uid")
+            if ruid and not d.get("requested_by_name"):
+                try:
+                    rs = db.collection("users").document(ruid).get()
+                    if rs.exists:
+                        rd = rs.to_dict() or {}
+                        d["requested_by_name"] = rd.get("name") or rd.get("full_name") or rd.get("email")
+                except Exception:
+                    pass
+
+            items.append(d)
+
+        def _created_at_key(v: Dict[str, Any]) -> float:
+            try:
+                return float(v.get("created_at") or 0.0)
+            except Exception:
+                return 0.0
+
+        items.sort(key=_created_at_key, reverse=True)
+        return {"requests": items[:limit]}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to load removal requests: {str(e)}")
+
+
+@app.post("/super-admin/removal-requests/{request_id}/approve-delete")
+async def super_admin_approve_and_delete_user(
+    request_id: str,
+    payload: SuperAdminDecisionRequest,
+    user: dict = Depends(require_super_admin),
+):
+    rid = str(request_id or '').strip()
+    if not rid:
+        raise HTTPException(status_code=400, detail="Missing request id")
+
+    ref = db.collection("user_removal_requests").document(rid)
+    snap = ref.get()
+    if not snap.exists:
+        raise HTTPException(status_code=404, detail="Request not found")
+    d = snap.to_dict() or {}
+    if d.get("status") != "pending":
+        raise HTTPException(status_code=400, detail="Request is not pending")
+
+    now = time.time()
+    target_uid = d.get("target_uid")
+    target_email = d.get("target_email")
+
+    # Notify user before deletion (best-effort)
+    if target_email:
+        html = f"""
+        <html><body>
+          <h2>Account Removal Approved</h2>
+          <p>Your account removal request has been approved by the platform.</p>
+          <p><strong>Reason:</strong> {d.get('reason','')}</p>
+          <p><strong>Initiated at:</strong> {_format_dt(float(d.get('created_at') or now))}</p>
+          <p><strong>Message:</strong><br>{(d.get('message_to_user') or '').replace(chr(10), '<br>')}</p>
+          <hr>
+          <p><em>Generated by FreightPower-AI.</em></p>
+        </body></html>
+        """
+        send_email(target_email, "FreightPower-AI: account removal approved", html, is_html=True)
+
+    # Notify initiating admin (best-effort)
+    if d.get("requested_by_email"):
+        admin_html = f"""
+        <html><body>
+          <h2>User Removal Approved</h2>
+          <p>The Super Admin approved the removal request.</p>
+          <p><strong>Target:</strong> {d.get('target_name') or d.get('target_email') or ''}</p>
+          <p><strong>Decision note:</strong> {(payload.decision_note or '').replace(chr(10), '<br>')}</p>
+          <p><strong>Approved at:</strong> {_format_dt(now)}</p>
+          <hr>
+          <p><em>Generated by FreightPower-AI.</em></p>
+        </body></html>
+        """
+        send_email(d.get("requested_by_email"), "FreightPower-AI: user removal approved", admin_html, is_html=True)
+
+    # Delete user from DB + Auth
+    deletion = _delete_user_from_db_everywhere(str(target_uid or '').strip()) if target_uid else {"ok": False}
+
+    update = {
+        "status": "deleted",
+        "deleted_at": now,
+        "deleted_by_uid": user.get("uid"),
+        "deleted_by_email": user.get("email"),
+        "decision_note": payload.decision_note or None,
+        "updated_at": now,
+        "deletion": deletion,
+    }
+    ref.set(update, merge=True)
+
+    log_action(user.get("uid"), "USER_REMOVAL_REQUEST_DELETED", f"Deleted user for request {rid}")
+    return {"ok": True, "status": "deleted", "deletion": deletion}
+
+
+@app.post("/super-admin/removal-requests/{request_id}/ban")
+async def super_admin_ban_user_from_removal_request(
+    request_id: str,
+    payload: SuperAdminDecisionRequest,
+    user: dict = Depends(require_super_admin),
+):
+    rid = str(request_id or '').strip()
+    if not rid:
+        raise HTTPException(status_code=400, detail="Missing request id")
+
+    ref = db.collection("user_removal_requests").document(rid)
+    snap = ref.get()
+    if not snap.exists:
+        raise HTTPException(status_code=404, detail="Request not found")
+    d = snap.to_dict() or {}
+    if d.get("status") != "pending":
+        raise HTTPException(status_code=400, detail="Request is not pending")
+
+    now = time.time()
+    target_uid = str(d.get("target_uid") or '').strip()
+    if not target_uid:
+        raise HTTPException(status_code=400, detail="Request missing target uid")
+
+    # Collect unique identifiers (best-effort)
+    email = d.get("target_email")
+    phone = None
+    dot_number = None
+    cdl_number = None
+    try:
+        udoc_snap = db.collection("users").document(target_uid).get()
+        if udoc_snap.exists:
+            udoc = udoc_snap.to_dict() or {}
+            email = email or udoc.get("email")
+            phone = udoc.get("phone")
+            dot_number = udoc.get("dot_number")
+            cdl_number = udoc.get("cdl_number")
+    except Exception:
+        pass
+    try:
+        ddoc_snap = db.collection("drivers").document(target_uid).get()
+        if ddoc_snap.exists:
+            ddoc = ddoc_snap.to_dict() or {}
+            cdl_number = cdl_number or ddoc.get("cdl_number")
+            phone = phone or ddoc.get("phone")
+            email = email or ddoc.get("email")
+    except Exception:
+        pass
+    try:
+        cdoc_snap = db.collection("carriers").document(target_uid).get()
+        if cdoc_snap.exists:
+            cdoc = cdoc_snap.to_dict() or {}
+            dot_number = dot_number or cdoc.get("dot_number")
+            phone = phone or cdoc.get("phone")
+            email = email or cdoc.get("email")
+    except Exception:
+        pass
+
+    ban_reason = payload.decision_note or d.get("reason") or "Banned via removal request"
+    ban_result = record_bans(
+        target_uid=target_uid,
+        banned_by_uid=user.get("uid"),
+        banned_by_email=user.get("email"),
+        request_id=rid,
+        reason=ban_reason,
+        email=email,
+        phone=phone,
+        dot_number=dot_number,
+        cdl_number=cdl_number,
+    )
+
+    # Notify initiating admin (best-effort)
+    if d.get("requested_by_email"):
+        admin_html = f"""
+        <html><body>
+          <h2>User Banned</h2>
+          <p>The Super Admin banned the user from your removal request.</p>
+          <p><strong>Target:</strong> {d.get('target_name') or d.get('target_email') or ''}</p>
+          <p><strong>Ban reason:</strong> {ban_reason}</p>
+          <p><strong>Banned at:</strong> {_format_dt(now)}</p>
+          <hr>
+          <p><em>Generated by FreightPower-AI.</em></p>
+        </body></html>
+        """
+        send_email(d.get("requested_by_email"), "FreightPower-AI: user banned", admin_html, is_html=True)
+
+    # Delete user from DB + Auth
+    deletion = _delete_user_from_db_everywhere(target_uid)
+
+    update = {
+        "status": "banned",
+        "banned_at": now,
+        "banned_by_uid": user.get("uid"),
+        "banned_by_email": user.get("email"),
+        "decision_note": payload.decision_note or None,
+        "updated_at": now,
+        "ban": ban_result,
+        "deletion": deletion,
+    }
+    ref.set(update, merge=True)
+
+    log_action(user.get("uid"), "USER_REMOVAL_REQUEST_BANNED", f"Banned user for request {rid}")
+    return {"ok": True, "status": "banned", "ban": ban_result, "deletion": deletion}
+
+
+@app.post("/super-admin/removal-requests/{request_id}/approve")
+async def super_admin_approve_removal_request(
+    request_id: str,
+    payload: SuperAdminDecisionRequest,
+    user: dict = Depends(require_super_admin),
+):
+    rid = str(request_id or '').strip()
+    if not rid:
+        raise HTTPException(status_code=400, detail="Missing request id")
+
+    ref = db.collection("user_removal_requests").document(rid)
+    snap = ref.get()
+    if not snap.exists:
+        raise HTTPException(status_code=404, detail="Request not found")
+    d = snap.to_dict() or {}
+    if d.get("status") != "pending":
+        raise HTTPException(status_code=400, detail="Request is not pending")
+
+    now = time.time()
+    update = {
+        "status": "approved",
+        "approved_at": now,
+        "approved_by_uid": user.get("uid"),
+        "approved_by_email": user.get("email"),
+        "decision_note": payload.decision_note or None,
+        "updated_at": now,
+    }
+    ref.set(update, merge=True)
+    # mirror to per-user
+    tuid = d.get("target_uid")
+    if tuid:
+        db.collection("users").document(tuid).collection("removal_requests").document(rid).set(update, merge=True)
+
+    # Notify user that it was approved.
+    target_email = d.get("target_email")
+    if target_email:
+        deactivate_at = float(d.get("deactivate_at") or now)
+        dt = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(deactivate_at))
+        html = f"""
+        <html><body>
+          <h2>Account Removal Approved</h2>
+          <p>Your account removal request has been approved by the platform.</p>
+          <p><strong>Reason:</strong> {d.get('reason','')}</p>
+          <p><strong>Grace period:</strong> {d.get('grace_days',0)} day(s)</p>
+          <p><strong>Scheduled deactivation:</strong> {dt}</p>
+          <p><strong>Message:</strong><br>{(d.get('message_to_user') or '').replace(chr(10), '<br>')}</p>
+          <hr>
+          <p><em>Generated by FreightPower-AI.</em></p>
+        </body></html>
+        """
+        send_email(target_email, "FreightPower-AI: account removal approved", html, is_html=True)
+
+    log_action(user.get("uid"), "USER_REMOVAL_REQUEST_APPROVED", f"Approved removal request {rid}")
+    return {"ok": True}
+
+
+@app.post("/super-admin/removal-requests/{request_id}/reject")
+async def super_admin_reject_removal_request(
+    request_id: str,
+    payload: SuperAdminDecisionRequest,
+    user: dict = Depends(require_super_admin),
+):
+    rid = str(request_id or '').strip()
+    if not rid:
+        raise HTTPException(status_code=400, detail="Missing request id")
+
+    ref = db.collection("user_removal_requests").document(rid)
+    snap = ref.get()
+    if not snap.exists:
+        raise HTTPException(status_code=404, detail="Request not found")
+    d = snap.to_dict() or {}
+    if d.get("status") != "pending":
+        raise HTTPException(status_code=400, detail="Request is not pending")
+
+    now = time.time()
+    update = {
+        "status": "rejected",
+        "rejected_at": now,
+        "rejected_by_uid": user.get("uid"),
+        "rejected_by_email": user.get("email"),
+        "decision_note": payload.decision_note or None,
+        "updated_at": now,
+    }
+    ref.set(update, merge=True)
+    tuid = d.get("target_uid")
+    if tuid:
+        db.collection("users").document(tuid).collection("removal_requests").document(rid).set(update, merge=True)
+
+    log_action(user.get("uid"), "USER_REMOVAL_REQUEST_REJECTED", f"Rejected removal request {rid}")
+    return {"ok": True}
+
+
+def _process_due_user_removals() -> None:
+    """Deactivate users for approved removal requests that reached deactivate_at."""
+    now = time.time()
+    try:
+        # Prefer the newer Firestore API (`filter=`) to avoid warnings.
+        # Also avoid requiring a composite index in environments where it isn't created yet.
+        try:
+            from google.cloud.firestore_v1 import FieldFilter  # type: ignore
+
+            composite_query = (
+                db.collection("user_removal_requests")
+                .where(filter=FieldFilter("status", "==", "approved"))
+                .where(filter=FieldFilter("deactivate_at", "<=", now))
+                .limit(50)
+            )
+            candidate_snaps = composite_query.stream()
+        except Exception as e:
+            print(f"[RemovalJob] Falling back to non-indexed query: {e}")
+            # Fallback: query only by deactivate_at and filter status in-memory.
+            # This avoids composite index requirements.
+            try:
+                from google.cloud.firestore_v1 import FieldFilter  # type: ignore
+
+                candidate_snaps = (
+                    db.collection("user_removal_requests")
+                    .where(filter=FieldFilter("deactivate_at", "<=", now))
+                    .limit(250)
+                    .stream()
+                )
+            except Exception:
+                candidate_snaps = (
+                    db.collection("user_removal_requests")
+                    .where("deactivate_at", "<=", now)
+                    .limit(250)
+                    .stream()
+                )
+
+        processed = 0
+        for s in candidate_snaps:
+            d = s.to_dict() or {}
+            if d.get("status") != "approved":
+                continue
+            rid = s.id
+            tuid = d.get("target_uid")
+            if not tuid:
+                continue
+
+            # Disable Firebase Auth user (best-effort)
+            try:
+                firebase_auth.update_user(tuid, disabled=True)
+            except Exception as e:
+                print(f"[RemovalJob] Failed to disable auth user {tuid}: {e}")
+
+            # Mark Firestore user as inactive
+            try:
+                db.collection("users").document(tuid).set(
+                    {
+                        "is_active": False,
+                        "disabled_at": now,
+                        "disabled_reason": d.get("reason"),
+                        "updated_at": now,
+                    },
+                    merge=True,
+                )
+            except Exception as e:
+                print(f"[RemovalJob] Failed to update users/{tuid}: {e}")
+
+            # Mark request executed
+            try:
+                db.collection("user_removal_requests").document(rid).set(
+                    {"status": "executed", "executed_at": now, "updated_at": now},
+                    merge=True,
+                )
+                db.collection("users").document(tuid).collection("removal_requests").document(rid).set(
+                    {"status": "executed", "executed_at": now, "updated_at": now},
+                    merge=True,
+                )
+            except Exception as e:
+                print(f"[RemovalJob] Failed to mark executed {rid}: {e}")
+
+            processed += 1
+            if processed >= 50:
+                break
+    except Exception as e:
+        print(f"[RemovalJob] Failed to process due removals: {e}")
 
 # --- List Documents Endpoint (for Dashboard) ---
 @app.get("/documents")
@@ -2271,11 +4024,12 @@ async def submit_support_request(
         support_ref.set(support_data)
         
         # Mock email notification (in production, integrate with email service)
-        print(f"📧 Support Request Received:")
+        # Note: avoid non-ASCII characters in logs to prevent Windows console encoding errors.
+        print("[Support] Request received")
         print(f"   From: {request.name} ({request.email})")
         print(f"   Subject: {request.subject}")
         print(f"   Message: {request.message}")
-        print(f"   Mock sent to: help@freightpower-ai.com")
+        print("   Mock sent to: help@freightpower-ai.com")
         
         # Log action
         log_action(user_id, "SUPPORT_REQUEST", 
@@ -5621,8 +7375,11 @@ def startup_events():
     scheduler.start()
     scheduler.add_interval_job(_refresh_fmcsa_all, minutes=60 * 24, id="fmcsa_refresh_daily")
     scheduler.add_interval_job(_digest_alerts_job, minutes=60, id="alert_digest_hourly")
+    scheduler.add_interval_job(_send_admin_email_digest_job, minutes=60 * 24, id="admin_email_digest_daily")
     # Delayed message email notifications (checks every minute).
     scheduler.add_interval_job(process_pending_message_email_notifications_job, minutes=1, id="message_email_notifications")
+    # Execute approved user removals whose grace period elapsed.
+    scheduler.add_interval_job(_process_due_user_removals, minutes=10, id="user_removal_processor")
     print(
         f"[Messaging] Delayed email notifications enabled={getattr(settings, 'ENABLE_MESSAGE_EMAIL_NOTIFICATIONS', False)} "
         f"delay_s={getattr(settings, 'MESSAGE_EMAIL_DELAY_SECONDS', 300)} smtp_configured={bool(getattr(settings, 'SMTP_USERNAME', ''))}"

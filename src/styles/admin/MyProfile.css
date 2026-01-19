@@ -5,7 +5,7 @@
 .card-header h3 { margin:0; font-size:15px; color:#0f172a; }
 .profile-card-body { display:flex; gap:18px; padding:18px; align-items:flex-start; }
 .profile-avatar-big { display:flex; flex-direction:column; align-items:center; gap:10px; padding-top:6px; }
-.avatar-frame { width:96px; height:96px; border-radius:50%; overflow:hidden; position:relative;display:flex; align-items:center; justify-content:center; }
+.avatar-frame { width:96px; height:96px; border-radius:50%; overflow:hidden; position:relative;display:flex; align-items:center; justify-content:center; cursor:pointer; }
 .avatar-frame img { width:88px; height:88px; border-radius:50%; object-fit:cover; }
 .upload-text { font-size:13px; color:#6b7280; text-align:center; }
 .dark-root .upload-text { color:#94a3b8; }

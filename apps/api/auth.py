@@ -23,9 +23,10 @@ from .fmcsa import FmcsaClient
 from .phone_utils import normalize_phone_e164
 from .models import (
     UserSignup, Role, SignupResponse, LoginRequest, 
-    TokenResponse, RefreshTokenRequest, UserProfile, ProfileUpdate
+    TokenResponse, RefreshTokenRequest, UserProfile, ProfileUpdate, UserSettings, UserSettingsUpdate
 )
 from .settings import settings
+from .banlist import assert_not_banned
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -688,6 +689,9 @@ async def admin_request_signup(payload: AdminRequestSignupRequest):
                 detail=str(e) or 'Invalid phone number. Use E.164 like "+14155552671".',
             )
     try:
+        # Block banned identities before touching Firebase Auth.
+        assert_not_banned(email=email, phone=phone_e164)
+
         user_record = firebase_auth.create_user(
             email=email,
             password=payload.password,
@@ -986,7 +990,8 @@ async def get_current_user(
             user_doc = await _to_thread(user_ref.get, timeout_s=10.0)
         
             if not user_doc.exists:
-                raise HTTPException(status_code=404, detail="User profile not found")
+                # Treat as unauthorized so clients can cleanly log out.
+                raise HTTPException(status_code=401, detail="Account deleted or profile missing")
 
             user_data = user_doc.to_dict()
             _cache_set(_USER_CACHE, uid, user_data, ttl_s=15.0)
@@ -1316,6 +1321,7 @@ async def update_super_admin_profile(
 
     if payload.photo_url is not None:
         updates_profile["photo_url"] = payload.photo_url
+        updates_user["profile_picture_url"] = payload.photo_url
 
     # Email/password live in Firebase Auth; update via Admin SDK
     if payload.email is not None:
@@ -1472,6 +1478,9 @@ async def signup(
     Stores role and all user information for RBAC.
     """
     try:
+        # Block banned identities before touching Firebase Auth.
+        assert_not_banned(email=user.email, phone=user.phone)
+
         # Prevent public creation of privileged roles.
         # Admin/SuperAdmin accounts must be provisioned out-of-band or via a controlled bootstrap token.
         if user.role in [Role.ADMIN, Role.SUPER_ADMIN]:
@@ -1764,6 +1773,68 @@ async def get_current_user_profile(user: Dict[str, Any] = Depends(get_current_us
     return UserProfile(**profile_data)
 
 
+@router.get("/settings", response_model=UserSettings)
+async def get_user_settings(user: Dict[str, Any] = Depends(get_current_user)):
+    """Return per-account UI settings used by Admin dashboards."""
+    payload = {
+        "language": user.get("language"),
+        "time_zone": user.get("time_zone"),
+        "date_format": user.get("date_format") or "mdy",
+        "start_dashboard_view": user.get("start_dashboard_view") or "dashboard",
+        "auto_save_edits": user.get("auto_save_edits", True) is not False,
+        "email_digest_enabled": user.get("email_digest_enabled", True) is not False,
+    }
+    return UserSettings(**payload)
+
+
+@router.patch("/settings", response_model=UserSettings)
+async def update_user_settings(
+    update: UserSettingsUpdate,
+    user: Dict[str, Any] = Depends(get_current_user),
+):
+    """Update per-account UI settings used by Admin dashboards."""
+    uid = user.get("uid")
+    if not uid:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+
+    update_data = update.dict(exclude_unset=True)
+
+    if "date_format" in update_data:
+        df = str(update_data.get("date_format") or "").strip().lower()
+        if df not in {"mdy", "dmy"}:
+            raise HTTPException(status_code=400, detail="Invalid date_format")
+        update_data["date_format"] = df
+
+    if "start_dashboard_view" in update_data:
+        update_data["start_dashboard_view"] = str(update_data.get("start_dashboard_view") or "dashboard").strip().lower() or "dashboard"
+
+    if update_data:
+        update_data["updated_at"] = time.time()
+        db.collection("users").document(uid).set(update_data, merge=True)
+
+        # Keep the short-lived in-process cache consistent so /auth/me reflects changes immediately.
+        try:
+            updated_user = dict(user)
+            updated_user.update(update_data)
+            _cache_set(_USER_CACHE, uid, updated_user, ttl_s=15.0)
+        except Exception:
+            _USER_CACHE.pop(uid, None)
+
+        log_action(uid, "SETTINGS_UPDATE", f"Updated settings: {list(update_data.keys())}")
+
+    merged = dict(user)
+    merged.update(update_data)
+    payload = {
+        "language": merged.get("language"),
+        "time_zone": merged.get("time_zone"),
+        "date_format": merged.get("date_format") or "mdy",
+        "start_dashboard_view": merged.get("start_dashboard_view") or "dashboard",
+        "auto_save_edits": merged.get("auto_save_edits", True) is not False,
+        "email_digest_enabled": merged.get("email_digest_enabled", True) is not False,
+    }
+    return UserSettings(**payload)
+
+
 @router.post("/profile/update")
 async def update_profile(
     update: ProfileUpdate,
@@ -1812,7 +1883,8 @@ async def update_profile(
                 update_data.setdefault("mc_number", _normalize_identifier(verification.get("mc_number")))
 
         update_data['updated_at'] = time.time()
-        user_ref.update(update_data)
+        # Use merge=True so newly-provisioned admin/super-admin profiles can be created/updated safely.
+        user_ref.set(update_data, merge=True)
 
         # Keep the short-lived in-process cache consistent so /auth/me reflects changes immediately.
         try:
@@ -1911,11 +1983,39 @@ async def upload_profile_picture(
         blob.make_public()
         download_url = blob.public_url
         
+        now = time.time()
+
         # Update user profile with picture URL
-        db.collection("users").document(uid).update({
-            "profile_picture_url": download_url,
-            "updated_at": time.time()
-        })
+        db.collection("users").document(uid).set(
+            {
+                "profile_picture_url": download_url,
+                "updated_at": now,
+            },
+            merge=True,
+        )
+
+        # Keep super-admin profile collection in sync (so /auth/super-admin/profile reflects avatar changes).
+        try:
+            role = str((user or {}).get("role") or "").lower()
+            if role == "super_admin":
+                db.collection("super_admins").document(uid).set(
+                    {
+                        "uid": uid,
+                        "photo_url": download_url,
+                        "updated_at": now,
+                    },
+                    merge=True,
+                )
+        except Exception:
+            pass
+
+        # Keep the short-lived in-process cache consistent so /auth/me reflects changes immediately.
+        try:
+            updated_user = dict(user)
+            updated_user.update({"profile_picture_url": download_url, "updated_at": now})
+            _cache_set(_USER_CACHE, uid, updated_user, ttl_s=15.0)
+        except Exception:
+            _USER_CACHE.pop(uid, None)
         
         log_action(uid, "PROFILE_PICTURE_UPLOAD", f"Profile picture uploaded: {storage_path}")
         

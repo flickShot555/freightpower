@@ -20,9 +20,9 @@ const AdminVerification = () => {
   const email = location?.state?.email;
   const from = location?.state?.from;
   const redirectTo = useMemo(() => {
-    if (getTrustedDeviceToken()) return '/admin/dashboard';
+    if (getTrustedDeviceToken()) return '/admin';
     const fromPath = from?.pathname ? `${from.pathname}${from.search || ''}` : '';
-    return fromPath || '/admin/dashboard';
+    return fromPath || '/admin';
   }, [from]);
 
   useEffect(() => {

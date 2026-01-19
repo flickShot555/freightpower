@@ -1,21 +1,36 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import '../../styles/admin/UsersRoles.css'
 import { PulsePanel } from '../admin/AdminShared'
+import useAdminManagementUsers from '../../hooks/useAdminManagementUsers'
 
 export default function Drivers(){
-      const cards = [
-    { variant:'green', label:'Verified / Hired Drivers', value:'84', actionLabel:'View List', iconClass:'fa-check' },
-    { variant:'yellow', label:'Pre-Hire / Pending Verification', value:'5', actionLabel:'Review', iconClass:'fa-clock' },
-    { variant:'red', label:'Compliance Issue / Expiring Docs', value:'2', actionLabel:'Return', iconClass:'fa-triangle-exclamation' },
-    { variant:'blue', label:'Marketplace', value:'7', actionLabel:'Open', iconClass:'fa-store' }
-  ];
+  const { items: drivers, metrics: apiMetrics, loading, error } = useAdminManagementUsers({ role: 'driver', limit: 300, refreshMs: 5000 });
 
-  const drivers = [
-    {name:'John Doe', type:'Hired', region:'MN', manager:'Ayaan', status:'Verified', Status: 'active'},
-    {name:'Ahmed K.', type:'Pre-Hire', region:'WI', manager:'Yusuf', status:'MVR Expiring', Status: 'warning'   },
-    {name:'Sara L.', type:'Hired', region:'MN', manager:'Sara', status:'Background Pending', Status: 'pending'},
-    {name:'Brian T.', type:'Pre-Hire', region:'IA', manager:'Ayaan', status:'Ready for Review', Status: 'active'}
-  ]
+  const cards = useMemo(() => {
+    const list = Array.isArray(drivers) ? drivers : [];
+    const verified = list.filter((u) => u?.is_verified === true && u?.is_active !== false && u?.is_locked !== true).length;
+    const pending = apiMetrics?.pending ?? list.filter((u) => u?.onboarding_completed === false || u?.is_verified === false).length;
+    const issues = apiMetrics?.flagged ?? list.filter((u) => u?.is_active === false || u?.is_locked === true).length;
+    return [
+      { variant:'green', label:'Verified Drivers', value: loading ? '…' : String(verified), actionLabel:'View', iconClass:'fa-check' },
+      { variant:'yellow', label:'Pending Verification', value: loading ? '…' : String(pending), actionLabel:'Review', iconClass:'fa-clock' },
+      { variant:'red', label:'Flagged / Locked', value: loading ? '…' : String(issues), actionLabel:'Review', iconClass:'fa-triangle-exclamation' },
+      { variant:'blue', label:'Total Drivers', value: loading ? '…' : String(list.length), actionLabel:'View', iconClass:'fa-users' }
+    ];
+  }, [drivers, loading, apiMetrics]);
+
+  const tableRows = useMemo(() => {
+    const list = Array.isArray(drivers) ? [...drivers] : [];
+    list.sort((a, b) => Number(b?.updated_at || b?.created_at || 0) - Number(a?.updated_at || a?.created_at || 0));
+    return list.slice(0, 75);
+  }, [drivers]);
+
+  const statusBadge = (u) => {
+    if (u?.is_locked) return { text: 'Locked', cls: 'revoked' };
+    if (u?.is_active === false) return { text: 'Suspended', cls: 'revoked' };
+    if (u?.onboarding_completed === false || u?.is_verified === false) return { text: 'Pending', cls: 'pending' };
+    return { text: 'Active', cls: 'active' };
+  };
 
   return (
     <div>
@@ -40,21 +55,36 @@ export default function Drivers(){
               </tr>
             </thead>
             <tbody>
-              {drivers.map((d, i) => (
-                <tr key={i}>
-                  <td className="user-cell"><img src={`https://randomuser.me/api/portraits/men/${30 + i}.jpg`} alt="avatar"/> {d.name}</td>
-                  <td>{d.type}</td>
-                  <td>{d.region}</td>
-                  <td>{d.manager}</td>
-                  <td><span className={`int-status-badge ${d.Status}`}>{d.status}</span></td>
-                  <td className="carrier-actions"><a className="card-action">View</a></td>
-                </tr>
-              ))}
+              {error ? (
+                <tr><td colSpan={6} style={{ padding: 16 }}>Failed to load drivers: {String(error?.message || error)}</td></tr>
+              ) : loading ? (
+                <tr><td colSpan={6} style={{ padding: 16 }}>Loading drivers…</td></tr>
+              ) : tableRows.length === 0 ? (
+                <tr><td colSpan={6} style={{ padding: 16 }}>No drivers found.</td></tr>
+              ) : (
+                tableRows.map((d) => {
+                  const name = d?.display_name || d?.name || d?.full_name || d?.email || d?.uid || d?.id;
+                  const region = d?.state || d?.region || d?.home_state || '—';
+                  const managedBy = d?.managed_by_name || d?.managed_by || d?.sub_admin_name || '—';
+                  const status = statusBadge(d);
+                  const type = d?.employment_type || (d?.is_verified ? 'Verified' : 'Pre-Hire');
+                  return (
+                    <tr key={d.id}>
+                      <td className="user-cell"><img src={d?.photo_url || 'https://www.gravatar.com/avatar/?d=mp'} alt="avatar"/> {name}</td>
+                      <td>{type}</td>
+                      <td>{region}</td>
+                      <td>{managedBy}</td>
+                      <td><span className={`int-status-badge ${status.cls}`}>{status.text}</span></td>
+                      <td className="carrier-actions"><a className="card-action">View</a></td>
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </table>
         </div>
 
-        <div className="uo-footer"><a className="card-action">Show More Drivers</a></div>
+        <div className="uo-footer"><a className="card-action">Showing latest {Math.min(75, drivers?.length || 0)} drivers</a></div>
       </section>
     </div>
     <div className="ai-summary">

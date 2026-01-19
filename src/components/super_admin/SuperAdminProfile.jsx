@@ -1,10 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getIdToken } from 'firebase/auth';
-import { auth, storage } from '../../firebase';
+import { auth } from '../../firebase';
 import { API_URL } from '../../config';
 import Toast from '../common/Toast';
-import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 
 export default function SuperAdminProfile() {
   const navigate = useNavigate();
@@ -118,35 +117,31 @@ export default function SuperAdminProfile() {
       const user = auth.currentUser;
       if (!user) throw new Error('Not signed in');
 
-      // Force-refresh ID token (ensures latest custom claims are present for Storage rules).
-      await getIdToken(user, true);
-
       // Basic client-side validation
       if (!String(selectedFile.type || '').startsWith('image/')) {
         throw new Error('Please select an image file.');
       }
 
-      const objectPath = `super_admins/${user.uid}/avatar`;
-      const storageRef = ref(storage, objectPath);
-      await uploadBytes(storageRef, selectedFile, {
-        contentType: selectedFile.type || 'image/jpeg',
-      });
-      const url = await getDownloadURL(storageRef);
-
       const idToken = await getIdToken(user);
-      const resp = await fetch(`${API_URL}/auth/super-admin/profile`, {
-        method: 'PATCH',
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+
+      const resp = await fetch(`${API_URL}/auth/profile/picture`, {
+        method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
           Authorization: `Bearer ${idToken}`,
         },
-        body: JSON.stringify({ photo_url: url }),
+        body: formData,
       });
       const data = await resp.json().catch(() => ({}));
-      if (!resp.ok) throw new Error(data?.detail || 'Failed to save profile picture');
+      if (!resp.ok) throw new Error(data?.detail || data?.message || 'Failed to upload profile picture');
 
-      setProfile((p) => ({ ...p, photo_url: url }));
-      setForm((s) => ({ ...s, photo_url: url }));
+      const url = data?.profile_picture_url;
+      if (url) {
+        // Backend also syncs super_admins.photo_url for super admins.
+        setProfile((p) => ({ ...p, photo_url: url }));
+        setForm((s) => ({ ...s, photo_url: url }));
+      }
       setSelectedFile(null);
       setToast({ type: 'success', message: 'Profile picture updated.' });
     } catch (e) {
