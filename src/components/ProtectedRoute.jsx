@@ -22,6 +22,9 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
   const [userData, setUserData] = useState(null);
   const location = useLocation();
 
+  const smsOtpDisabled = String(import.meta.env.VITE_DISABLE_SMS_OTP || '').toLowerCase() === '1'
+    || String(import.meta.env.VITE_DISABLE_SMS_OTP || '').toLowerCase() === 'true';
+
   const { isFreshLink, sanitizedLocation } = useMemo(() => {
     try {
       const qs = new URLSearchParams(location?.search || '');
@@ -139,7 +142,7 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
   // Email not verified - redirect to verification
   // Note: For Firebase phone auth, emailVerified might be false but phone is verified
   // We check both email verification and if user came through proper flow
-  if (!user.emailVerified && userData?.mfa_enabled) {
+  if (!smsOtpDisabled && !user.emailVerified && userData?.mfa_enabled) {
     return <Navigate to="/verify" state={{ 
       phone: userData?.phone,
       role: userData?.role,

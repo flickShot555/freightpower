@@ -10,6 +10,8 @@ import carrier_ob_1 from '../assets/carrier_ob_1.png'
 import carrier_ob_2 from '../assets/carrier_ob_2.jpg'
 import carrier_ob_3 from '../assets/carrier_ob_3.jpg'
 import pattern_bg_signup from '../assets/pattern_bg_signup.svg'
+import { getOrCreateTrustedDeviceId, getTrustedDeviceToken } from '../utils/trustedDevice'
+import { setSessionId } from '../utils/session'
 
 export default function AdminLogin(){
   const [email, setEmail] = useState('')
@@ -39,9 +41,18 @@ export default function AdminLogin(){
     setToast(null)
     setLoading(true)
     try {
+      const hasTrustedDeviceToken = !!getTrustedDeviceToken()
       const resp = await fetch(`${API_URL}/auth/admin/login`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(hasTrustedDeviceToken
+            ? {
+                'X-Trusted-Device-Id': getOrCreateTrustedDeviceId(),
+                'X-Trusted-Device-Token': getTrustedDeviceToken(),
+              }
+            : {}),
+        },
         body: JSON.stringify({ email: email.trim(), password }),
       })
 
@@ -55,7 +66,26 @@ export default function AdminLogin(){
         throw new Error(detail)
       }
 
+      if (data?.mfa_required && data?.mfa_session) {
+        const from = hasTrustedDeviceToken ? null : location?.state?.from
+        navigate('/admin/verify', {
+          replace: true,
+          state: {
+            mfaSession: data.mfa_session,
+            email: email.trim(),
+            from,
+          },
+        })
+        return
+      }
+
       await signInWithCustomToken(auth, data.custom_token)
+      if (data?.session_id) setSessionId(data.session_id)
+      if (hasTrustedDeviceToken) {
+        navigate('/admin/dashboard', { replace: true })
+        return
+      }
+
       const from = location?.state?.from
       const fromPath = from?.pathname ? `${from.pathname}${from.search || ''}` : ''
       navigate(fromPath || '/admin/dashboard', { replace: true })

@@ -7,14 +7,20 @@ import asyncio
 import time
 import json
 import uuid
+import hashlib
+import secrets
+import smtplib
 from typing import Optional, Dict, Any
 from functools import wraps
 import httpx
 from pydantic import BaseModel, EmailStr
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
 # Use relative imports
 from .database import db, log_action, record_profile_update
 from .fmcsa import FmcsaClient
+from .phone_utils import normalize_phone_e164
 from .models import (
     UserSignup, Role, SignupResponse, LoginRequest, 
     TokenResponse, RefreshTokenRequest, UserProfile, ProfileUpdate
@@ -70,11 +76,102 @@ def _summarize_fmcsa_verification(verification: Dict[str, Any]) -> Dict[str, Any
     }
 
 
+def _send_email(to_email: str, subject: str, body: str, is_html: bool = False) -> bool:
+    """Send an email using SMTP. If SMTP is not configured, logs the email."""
+    try:
+        if not settings.SMTP_USERNAME or not settings.SMTP_PASSWORD:
+            print(f"[DEV] Email would be sent to {to_email}")
+            print(f"[DEV] Subject: {subject}")
+            print(f"[DEV] Body: {body}")
+            return True
+
+        msg = MIMEMultipart()
+        msg["From"] = settings.EMAIL_FROM
+        msg["To"] = to_email
+        msg["Subject"] = subject
+        msg.attach(MIMEText(body, "html" if is_html else "plain"))
+
+        server = smtplib.SMTP(settings.SMTP_SERVER, settings.SMTP_PORT)
+        server.starttls()
+        server.login(settings.SMTP_USERNAME, settings.SMTP_PASSWORD)
+        server.sendmail(settings.EMAIL_FROM, to_email, msg.as_string())
+        server.quit()
+        return True
+    except Exception as e:
+        print(f"Error sending email: {e}")
+        return False
+
+
+def _hash_mfa_code(code: str, salt: str) -> str:
+    return hashlib.sha256(f"{salt}:{code}".encode("utf-8")).hexdigest()
+
+
+def _hash_trusted_device_token(token: str, salt: str) -> str:
+    return hashlib.sha256(f"{salt}:{token}".encode("utf-8")).hexdigest()
+
+
+def _trusted_device_valid(device_doc: Dict[str, Any]) -> bool:
+    if not device_doc:
+        return False
+    if device_doc.get("revoked_at"):
+        return False
+    if device_doc.get("expires_at") and float(device_doc.get("expires_at") or 0) < time.time():
+        return False
+    return True
+
+
+async def _try_admin_trusted_device_login(
+    *,
+    uid: str,
+    user_data: Dict[str, Any],
+    trusted_device_id: Optional[str],
+    trusted_device_token: Optional[str],
+    user_agent: Optional[str],
+) -> Optional[str]:
+    """Return custom token if device is trusted and allowed to bypass MFA."""
+    if not trusted_device_id or not trusted_device_token:
+        return None
+    if user_data.get("trusted_devices_enabled") is not True:
+        return None
+
+    doc_ref = db.collection("users").document(uid).collection("trusted_devices").document(trusted_device_id)
+    snap = doc_ref.get()
+    if not snap.exists:
+        return None
+    d = snap.to_dict() or {}
+    if not _trusted_device_valid(d):
+        return None
+
+    salt = d.get("token_salt") or ""
+    expected = d.get("token_hash") or ""
+    if not salt or not expected:
+        return None
+    if _hash_trusted_device_token(trusted_device_token, salt) != expected:
+        return None
+
+    now = time.time()
+    try:
+        doc_ref.update({"last_used_at": now, "last_user_agent": user_agent or None})
+    except Exception:
+        pass
+
+    token = firebase_auth.create_custom_token(uid)
+    token_str = token.decode("utf-8") if isinstance(token, (bytes, bytearray)) else str(token)
+    db.collection("users").document(uid).update({"last_login_at": now, "failed_login_attempts": 0})
+    log_action(uid, "ADMIN_LOGIN", "Admin logged in (trusted device)")
+    return token_str
+
+
 class AdminRequestSignupRequest(BaseModel):
     email: EmailStr
     password: str
     name: str
     phone: Optional[str] = None
+    # Optional admin profile metadata
+    department: Optional[str] = None
+    time_zone: Optional[str] = None
+    language: Optional[str] = None
+    location: Optional[str] = None
 
 
 class PasswordLoginRequest(BaseModel):
@@ -82,11 +179,113 @@ class PasswordLoginRequest(BaseModel):
     password: str
 
 
+class MFAToggleRequest(BaseModel):
+    enable: bool
+    method: Optional[str] = None  # "sms" | "email"
+
+
+class AdminMfaVerifyRequest(BaseModel):
+    mfa_session: str
+    code: str
+
+
+class AdminMfaResendRequest(BaseModel):
+    mfa_session: str
+
+
 class CustomTokenResponse(BaseModel):
     ok: bool = True
     custom_token: str
     uid: str
     role: str
+    session_id: Optional[str] = None
+
+
+class AdminSessionRevokeRequest(BaseModel):
+    session_id: str
+
+
+class AdminSessionsRevokeOthersRequest(BaseModel):
+    current_session_id: Optional[str] = None
+
+
+def _get_request_ip(request: Optional[Request]) -> Optional[str]:
+    if not request:
+        return None
+    try:
+        forwarded = request.headers.get("x-forwarded-for")
+        if forwarded:
+            # Take first value when multiple are present.
+            return forwarded.split(",")[0].strip() or None
+    except Exception:
+        pass
+    try:
+        return getattr(getattr(request, "client", None), "host", None)
+    except Exception:
+        return None
+
+
+async def _create_admin_session(*, uid: str, request: Optional[Request], trusted_device_id: Optional[str] = None) -> str:
+    session_id = str(uuid.uuid4())
+    now = time.time()
+    expires_at = now + 90 * 24 * 60 * 60
+    ip = _get_request_ip(request)
+    user_agent = None
+    try:
+        user_agent = request.headers.get("user-agent") if request else None
+    except Exception:
+        user_agent = None
+
+    ref = db.collection("users").document(uid).collection("sessions").document(session_id)
+    await _to_thread(
+        lambda: ref.set(
+            {
+                "session_id": session_id,
+                "uid": uid,
+                "kind": "admin",
+                "created_at": now,
+                "last_seen_at": now,
+                "ip": ip,
+                "user_agent": user_agent,
+                "trusted_device_id": trusted_device_id,
+                "expires_at": expires_at,
+                "revoked_at": None,
+            },
+            merge=True,
+        ),
+        timeout_s=10.0,
+    )
+    return session_id
+
+
+async def _touch_admin_session(*, uid: str, session_id: str, request: Optional[Request]) -> None:
+    if not session_id:
+        return
+    now = time.time()
+    ip = _get_request_ip(request)
+    user_agent = None
+    try:
+        user_agent = request.headers.get("user-agent") if request else None
+    except Exception:
+        user_agent = None
+
+    ref = db.collection("users").document(uid).collection("sessions").document(session_id)
+    try:
+        await _to_thread(
+            lambda: ref.set(
+                {
+                    "last_seen_at": now,
+                    "last_ip": ip,
+                    "last_user_agent": user_agent,
+                    "updated_at": now,
+                },
+                merge=True,
+            ),
+            timeout_s=5.0,
+        )
+    except Exception:
+        # Best-effort only; never block auth.
+        pass
 
 
 class SuperAdminProfile(BaseModel):
@@ -478,15 +677,31 @@ async def admin_request_signup(payload: AdminRequestSignupRequest):
     This bypasses client-side Firestore rules so the request is reliably created.
     """
     email = payload.email.strip().lower()
+
+    phone_e164: Optional[str] = None
+    if payload.phone:
+        try:
+            phone_e164 = normalize_phone_e164(payload.phone, default_region=settings.DEFAULT_PHONE_REGION)
+        except ValueError as e:
+            raise HTTPException(
+                status_code=400,
+                detail=str(e) or 'Invalid phone number. Use E.164 like "+14155552671".',
+            )
     try:
         user_record = firebase_auth.create_user(
             email=email,
             password=payload.password,
             display_name=payload.name.strip() if payload.name else None,
-            phone_number=payload.phone if payload.phone else None,
+            phone_number=phone_e164,
         )
     except firebase_auth.EmailAlreadyExistsError:
         raise HTTPException(status_code=400, detail="Email already registered")
+    except ValueError as e:
+        # Firebase raises ValueError for invalid E.164 phone formats.
+        raise HTTPException(
+            status_code=400,
+            detail=str(e) or 'Invalid phone number. Use E.164 like "+14155552671".',
+        )
 
     now = time.time()
     db.collection("users").document(user_record.uid).set(
@@ -494,8 +709,13 @@ async def admin_request_signup(payload: AdminRequestSignupRequest):
             "uid": user_record.uid,
             "email": email,
             "name": payload.name.strip(),
-            "phone": payload.phone or None,
+            "phone": phone_e164,
             "role": "admin",
+            "department": (payload.department.strip() if payload.department else None),
+            "time_zone": (payload.time_zone.strip() if payload.time_zone else None),
+            "language": (payload.language.strip() if payload.language else None),
+            "location": (payload.location.strip() if payload.location else None),
+            "show_email_internal_only": True,
             "admin_approved": False,
             "is_verified": True,
             "email_verified": False,
@@ -517,6 +737,7 @@ async def admin_request_signup(payload: AdminRequestSignupRequest):
             "email": email,
             "name": payload.name.strip(),
             "requested_role": "admin",
+            "department": (payload.department.strip() if payload.department else None),
             "status": "pending",
             "created_at": now,
             "updated_at": now,
@@ -528,8 +749,13 @@ async def admin_request_signup(payload: AdminRequestSignupRequest):
     return {"ok": True, "uid": user_record.uid}
 
 
-@router.post("/admin/login", response_model=CustomTokenResponse)
-async def admin_login(payload: PasswordLoginRequest):
+@router.post("/admin/login")
+async def admin_login(
+    payload: PasswordLoginRequest,
+    request: Request,
+    x_trusted_device_id: Optional[str] = Header(None, alias="X-Trusted-Device-Id"),
+    x_trusted_device_token: Optional[str] = Header(None, alias="X-Trusted-Device-Token"),
+):
     """Backend-driven admin login.
 
     Verifies email/password via Firebase Identity Toolkit, then checks admin_approved.
@@ -573,18 +799,161 @@ async def admin_login(payload: PasswordLoginRequest):
         )
         raise HTTPException(status_code=403, detail="Pending approval")
 
+    # Optional Email MFA for admins
+    mfa_enabled = user_data.get("mfa_enabled") is True
+    mfa_method = (str(user_data.get("mfa_method") or "").strip().lower() or "email")
+    if mfa_enabled and mfa_method == "email":
+        # If this device is trusted, skip MFA
+        trusted_token = await _try_admin_trusted_device_login(
+            uid=uid,
+            user_data=user_data,
+            trusted_device_id=x_trusted_device_id,
+            trusted_device_token=x_trusted_device_token,
+            user_agent=request.headers.get("user-agent"),
+        )
+        if trusted_token:
+            session_id = await _create_admin_session(uid=uid, request=request, trusted_device_id=x_trusted_device_id)
+            return CustomTokenResponse(custom_token=trusted_token, uid=uid, role="admin", session_id=session_id)
+
+        session_id = str(uuid.uuid4())
+        code = f"{secrets.randbelow(1_000_000):06d}"
+        salt = secrets.token_hex(8)
+        now = time.time()
+        expires_at = now + 10 * 60
+
+        to_email = (user_data.get("email") or payload.email).strip().lower()
+        db.collection("mfa_challenges").document(session_id).set(
+            {
+                "uid": uid,
+                "email": to_email,
+                "method": "email",
+                "code_hash": _hash_mfa_code(code, salt),
+                "salt": salt,
+                "attempts": 0,
+                "used": False,
+                "created_at": now,
+                "expires_at": expires_at,
+            },
+            merge=True,
+        )
+
+        subject = "Your FreightPower Admin Login Code"
+        body = (
+            "Your verification code is:\n\n"
+            f"{code}\n\n"
+            "This code expires in 10 minutes. If you did not request this, you can ignore this email."
+        )
+        _send_email(to_email, subject, body, is_html=False)
+        log_action(uid, "ADMIN_MFA_EMAIL_SENT", "Admin email MFA code sent")
+        return {"ok": True, "mfa_required": True, "mfa_session": session_id}
+
     token = firebase_auth.create_custom_token(uid)
     token_str = token.decode("utf-8") if isinstance(token, (bytes, bytearray)) else str(token)
     db.collection("users").document(uid).update({"last_login_at": time.time(), "failed_login_attempts": 0})
     log_action(uid, "ADMIN_LOGIN", "Admin logged in")
-    return CustomTokenResponse(custom_token=token_str, uid=uid, role="admin")
+    session_id = await _create_admin_session(uid=uid, request=request, trusted_device_id=None)
+    return CustomTokenResponse(custom_token=token_str, uid=uid, role="admin", session_id=session_id)
+
+
+@router.post("/admin/mfa/verify", response_model=CustomTokenResponse)
+async def admin_mfa_verify(payload: AdminMfaVerifyRequest, request: Request):
+    session_id = (payload.mfa_session or "").strip()
+    code = (payload.code or "").strip()
+    if not session_id or not code:
+        raise HTTPException(status_code=400, detail="Missing session or code")
+
+    doc_ref = db.collection("mfa_challenges").document(session_id)
+    snap = doc_ref.get()
+    if not snap.exists:
+        raise HTTPException(status_code=400, detail="Invalid or expired session")
+
+    data = snap.to_dict() or {}
+    if data.get("used") is True:
+        raise HTTPException(status_code=400, detail="Session already used")
+    if float(data.get("expires_at") or 0) < time.time():
+        raise HTTPException(status_code=400, detail="Session expired")
+
+    attempts = int(data.get("attempts") or 0)
+    if attempts >= 5:
+        raise HTTPException(status_code=429, detail="Too many attempts")
+
+    expected = data.get("code_hash")
+    salt = data.get("salt") or ""
+    if not expected or not salt:
+        raise HTTPException(status_code=400, detail="Invalid session")
+
+    if _hash_mfa_code(code, salt) != expected:
+        doc_ref.update({"attempts": attempts + 1})
+        raise HTTPException(status_code=401, detail="Invalid code")
+
+    uid = data.get("uid")
+    if not uid:
+        raise HTTPException(status_code=400, detail="Invalid session")
+
+    doc_ref.update({"used": True, "used_at": time.time()})
+
+    token = firebase_auth.create_custom_token(uid)
+    token_str = token.decode("utf-8") if isinstance(token, (bytes, bytearray)) else str(token)
+    db.collection("users").document(uid).update({"last_login_at": time.time(), "failed_login_attempts": 0})
+    log_action(uid, "ADMIN_LOGIN", "Admin logged in (email MFA)")
+    session_id = await _create_admin_session(uid=uid, request=request, trusted_device_id=None)
+    return CustomTokenResponse(custom_token=token_str, uid=uid, role="admin", session_id=session_id)
+
+
+@router.post("/admin/mfa/resend")
+async def admin_mfa_resend(payload: AdminMfaResendRequest):
+    session_id = (payload.mfa_session or "").strip()
+    if not session_id:
+        raise HTTPException(status_code=400, detail="Missing session")
+
+    doc_ref = db.collection("mfa_challenges").document(session_id)
+    snap = doc_ref.get()
+    if not snap.exists:
+        raise HTTPException(status_code=400, detail="Invalid or expired session")
+
+    data = snap.to_dict() or {}
+    if data.get("used") is True:
+        raise HTTPException(status_code=400, detail="Session already used")
+
+    uid = data.get("uid")
+    email = (data.get("email") or "").strip().lower()
+    if not uid or not email:
+        raise HTTPException(status_code=400, detail="Invalid session")
+
+    code = f"{secrets.randbelow(1_000_000):06d}"
+    salt = secrets.token_hex(8)
+    now = time.time()
+    expires_at = now + 10 * 60
+    doc_ref.update(
+        {
+            "code_hash": _hash_mfa_code(code, salt),
+            "salt": salt,
+            "attempts": 0,
+            "expires_at": expires_at,
+            "resent_at": now,
+        }
+    )
+
+    subject = "Your FreightPower Admin Login Code (Resent)"
+    body = (
+        "Your verification code is:\n\n"
+        f"{code}\n\n"
+        "This code expires in 10 minutes. If you did not request this, you can ignore this email."
+    )
+    _send_email(email, subject, body, is_html=False)
+    log_action(uid, "ADMIN_MFA_EMAIL_RESENT", "Admin email MFA code resent")
+    return {"ok": True}
 
 
 # ============================================================================
 # Current User Dependency (must be defined first)
 # ============================================================================
 
-async def get_current_user(authorization: str = Header(...)) -> Dict[str, Any]:
+async def get_current_user(
+    authorization: str = Header(...),
+    request: Request = None,
+    x_session_id: Optional[str] = Header(None, alias="X-Session-Id"),
+) -> Dict[str, Any]:
     """
     Verifies the token AND checks if the user is verified.
     Returns comprehensive user data with RBAC-ready information.
@@ -653,6 +1022,27 @@ async def get_current_user(authorization: str = Header(...)) -> Dict[str, Any]:
             await _to_thread(lambda: user_ref.update({"role": "carrier"}), timeout_s=10.0)
             _cache_set(_USER_CACHE, uid, user_data, ttl_s=15.0)
         
+        # Best-effort admin session enforcement + tracking.
+        # Only enforce if the client sent X-Session-Id (keeps older clients working).
+        try:
+            role = str(user_data.get("role", "")).lower()
+            if role == "admin" and x_session_id:
+                sess_ref = db.collection("users").document(uid).collection("sessions").document(x_session_id)
+                sess_snap = await _to_thread(sess_ref.get, timeout_s=5.0)
+                if not sess_snap.exists:
+                    raise HTTPException(status_code=401, detail="Session not found")
+                sess = sess_snap.to_dict() or {}
+                if sess.get("revoked_at"):
+                    raise HTTPException(status_code=401, detail="Session revoked")
+                if sess.get("expires_at") and float(sess.get("expires_at") or 0) < time.time():
+                    raise HTTPException(status_code=401, detail="Session expired")
+                await _touch_admin_session(uid=uid, session_id=x_session_id, request=request)
+        except HTTPException:
+            raise
+        except Exception:
+            # Never fail auth for session touch errors.
+            pass
+
         return user_data
         
     except asyncio.TimeoutError:
@@ -662,6 +1052,189 @@ async def get_current_user(authorization: str = Header(...)) -> Dict[str, Any]:
     except Exception as e:
         print(f"Auth Error: {e}")
         raise HTTPException(status_code=401, detail="Invalid or expired token")
+
+
+@router.post("/admin/trusted-devices/register")
+async def register_trusted_device(
+    request: Request,
+    user: Dict[str, Any] = Depends(get_current_user),
+    x_trusted_device_id: Optional[str] = Header(None, alias="X-Trusted-Device-Id"),
+):
+    """Register the current browser/device as trusted for MFA bypass (admin only)."""
+    uid = user.get("uid")
+    role = str(user.get("role", "")).lower()
+    if role != "admin":
+        raise HTTPException(status_code=403, detail="Admins only")
+    if not x_trusted_device_id:
+        raise HTTPException(status_code=400, detail="Missing X-Trusted-Device-Id")
+
+    now = time.time()
+    # 30 days validity; refresh by re-registering.
+    expires_at = now + 30 * 24 * 60 * 60
+    token_plain = secrets.token_urlsafe(32)
+    salt = secrets.token_hex(8)
+
+    dev_ref = db.collection("users").document(uid).collection("trusted_devices").document(x_trusted_device_id)
+    dev_ref.set(
+        {
+            "device_id": x_trusted_device_id,
+            "token_hash": _hash_trusted_device_token(token_plain, salt),
+            "token_salt": salt,
+            "created_at": now,
+            "last_used_at": now,
+            "expires_at": expires_at,
+            "revoked_at": None,
+            "user_agent": request.headers.get("user-agent"),
+        },
+        merge=True,
+    )
+
+    # Ensure user has enabled trusted devices.
+    db.collection("users").document(uid).set({"trusted_devices_enabled": True, "updated_at": now}, merge=True)
+    try:
+        updated_user = dict(user)
+        updated_user.update({"trusted_devices_enabled": True, "updated_at": now})
+        _cache_set(_USER_CACHE, uid, updated_user, ttl_s=15.0)
+    except Exception:
+        _USER_CACHE.pop(uid, None)
+    log_action(uid, "TRUSTED_DEVICE_REGISTER", f"Trusted device registered: {x_trusted_device_id}")
+    return {"ok": True, "trusted_device_token": token_plain, "expires_at": expires_at}
+
+
+@router.get("/admin/trusted-devices")
+async def list_trusted_devices(user: Dict[str, Any] = Depends(get_current_user)):
+    uid = user.get("uid")
+    role = str(user.get("role", "")).lower()
+    if role != "admin":
+        raise HTTPException(status_code=403, detail="Admins only")
+
+    items = []
+    try:
+        snaps = (
+            db.collection("users")
+            .document(uid)
+            .collection("trusted_devices")
+            .order_by("last_used_at", direction=firestore.Query.DESCENDING)
+            .limit(50)
+            .stream()
+        )
+        for s in snaps:
+            d = s.to_dict() or {}
+            # Never return token_hash/salt
+            d.pop("token_hash", None)
+            d.pop("token_salt", None)
+            d["id"] = s.id
+            items.append(d)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to list trusted devices: {str(e)}")
+    return {"items": items}
+
+
+@router.post("/admin/trusted-devices/revoke")
+async def revoke_trusted_device(
+    device_id: str = Body(..., embed=True),
+    user: Dict[str, Any] = Depends(get_current_user),
+):
+    uid = user.get("uid")
+    role = str(user.get("role", "")).lower()
+    if role != "admin":
+        raise HTTPException(status_code=403, detail="Admins only")
+    if not device_id:
+        raise HTTPException(status_code=400, detail="Missing device_id")
+    now = time.time()
+    ref = db.collection("users").document(uid).collection("trusted_devices").document(device_id)
+    ref.set({"revoked_at": now, "updated_at": now}, merge=True)
+    log_action(uid, "TRUSTED_DEVICE_REVOKE", f"Trusted device revoked: {device_id}")
+    return {"ok": True}
+
+
+@router.get("/admin/sessions")
+async def list_admin_sessions(
+    user: Dict[str, Any] = Depends(get_current_user),
+    x_session_id: Optional[str] = Header(None, alias="X-Session-Id"),
+):
+    uid = user.get("uid")
+    role = str(user.get("role", "")).lower()
+    if role != "admin":
+        raise HTTPException(status_code=403, detail="Admins only")
+
+    items: list[dict] = []
+    try:
+        snaps = (
+            db.collection("users")
+            .document(uid)
+            .collection("sessions")
+            .order_by("last_seen_at", direction=firestore.Query.DESCENDING)
+            .limit(50)
+            .stream()
+        )
+        for s in snaps:
+            d = s.to_dict() or {}
+            if str(d.get("kind") or "") != "admin":
+                continue
+            d["id"] = s.id
+            items.append(d)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to list sessions: {str(e)}")
+
+    return {"items": items, "current_session_id": x_session_id}
+
+
+@router.post("/admin/sessions/revoke")
+async def revoke_admin_session(
+    payload: AdminSessionRevokeRequest,
+    user: Dict[str, Any] = Depends(get_current_user),
+):
+    uid = user.get("uid")
+    role = str(user.get("role", "")).lower()
+    if role != "admin":
+        raise HTTPException(status_code=403, detail="Admins only")
+
+    session_id = (payload.session_id or "").strip()
+    if not session_id:
+        raise HTTPException(status_code=400, detail="Missing session_id")
+
+    now = time.time()
+    ref = db.collection("users").document(uid).collection("sessions").document(session_id)
+    ref.set({"revoked_at": now, "revoked_reason": "manual", "updated_at": now}, merge=True)
+    log_action(uid, "ADMIN_SESSION_REVOKE", f"Revoked session {session_id}")
+    return {"ok": True}
+
+
+@router.post("/admin/sessions/revoke-others")
+async def revoke_other_admin_sessions(
+    payload: AdminSessionsRevokeOthersRequest,
+    user: Dict[str, Any] = Depends(get_current_user),
+    x_session_id: Optional[str] = Header(None, alias="X-Session-Id"),
+):
+    uid = user.get("uid")
+    role = str(user.get("role", "")).lower()
+    if role != "admin":
+        raise HTTPException(status_code=403, detail="Admins only")
+
+    current = (payload.current_session_id or x_session_id or "").strip()
+    if not current:
+        raise HTTPException(status_code=400, detail="Missing current session id")
+
+    now = time.time()
+    revoked = 0
+    try:
+        snaps = db.collection("users").document(uid).collection("sessions").stream()
+        for s in snaps:
+            if s.id == current:
+                continue
+            d = s.to_dict() or {}
+            if str(d.get("kind") or "") != "admin":
+                continue
+            if d.get("revoked_at"):
+                continue
+            s.reference.set({"revoked_at": now, "revoked_reason": "revoke_others", "updated_at": now}, merge=True)
+            revoked += 1
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to revoke sessions: {str(e)}")
+
+    log_action(uid, "ADMIN_SESSIONS_REVOKE_OTHERS", f"Revoked {revoked} other sessions")
+    return {"ok": True, "revoked": revoked}
 
 
 # ============================================================================
@@ -768,21 +1341,42 @@ async def list_admin_requests(
     user: Dict[str, Any] = Depends(require_super_admin),
 ):
     """List admin requests (super admin only)."""
+    def _created_at_sort_value(value: Any) -> float:
+        if value is None:
+            return 0.0
+        if isinstance(value, (int, float)):
+            return float(value)
+        # Firestore timestamp types (e.g. DatetimeWithNanoseconds) implement .timestamp()
+        ts = getattr(value, "timestamp", None)
+        if callable(ts):
+            try:
+                return float(ts())
+            except Exception:
+                return 0.0
+        return 0.0
+
     q = db.collection("admin_requests")
     if status:
         q = q.where("status", "==", status)
-    # Sort newest first when the field exists
-    try:
-        q = q.order_by("created_at", direction=firestore.Query.DESCENDING)
-    except Exception:
-        pass
 
     rows: list[dict] = []
-    for doc_snap in q.stream():
+    try:
+        # This may require a composite index when combined with the status filter.
+        doc_snaps = list(q.order_by("created_at", direction=firestore.Query.DESCENDING).stream())
+    except Exception as e:
+        # Fall back to an unordered query (no composite index required) and sort in-memory.
+        msg = str(e).lower()
+        if "requires an index" in msg or "failedprecondition" in msg:
+            doc_snaps = list(q.stream())
+        else:
+            raise
+
+    for doc_snap in doc_snaps:
         d = doc_snap.to_dict() or {}
         d["id"] = doc_snap.id
         rows.append(d)
 
+    rows.sort(key=lambda r: _created_at_sort_value(r.get("created_at")), reverse=True)
     return {"ok": True, "requests": rows}
 
 
@@ -1097,17 +1691,39 @@ async def verify_otp(authorization: str = Header(...)):
 
 
 @router.post("/mfa-toggle")
-async def toggle_mfa(
-    enable: bool = Body(..., embed=True), 
-    user: Dict[str, Any] = Depends(get_current_user)
-):
-    """Toggle MFA for current user."""
-    uid = user['uid']
-    db.collection("users").document(uid).update({"mfa_enabled": enable})
-    
-    action = "ENABLED" if enable else "DISABLED"
-    log_action(uid, "MFA_CHANGE", f"MFA was {action}")
-    return {"mfa_enabled": enable}
+async def toggle_mfa(payload: MFAToggleRequest, user: Dict[str, Any] = Depends(get_current_user)):
+    """Toggle MFA for current user.
+
+    Backwards compatible: existing clients can send {"enable": true}.
+    Optionally set method {"method": "sms"|"email"}.
+    """
+    uid = user["uid"]
+    role = str(user.get("role", "")).lower()
+
+    method = (payload.method or "").strip().lower() or None
+    if method is not None and method not in {"sms", "email"}:
+        raise HTTPException(status_code=400, detail="Invalid MFA method")
+    if method == "email" and role not in {"admin", "super_admin"}:
+        raise HTTPException(status_code=403, detail="Email MFA is only available for admin accounts")
+
+    update_data: Dict[str, Any] = {"mfa_enabled": bool(payload.enable), "updated_at": time.time()}
+    if method is not None:
+        update_data["mfa_method"] = method
+
+    db.collection("users").document(uid).update(update_data)
+
+    # Keep the short-lived in-process cache consistent so /auth/me reflects changes immediately.
+    try:
+        updated_user = dict(user)
+        updated_user.update(update_data)
+        _cache_set(_USER_CACHE, uid, updated_user, ttl_s=15.0)
+    except Exception:
+        _USER_CACHE.pop(uid, None)
+
+    action = "ENABLED" if payload.enable else "DISABLED"
+    suffix = f" ({method})" if method else ""
+    log_action(uid, "MFA_CHANGE", f"MFA was {action}{suffix}")
+    return {"mfa_enabled": bool(payload.enable), "mfa_method": method}
 
 
 @router.get("/me", response_model=UserProfile)
@@ -1125,6 +1741,7 @@ async def get_current_user_profile(user: Dict[str, Any] = Depends(get_current_us
         "mc_number": user.get("mc_number"),
         "is_verified": user.get("is_verified", False),
         "mfa_enabled": user.get("mfa_enabled", False),
+        "trusted_devices_enabled": user.get("trusted_devices_enabled", False),
         "onboarding_completed": user.get("onboarding_completed", False),
         "onboarding_step": user.get("onboarding_step", "WELCOME"),
         "onboarding_score": user.get("onboarding_score", 0),
@@ -1134,6 +1751,15 @@ async def get_current_user_profile(user: Dict[str, Any] = Depends(get_current_us
         "emergency_contact_name": user.get("emergency_contact_name"),
         "emergency_contact_relationship": user.get("emergency_contact_relationship"),
         "emergency_contact_phone": user.get("emergency_contact_phone"),
+        "department": user.get("department"),
+        "time_zone": user.get("time_zone"),
+        "language": user.get("language"),
+        "location": user.get("location"),
+        "show_email_internal_only": user.get("show_email_internal_only", True),
+        "gps_lat": user.get("gps_lat"),
+        "gps_lng": user.get("gps_lng"),
+        "utc_offset_minutes": user.get("utc_offset_minutes"),
+        "trusted_devices_enabled": user.get("trusted_devices_enabled", False),
     }
     return UserProfile(**profile_data)
 
@@ -1188,6 +1814,14 @@ async def update_profile(
         update_data['updated_at'] = time.time()
         user_ref.update(update_data)
 
+        # Keep the short-lived in-process cache consistent so /auth/me reflects changes immediately.
+        try:
+            updated_user = dict(user)
+            updated_user.update(update_data)
+            _cache_set(_USER_CACHE, uid, updated_user, ttl_s=15.0)
+        except Exception:
+            _USER_CACHE.pop(uid, None)
+
         changed: Dict[str, Any] = {}
         for k, after_v in update_data.items():
             if k == "updated_at":
@@ -1210,30 +1844,30 @@ async def update_profile(
     return {"status": "success", "message": "Profile updated"}
 
 
-    @router.get("/profile/updates")
-    async def list_profile_updates(user: Dict[str, Any] = Depends(get_current_user)):
-        """Return recent profile update history for the current user."""
-        uid = user.get("uid")
-        if not uid:
-            raise HTTPException(status_code=401, detail="Unauthorized")
+@router.get("/profile/updates")
+async def list_profile_updates(user: Dict[str, Any] = Depends(get_current_user)):
+    """Return recent profile update history for the current user."""
+    uid = user.get("uid")
+    if not uid:
+        raise HTTPException(status_code=401, detail="Unauthorized")
 
-        try:
-            snaps = (
-                db.collection("users")
-                .document(uid)
-                .collection("profile_updates")
-                .order_by("timestamp", direction=firestore.Query.DESCENDING)
-                .limit(50)
-                .stream()
-            )
-            items = []
-            for s in snaps:
-                d = s.to_dict() or {}
-                d["id"] = s.id
-                items.append(d)
-            return {"items": items}
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Failed to load profile updates: {str(e)}")
+    try:
+        snaps = (
+            db.collection("users")
+            .document(uid)
+            .collection("profile_updates")
+            .order_by("timestamp", direction=firestore.Query.DESCENDING)
+            .limit(50)
+            .stream()
+        )
+        items = []
+        for s in snaps:
+            d = s.to_dict() or {}
+            d["id"] = s.id
+            items.append(d)
+        return {"items": items}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to load profile updates: {str(e)}")
 
 
 @router.post("/profile/picture")

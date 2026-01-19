@@ -56,6 +56,10 @@ class Settings(BaseSettings):
     # Firebase Identity Toolkit (email/password verification)
     # Public API key; required for backend-driven password login.
     FIREBASE_WEB_API_KEY: str = Field(default=os.getenv("FIREBASE_WEB_API_KEY", "AIzaSyClzYECMNer89EjBs_h12hb5tDIghUslMM"))
+
+    # Phone normalization
+    # Used when users enter national-format numbers (no leading +countrycode).
+    DEFAULT_PHONE_REGION: str = Field(default=os.getenv("DEFAULT_PHONE_REGION", "US"))
     
     # HERE Maps API settings
     HERE_API_KEY_BACKEND: str = Field(default=os.getenv("HERE_API_KEY_BACKEND", "FMFVzQgeOW8PvMnWkWHj"))

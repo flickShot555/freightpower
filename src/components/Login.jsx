@@ -42,6 +42,15 @@ const Login = () => {
       // 1. Authenticate & Check MFA Status
       // The updated login() function now returns { user, mfaRequired, phone }
       const res = await login(email, password);
+
+      // If an admin/super-admin attempts to use the public login page, send them to the correct login.
+      if (res?.redirectTo) {
+        navigate(res.redirectTo, {
+          replace: true,
+          state: { from: location?.state?.from || null, reason: res?.reason || null },
+        });
+        return;
+      }
       
       // 2. MFA Enforcement Logic
       if (res.mfaRequired) {

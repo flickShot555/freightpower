@@ -1,5 +1,6 @@
 import { API_URL } from '../config';
 import { auth } from '../firebase';
+import { forceLogoutToLogin, getSessionId, isSessionRevokedMessage } from '../utils/session';
 
 async function getAuthToken() {
   const user = auth.currentUser;
@@ -28,6 +29,11 @@ export async function apiFetch(path, options = {}) {
 
   if (token) {
     headers.Authorization = `Bearer ${token}`;
+  }
+
+  const sessionId = getSessionId();
+  if (sessionId && !headers['X-Session-Id']) {
+    headers['X-Session-Id'] = sessionId;
   }
 
   const url = path.startsWith('http') ? path : `${API_URL}${path}`;
@@ -68,6 +74,13 @@ export async function apiFetch(path, options = {}) {
 
   if (!res.ok) {
     const detail = body?.detail || body?.message || (typeof body === 'string' ? body : null) || res.statusText;
+
+    // If the backend says the admin session is revoked/expired, force a full client logout.
+    // This is required because Firebase ID tokens remain valid until they expire.
+    if ((res.status === 401 || res.status === 403) && isSessionRevokedMessage(detail)) {
+      forceLogoutToLogin('session_revoked');
+    }
+
     const err = new Error(detail);
     err.status = res.status;
     err.body = body;

@@ -12,6 +12,7 @@ import {
   sendPasswordResetEmail // NEW IMPORT
 } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
+import { clearSessionId } from "../utils/session";
 
 const AuthContext = React.createContext();
 
@@ -24,6 +25,11 @@ export function AuthProvider({ children }) {
   const [userRole, setUserRole] = useState(null);
   const [isVerified, setIsVerified] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  const smsOtpDisabled = String(import.meta.env.VITE_DISABLE_SMS_OTP || '').toLowerCase() === '1'
+    || String(import.meta.env.VITE_DISABLE_SMS_OTP || '').toLowerCase() === 'true';
+  const mockSmsCode = String(import.meta.env.VITE_MOCK_SMS_CODE || '123456');
+  const mockSmsDelayMs = Number(import.meta.env.VITE_MOCK_SMS_DELAY_MS || 700);
 
   // --- 1. SIGNUP ---
   async function signup(email, password, name, phone, role) {
@@ -50,16 +56,36 @@ export function AuthProvider({ children }) {
     
     let mfaRequired = false;
     let phone = "";
+    let role = "carrier";
 
     if (docSnap.exists()) {
       const data = docSnap.data();
       phone = data.phone; // Get phone from DB for SMS
+      role = data.role || role;
       if (data.mfa_enabled === true) {
         mfaRequired = true;
       }
     }
 
+    // Admins should not use the public /login + SMS OTP flow.
+    // Admins/super admins authenticate via /admin/login or /super-admin/login (email MFA + custom token).
+    if (role === 'admin' || role === 'super_admin') {
+      try { await signOut(auth); } catch (e) {}
+      return {
+        user: null,
+        mfaRequired: false,
+        redirectTo: role === 'super_admin' ? '/super-admin/login' : '/admin/login',
+        reason: 'Use the dedicated admin login',
+      };
+    }
+
     // C. Handle MFA or Log Success
+    // SMS OTP is disabled in dev (see .env.local). Ignore phone-based MFA.
+    if (smsOtpDisabled) {
+      await logLoginToBackend(result.user);
+      return { user: result.user, mfaRequired: false, smsOtpDisabled: true };
+    }
+
     if (mfaRequired && phone) {
       // Trigger SMS immediately
       // Note: We return specific status so Login.jsx knows to redirect to /verify
@@ -117,6 +143,20 @@ export function AuthProvider({ children }) {
   }
 
   async function sendOtp(phoneNumber) {
+    if (smsOtpDisabled) {
+      // Mock mode: do not call Firebase Phone Auth.
+      // Return an object compatible with ConfirmationResult.
+      await new Promise((r) => setTimeout(r, Number.isFinite(mockSmsDelayMs) ? mockSmsDelayMs : 700));
+      return {
+        confirm: async (code) => {
+          const trimmed = String(code || '').trim();
+          if (trimmed !== mockSmsCode) {
+            throw new Error('Invalid code');
+          }
+          return { user: auth.currentUser };
+        },
+      };
+    }
     setupRecaptcha("recaptcha-container");
     const appVerifier = window.recaptchaVerifier;
     return await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
@@ -142,6 +182,7 @@ export function AuthProvider({ children }) {
   }
 
   function logout() {
+    clearSessionId();
     return signOut(auth);
   }
 

@@ -71,6 +71,16 @@ class ProfileUpdate(BaseModel):
     emergency_contact_name: Optional[str] = None
     emergency_contact_relationship: Optional[str] = None
     emergency_contact_phone: Optional[str] = None
+    # Generic profile fields (used by admin profile + optional for others)
+    department: Optional[str] = None
+    time_zone: Optional[str] = None
+    language: Optional[str] = None
+    location: Optional[str] = None
+    show_email_internal_only: Optional[bool] = None
+    gps_lat: Optional[float] = None
+    gps_lng: Optional[float] = None
+    utc_offset_minutes: Optional[int] = None
+    trusted_devices_enabled: Optional[bool] = None
 
 class UserProfile(BaseModel):
     uid: str
@@ -92,11 +102,16 @@ class UserProfile(BaseModel):
     emergency_contact_name: Optional[str] = None
     emergency_contact_relationship: Optional[str] = None
     emergency_contact_phone: Optional[str] = None
-    profile_picture_url: Optional[str] = None
-    address: Optional[str] = None
-    emergency_contact_name: Optional[str] = None
-    emergency_contact_relationship: Optional[str] = None
-    emergency_contact_phone: Optional[str] = None
+    # Generic profile fields (used by admin profile + optional for others)
+    department: Optional[str] = None
+    time_zone: Optional[str] = None
+    language: Optional[str] = None
+    location: Optional[str] = None
+    show_email_internal_only: Optional[bool] = None
+    gps_lat: Optional[float] = None
+    gps_lng: Optional[float] = None
+    utc_offset_minutes: Optional[int] = None
+    trusted_devices_enabled: Optional[bool] = None
 
 # --- 3. Chat Models (Reference Enums above) ---
 

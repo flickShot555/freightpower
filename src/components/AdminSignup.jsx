@@ -15,6 +15,8 @@ export default function AdminSignup(){
   const [acceptedAdmin, setAcceptedAdmin] = useState(false)
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
+  const [phone, setPhone] = useState('')
+  const [department, setDepartment] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [loading, setLoading] = useState(false)
@@ -54,6 +56,8 @@ export default function AdminSignup(){
           email: email.trim(),
           password,
           name: fullName.trim(),
+          phone: phone.trim() || null,
+          department: department.trim() || null,
         }),
       })
 
@@ -100,13 +104,21 @@ export default function AdminSignup(){
               </div>
             </div>
 
+            <div className="carrier-signup-field input-with-icon">
+              <label>Phone Number (optional)</label>
+              <div className="input-icon-wrap">
+                <i className="fa-solid fa-phone" aria-hidden="true" />
+                <input type="tel" value={phone} onChange={(e)=>setPhone(e.target.value)} placeholder="+1 (555) 123-4567" />
+              </div>
+            </div>
+
             <div className="carrier-signup-field">
-              <label>Admin Role</label>
-              <select className="ss-select">
-                <option>Select admin role</option>
-                <option>Super Admin</option>
-                <option>Billing Admin</option>
-                <option>Support Admin</option>
+              <label>Department / Team</label>
+              <select className="ss-select" value={department} onChange={(e) => setDepartment(e.target.value)}>
+                <option value="">Select department</option>
+                <option value="Compliance & Operations">Compliance & Operations</option>
+                <option value="Billing">Billing</option>
+                <option value="Support">Support</option>
               </select>
             </div>
 
