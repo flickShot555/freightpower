@@ -14,3 +14,5 @@ python-dateutil
 httpx
 apscheduler
 phonenumbers>=8.13.0
+pytest
+pytest-asyncio

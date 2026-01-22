@@ -1,43 +1,61 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import '../../styles/carrier/FactoringInvoicing.css';
+import { getFinanceForecast, getFinanceSummary, listInvoices } from '../../api/finance';
 
 const FactoringInvoicing = () => {
   const [selectedStatus, setSelectedStatus] = useState('All Status');
   const [selectedFactoring, setSelectedFactoring] = useState('All Factoring');
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Mock invoice data based on the screenshot
-  const invoices = [
-    {
-      id: 'INV-2024-001',
-      loadId: 'LD-8947',
-      customer: 'Amazon Logistics',
-      amount: 2850.00,
-      dueDate: 'Jan 15, 2025',
-      status: 'paid',
-      factoring: 'yes'
-    },
-    {
-      id: 'INV-2024-002', 
-      loadId: 'LD-8948',
-      customer: 'FedEx Ground',
-      amount: 1950.00,
-      dueDate: 'Jan 18, 2025',
-      status: 'sent',
-      factoring: 'no'
-    },
-    {
-      id: 'INV-2024-003',
-      loadId: 'LD-8949', 
-      customer: 'UPS Supply Chain',
-      amount: 3200.00,
-      dueDate: 'Jan 10, 2025',
-      status: 'overdue',
-      factoring: 'yes'
-    }
-  ];
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [invoices, setInvoices] = useState([]);
+  const [summary, setSummary] = useState(null);
+  const [forecast, setForecast] = useState(null);
 
-  const filteredInvoices = invoices.filter(invoice => {
+  const refresh = useCallback(async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const [invRes, sumRes, fcRes] = await Promise.all([
+        listInvoices({ limit: 250 }),
+        getFinanceSummary(),
+        getFinanceForecast({ rangeDays: 30 }),
+      ]);
+      setInvoices(invRes?.invoices || []);
+      setSummary(sumRes || null);
+      setForecast(fcRes || null);
+    } catch (e) {
+      setError(e?.message || 'Failed to load invoices');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
+
+  const rows = useMemo(() => {
+    return (invoices || []).map((inv) => {
+      const invoiceNumber = inv.invoice_number || inv.invoice_id || '—';
+      const dueDate = inv.due_date ? new Date(inv.due_date * 1000).toLocaleDateString() : '—';
+      const payerShort = inv.payer_uid ? `${String(inv.payer_uid).slice(0, 8)}…` : '—';
+
+      return {
+        id: invoiceNumber,
+        invoiceId: inv.invoice_id,
+        loadId: inv.load_id || '—',
+        customer: inv.payer_role ? `${inv.payer_role} (${payerShort})` : payerShort,
+        amount: Number(inv.amount_total || 0),
+        dueDate,
+        status: String(inv.status || 'unknown').toLowerCase(),
+        factoring: inv.factoring_enabled ? 'yes' : 'no',
+      };
+    });
+  }, [invoices]);
+
+  const filteredInvoices = rows.filter(invoice => {
     const matchesSearch = invoice.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          invoice.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          invoice.loadId.toLowerCase().includes(searchTerm.toLowerCase());
@@ -89,6 +107,12 @@ const FactoringInvoicing = () => {
         </div>
       </div>
 
+      {error && (
+        <div style={{ background: '#fee2e2', color: '#991b1b', padding: '12px 16px', borderRadius: 10, marginBottom: 16 }}>
+          {error}
+        </div>
+      )}
+
       {/* Metrics Cards */}
       <div className="factoring-metrics">
         <div className="metric-card">
@@ -96,7 +120,7 @@ const FactoringInvoicing = () => {
             <i className="fas fa-file-invoice-dollar"></i>
           </div>
           <div className="metric-content">
-            <div className="metric-number">$47,250</div>
+            <div className="metric-number">{formatCurrency(summary?.outstanding_amount || 0)}</div>
             <div className="metric-label">Outstanding Invoices</div>
           </div>
         </div>
@@ -106,7 +130,7 @@ const FactoringInvoicing = () => {
             <i className="fas fa-bolt"></i>
           </div>
           <div className="metric-content">
-            <div className="metric-number">$32,100</div>
+            <div className="metric-number">{formatCurrency(summary?.factoring_outstanding_amount || 0)}</div>
             <div className="metric-label">Factoring Advances</div>
           </div>
         </div>
@@ -116,7 +140,7 @@ const FactoringInvoicing = () => {
             <i className="fas fa-check-circle"></i>
           </div>
           <div className="metric-content">
-            <div className="metric-number">$89,450</div>
+            <div className="metric-number">{formatCurrency(summary?.paid_amount_30d || 0)}</div>
             <div className="metric-label">This Month Paid</div>
           </div>
         </div>
@@ -126,8 +150,8 @@ const FactoringInvoicing = () => {
             <i className="fas fa-chart-line"></i>
           </div>
           <div className="metric-content">
-            <div className="metric-number">$8,750</div>
-            <div className="metric-label">Net Payment</div>
+            <div className="metric-number">{formatCurrency(getTotalAmount())}</div>
+            <div className="metric-label">Visible Total</div>
           </div>
         </div>
       </div>
@@ -167,11 +191,15 @@ const FactoringInvoicing = () => {
           <button className="btn-filter">
             <i className="fas fa-filter"></i>
           </button>
-          <button className="btn-refresh">
+          <button className="btn-refresh" onClick={refresh} disabled={loading}>
             <i className="fas fa-sync-alt"></i>
           </button>
         </div>
       </div>
+
+      {loading && (
+        <div style={{ padding: 12, color: '#64748b' }}>Loading invoices…</div>
+      )}
 
       {/* Invoices Table */}
       <div className="invoices-table-container">
@@ -248,15 +276,15 @@ const FactoringInvoicing = () => {
         <div className="forecast-metrics">
           <div className="forecast-item">
             <div className="forecast-label">Expected Direct Payments</div>
-            <div className="forecast-amount green">$24,500</div>
+            <div className="forecast-amount green">{formatCurrency(forecast?.expected_direct_payments || 0)}</div>
           </div>
           <div className="forecast-item">
             <div className="forecast-label">Factoring Advances</div>
-            <div className="forecast-amount blue">$18,750</div>
+            <div className="forecast-amount blue">{formatCurrency(forecast?.expected_factoring_advances || 0)}</div>
           </div>
           <div className="forecast-item">
             <div className="forecast-label">Overdue Collections</div>
-            <div className="forecast-amount red">$3,200</div>
+            <div className="forecast-amount red">{formatCurrency(forecast?.overdue_collections || 0)}</div>
           </div>
         </div>
       </div>

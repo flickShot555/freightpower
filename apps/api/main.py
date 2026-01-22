@@ -52,6 +52,7 @@ from .messaging import (
     process_pending_message_email_notifications_job,
 )
 from .scheduler import SchedulerWrapper
+from .finance import router as finance_router, init_finance_scheduler
 
 # Shared API models used by response_model=... and request bodies in this module.
 from .models import (
@@ -7369,10 +7370,12 @@ async def generate_snapshot(
 app.include_router(auth_router)
 app.include_router(onboarding_router) 
 app.include_router(messaging_router)
+app.include_router(finance_router)
 
 @app.on_event("startup")
 def startup_events():
     scheduler.start()
+    init_finance_scheduler(scheduler)
     scheduler.add_interval_job(_refresh_fmcsa_all, minutes=60 * 24, id="fmcsa_refresh_daily")
     scheduler.add_interval_job(_digest_alerts_job, minutes=60, id="alert_digest_hourly")
     scheduler.add_interval_job(_send_admin_email_digest_job, minutes=60 * 24, id="admin_email_digest_daily")

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import '../../styles/shipper/Finance.css';
 import CreateInvoice from './CreateInvoice';
 import RateConfirmationPanel from './RateConfirmationPanel';
+import { getFinanceSummary, listInvoices } from '../../api/finance';
 
 export default function Finance() {
   const [openDropdown, setOpenDropdown] = useState(null);
@@ -16,6 +17,46 @@ export default function Finance() {
   const tabs = ['Overview', 'Invoices', 'Payments', 'Factoring', 'Banking'];
   const [showCreateInvoicePage, setShowCreateInvoicePage] = useState(false);
   const [showRatePanel, setShowRatePanel] = useState(false);
+
+  const [financeLoading, setFinanceLoading] = useState(true);
+  const [financeError, setFinanceError] = useState('');
+  const [invoiceList, setInvoiceList] = useState([]);
+  const [summary, setSummary] = useState(null);
+
+  const formatCurrency = (amount) => new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+  }).format(Number(amount || 0));
+
+  const formatDate = (tsSeconds) => {
+    if (!tsSeconds) return '—';
+    try {
+      return new Date(Number(tsSeconds) * 1000).toLocaleDateString();
+    } catch {
+      return '—';
+    }
+  };
+
+  const refresh = async () => {
+    setFinanceLoading(true);
+    setFinanceError('');
+    try {
+      const [invRes, sumRes] = await Promise.all([
+        listInvoices({ limit: 250 }),
+        getFinanceSummary(),
+      ]);
+      setInvoiceList(invRes?.invoices || []);
+      setSummary(sumRes || null);
+    } catch (e) {
+      setFinanceError(e?.message || 'Failed to load finance data');
+    } finally {
+      setFinanceLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    refresh();
+  }, []);
 
   useEffect(() => {
     function onDocClick() { setOpenDropdown(null); }
@@ -87,21 +128,21 @@ export default function Finance() {
           <div className="card-icon"><i className="fa-solid fa-dollar-sign"></i></div>
           <div>
             <div className="muted">Total Invoiced</div>
-            <div className="finance-num">$1,208,440</div>
+            <div className="finance-num">{formatCurrency(invoiceList.reduce((s, it) => s + Number(it?.amount_total || 0), 0))}</div>
           </div>
         </div>
         <div className="card finance-card">
           <div className="card-icon"><i className="fa-solid fa-clock"></i></div>
           <div>
             <div className="muted">Pending Invoices</div>
-            <div className="finance-num">$142,890</div>
+            <div className="finance-num">{formatCurrency(summary?.outstanding_amount || 0)}</div>
           </div>
         </div>
         <div className="card finance-card">
           <div className="card-icon"><i className="fa-solid fa-coins"></i></div>
           <div>
             <div className="muted">Factored Funds</div>
-            <div className="finance-num">$84,300</div>
+            <div className="finance-num">{formatCurrency(summary?.factoring_outstanding_amount || 0)}</div>
           </div>
         </div>
         <div className="card finance-card">
@@ -119,6 +160,12 @@ export default function Finance() {
           </div>
         </div>
       </section>
+
+      {financeError && (
+        <div style={{ background: '#fee2e2', color: '#991b1b', padding: '12px 16px', borderRadius: 10, marginBottom: 16 }}>
+          {financeError}
+        </div>
+      )}
 
       <nav className="tabs" role="tablist" aria-label="Finance navigation" style={{marginBottom: '20px'}}>
         {tabs.map(t => (
@@ -245,13 +292,23 @@ export default function Finance() {
                     </tr>
                   </thead>
                   <tbody>
-                    {[
-                      {id:'INV-2091', load:8320, partner:'Atlas Freight', amount:'$1,240', status:'Paid', due:'Oct 7', payment:'ACH'},
-                      {id:'INV-2092', load:8321, partner:'FedEx Logistics', amount:'$3,980', status:'Pending', due:'Oct 10', payment:'Factoring'},
-                      {id:'INV-2093', load:8325, partner:'Prime Carrier', amount:'$2,350', status:'Overdue', due:'Oct 4', payment:'Manual'},
-                      {id:'INV-2094', load:8328, partner:'Swift Transport', amount:'$1,850', status:'Pending', due:'Oct 12', payment:'ACH'},
-                      {id:'INV-2095', load:8330, partner:'Schneider National', amount:'$4,200', status:'Paid', due:'Oct 5', payment:'Factoring'},
-                    ].map(row => (
+                    {(invoiceList || []).map(inv => {
+                      const partner = inv?.issuer_role
+                        ? `${inv.issuer_role} (${String(inv?.issuer_uid || '').slice(0, 8)}…)`
+                        : (String(inv?.issuer_uid || '').slice(0, 8) || '—');
+                      const statusLower = String(inv?.status || '').toLowerCase();
+                      const status = statusLower === 'paid' ? 'Paid' : statusLower === 'overdue' ? 'Overdue' : 'Pending';
+                      const payment = inv?.factoring_enabled ? 'Factoring' : 'Manual';
+                      const row = {
+                        id: inv?.invoice_number || inv?.invoice_id || '—',
+                        load: inv?.load_id || '—',
+                        partner,
+                        amount: formatCurrency(inv?.amount_total || 0),
+                        status,
+                        due: formatDate(inv?.due_date),
+                        payment,
+                      };
+                      return (
                       <tr key={row.id} className="invoices-row">
                         <td className="cell"><input type="checkbox"/></td>
                         <td className="cell strong">{row.id}</td>
@@ -267,7 +324,8 @@ export default function Finance() {
                         <td className="cell">{row.payment}</td>
                         <td className="cell"><i className='fa-solid fa-ellipsis-h'></i></td>
                       </tr>
-                    ))}
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
